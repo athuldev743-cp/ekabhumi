@@ -1,29 +1,37 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import About from "./About";
 import Blog from "./Blog";
-import Testimonial from "./Testimonial"; // Import Testimonial
+import Testimonial from "./Testimonial";
 import Footer from "./Footer";
+import { fetchProducts } from "../api/publicAPI";
 
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const trackRef = useRef(null);
   const containerRef = useRef(null);
-  
-  // Products data
-  const products = [
-    { id: 1, name: "Hair Growth Oil", price: "$24.99" },
-    { id: 2, name: "Anti-Dandruff Shampoo", price: "$19.99" },
-    { id: 3, name: "Scalp Serum", price: "$29.99" },
-    { id: 4, name: "Hair Conditioner", price: "$17.99" },
-    { id: 5, name: "Hair Mask", price: "$22.99" },
-    { id: 6, name: "Hair Tonic", price: "$26.99" },
-    { id: 7, name: "Scalp Scrub", price: "$18.99" },
-    { id: 8, name: "Hair Spray", price: "$15.99" },
-  ];
+  const navigate = useNavigate();
 
-  // Get number of visible cards based on screen width
+  // ---------------- FETCH PRODUCTS ----------------
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data || []);
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  // ---------------- CAROUSEL HELPERS ----------------
   const getVisibleCards = () => {
     if (window.innerWidth <= 480) return 1;
     if (window.innerWidth <= 768) return 2;
@@ -31,105 +39,55 @@ const Home = () => {
     return 4;
   };
 
-  // Get total slides
   const getTotalSlides = () => {
-    const visibleCards = getVisibleCards();
-    return Math.max(0, Math.ceil(products.length / visibleCards) - 1);
+    const visible = getVisibleCards();
+    return Math.max(0, Math.ceil(products.length / visible) - 1);
   };
 
-  // Next slide
-  const nextSlide = () => {
-    const totalSlides = getTotalSlides();
-    setCurrentSlide(prev => prev >= totalSlides ? totalSlides : prev + 1);
+  const nextSlide = () =>
+    setCurrentSlide((p) => Math.min(p + 1, getTotalSlides()));
+
+  const prevSlide = () =>
+    setCurrentSlide((p) => Math.max(p - 1, 0));
+
+  const goToSlide = (i) => {
+    if (i >= 0 && i <= getTotalSlides()) setCurrentSlide(i);
   };
 
-  // Previous slide
-  const prevSlide = () => {
-    setCurrentSlide(prev => prev <= 0 ? 0 : prev - 1);
-  };
-
-  // Go to specific slide
-  const goToSlide = (index) => {
-    const totalSlides = getTotalSlides();
-    if (index >= 0 && index <= totalSlides) {
-      setCurrentSlide(index);
-    }
-  };
-
-  // Update carousel position
+  // ---------------- APPLY TRANSFORM ----------------
   useEffect(() => {
-    if (trackRef.current && containerRef.current) {
-      const visibleCards = getVisibleCards();
-      const containerWidth = containerRef.current.offsetWidth;
-      const cardWidth = containerWidth / visibleCards;
-      const gap = 30; // From CSS gap: 30px
-      const totalWidth = cardWidth + gap;
-      const translateX = -(currentSlide * totalWidth * visibleCards);
-      
-      trackRef.current.style.transform = `translateX(${translateX}px)`;
-    }
-  }, [currentSlide]);
+    if (!trackRef.current || !containerRef.current) return;
 
-  // Scroll effect
+    const visible = getVisibleCards();
+    const width = containerRef.current.offsetWidth / visible;
+    const gap = 30;
+
+    trackRef.current.style.transform = `translateX(-${
+      currentSlide * (width + gap) * visible
+    }px)`;
+  }, [currentSlide, products]);
+
+  // ---------------- SCROLL EFFECT ----------------
   useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 50;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
-    };
-
-    const handleClick = (e) => {
-      e.preventDefault();
-      const targetId = e.currentTarget.getAttribute("href");
-      const target = document.querySelector(targetId);
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    const links = document.querySelectorAll(".navbar a[href^='#']");
-    links.forEach(link => link.addEventListener("click", handleClick));
-
-    // Handle window resize
-    const handleResize = () => {
-      setCurrentSlide(0); // Reset to first slide on resize
-    };
-    
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener('resize', handleResize);
-      links.forEach(link => link.removeEventListener("click", handleClick));
-    };
-  }, [scrolled]);
-
-  // Calculate indicators
-  const totalSlides = getTotalSlides();
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <>
       {/* NAVBAR */}
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+      <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="logo">
-          <img 
-            src="/images/logo.png"
-
-            alt="Eka Bhumih Logo" 
-            className="logo-img" 
-          />
+          <img src="/images/logo.png" alt="Eka Bhumi" className="logo-img" />
           <span className="text-logo">EKA BHUMI</span>
         </div>
-
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#products">Products</a>
           <a href="#about">About</a>
           <a href="#blog">Blog</a>
-          <a href="#testimonials">Testimonials</a> {/* Fixed href to match section ID */}
-          
+          <a href="#testimonials">Testimonials</a>
         </div>
       </nav>
 
@@ -137,72 +95,74 @@ const Home = () => {
       <section
         id="home"
         className="hero"
-        style={{
-          backgroundImage: `url(${process.env.PUBLIC_URL}/images/redensyl-hero.jpg)`
-        }}
+        style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}
       >
         <div className="hero-content">
-          <button className="primary-btn">Shop Now</button>
+          <button
+  className="primary-btn"
+  onClick={() => {
+    if (products.length > 0) {
+      navigate(`/product/${products[0].id}`);
+    }
+  }}
+>
+  Shop Now
+</button>
         </div>
       </section>
 
-      {/* PRODUCT CAROUSEL */}
+      {/* PRODUCTS */}
       <section id="products" className="product-preview">
         <h2>Our Products</h2>
-        
+
+        {loading && <p>Loading products...</p>}
+        {!loading && products.length === 0 && <p>No products available</p>}
+
         <div className="carousel-container" ref={containerRef}>
           <button className="carousel-arrow prev" onClick={prevSlide}>
-            &#10094; {/* Left arrow */}
+            &#10094;
           </button>
-          
+
           <div className="carousel-track" ref={trackRef}>
-            {products.map((product) => (
-              <div className="product-card" key={product.id}>
-                <img
-                  src={`${process.env.PUBLIC_URL}/images/p${product.id}.jpg`}
-                  alt={product.name}
-                  className="product-image"
-                />
+            {products.map((p) => (
+              <div className="product-card" key={p.id}>
+                <img src={p.image_url} alt={p.name} className="product-image" />
                 <div className="product-info">
-                  <span className="product-name">{product.name}</span>
-                  <span className="product-price">{product.price}</span>
-                  <button className="product-btn">View Details</button>
+                  <span className="product-name">{p.name}</span>
+                  <span className="product-price">₹{p.price}</span>
+                  <button
+                    className="product-btn"
+                    onClick={() => navigate(`/product/${p.id}`)}
+                  >
+                    View Details
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-          
+
           <button className="carousel-arrow next" onClick={nextSlide}>
-            &#10095; {/* Right arrow */}
+            &#10095;
           </button>
         </div>
 
-        {/* Indicators - Only show if we have multiple slides */}
-        {totalSlides > 0 && (
+        {getTotalSlides() > 0 && (
           <div className="carousel-indicators">
-            {Array.from({ length: totalSlides + 1 }).map((_, index) => (
+            {Array.from({ length: getTotalSlides() + 1 }).map((_, i) => (
               <button
-                key={index}
-                className={`indicator ${currentSlide === index ? 'active' : ''}`}
-                onClick={() => goToSlide(index)}
-                aria-label={`Go to slide ${index + 1}`}
+                key={i}
+                className={`indicator ${i === currentSlide ? "active" : ""}`}
+                onClick={() => goToSlide(i)}
               />
             ))}
           </div>
         )}
       </section>
 
-      {/* SECTIONS */}
       <section id="about"><About /></section>
-      
-      {/* BLOG SECTION */}
       <Blog />
-      
-      {/* TESTIMONIAL SECTION - ADD THIS */}
       <Testimonial />
-
       <Footer />
-      
     </>
   );
 };
