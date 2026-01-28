@@ -7,28 +7,21 @@ import Testimonial from "./Testimonial";
 import Footer from "./Footer";
 import { fetchProducts } from "../api/publicAPI";
 
-// Google OAuth configuration
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id";
-
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const trackRef = useRef(null);
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  // ---------- CHECK USER LOGIN STATUS ----------
+  // Check if user is logged in
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("userToken");
     const userData = localStorage.getItem("userData");
-    
-    if (token && userData) {
+    if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
@@ -43,39 +36,7 @@ const Home = () => {
         localStorage.removeItem("userData");
       }
     }
-    
-    setIsLoadingUser(false);
   }, [navigate]);
-
-  // ---------- GOOGLE LOGIN HANDLERS ----------
-  const handleGoogleLogin = () => {
-    // For development/testing, use a mock login
-    // In production, implement actual Google OAuth
-    
-    // Mock login - remove this in production
-    const mockUser = {
-      id: 1,
-      name: "Demo User",
-      email: "user@example.com",
-      role: "user", // Change to "admin" for admin access
-      profile_pic: "/images/user-avatar.png"
-    };
-    
-    localStorage.setItem("userToken", "mock-jwt-token");
-    localStorage.setItem("userData", JSON.stringify(mockUser));
-    setUser(mockUser);
-    
-    // If admin, redirect to dashboard
-    if (mockUser.role === "admin") {
-      navigate("/admin/dashboard");
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userData");
-    setUser(null);
-  };
 
   // ---------- FETCH PRODUCTS ----------
   useEffect(() => {
@@ -91,6 +52,41 @@ const Home = () => {
     }
     loadProducts();
   }, []);
+
+  // ---------- IMAGE ERROR HANDLER ----------
+  const handleImageError = (e) => {
+    e.target.src = "/images/product-placeholder.jpg";
+  };
+
+  // ---------- GOOGLE LOGIN HANDLER ----------
+  const handleGoogleLogin = () => {
+    // Mock login - replace with actual Google OAuth
+    const mockUser = {
+      id: 1,
+      name: "Demo User",
+      email: "user@example.com",
+      role: "user", // Change to "admin" for admin access
+      profile_pic: "/images/user-avatar.png"
+    };
+    
+    localStorage.setItem("userToken", "mock-jwt-token");
+    localStorage.setItem("userData", JSON.stringify(mockUser));
+    setUser(mockUser);
+    
+    // If admin, redirect to dashboard
+    if (mockUser.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      alert(`Logged in as ${mockUser.name}! You can now place orders.`);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userData");
+    setUser(null);
+    alert("Logged out successfully!");
+  };
 
   // ---------- CAROUSEL HELPERS ----------
   const getVisibleCards = () => {
@@ -129,10 +125,6 @@ const Home = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (isLoadingUser) {
-    return <div className="loading-screen">Loading...</div>;
-  }
-
   return (
     <>
       {/* NAVBAR */}
@@ -156,37 +148,31 @@ const Home = () => {
           <a href="#blog">Blog</a>
           <a href="#testimonials">Testimonials</a>
           
-          {/* USER/AUTH SECTION */}
-          <div className="auth-section">
-            {user ? (
-              <div className="user-menu">
-                <div className="user-info">
-                  <img 
-                    src={user.profile_pic || "/images/user-avatar.png"} 
-                    alt={user.name}
-                    className="user-avatar"
-                  />
-                  <span className="user-name">{user.name}</span>
-                </div>
-                <button className="logout-btn" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button className="google-login-btn" onClick={handleGoogleLogin}>
-                <img 
-                  src="/images/google-logo.png" 
-                  alt="Google" 
-                  className="google-icon"
-                />
-                Login 
+          {/* LOGIN/LOGOUT BUTTON */}
+          {user ? (
+            <div className="user-nav">
+              <span className="user-greeting">Hi, {user.name}</span>
+              <button className="logout-nav-btn" onClick={handleLogout}>
+                Logout
               </button>
-            )}
-          </div>
+              {user.role === "admin" && (
+                <button 
+                  className="admin-nav-btn"
+                  onClick={() => navigate("/admin/dashboard")}
+                >
+                  Admin
+                </button>
+              )}
+            </div>
+          ) : (
+            <button className="login-nav-btn" onClick={handleGoogleLogin}>
+              Login
+            </button>
+          )}
         </div>
       </nav>
 
-      {/* HERO SECTION */}
+      {/* HERO */}
       <section
         id="home"
         className="hero"
@@ -204,19 +190,30 @@ const Home = () => {
               Shop Now
             </button>
             
-            
+            {!user && (
+              <button className="secondary-btn" onClick={handleGoogleLogin}>
+                Login to Order
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* PRODUCTS SECTION */}
+      {/* PRODUCTS */}
       <section id="products" className="product-preview">
         <h2>Our Products</h2>
         
-        
+        {!user && (
+          <div className="login-prompt">
+            <p>Please login to view product details and place orders</p>
+            <button className="login-prompt-btn" onClick={handleGoogleLogin}>
+              Login Now
+            </button>
+          </div>
+        )}
 
-        {loading && <p>Loading products...</p>}
-        {!loading && products.length === 0 && <p>No products available</p>}
+        {loading && <p className="loading-text">Loading products...</p>}
+        {!loading && products.length === 0 && <p className="no-products">No products available</p>}
 
         <div className="carousel-container" ref={containerRef}>
           <button className="carousel-arrow prev" onClick={prevSlide}>
@@ -226,7 +223,12 @@ const Home = () => {
           <div className="carousel-track" ref={trackRef}>
             {products.map((p) => (
               <div className="product-card" key={p.id}>
-                <img src={p.image_url} alt={p.name} className="product-image" />
+                <img 
+                  src={p.image_url || "/images/product-placeholder.jpg"} 
+                  alt={p.name} 
+                  className="product-image"
+                  onError={handleImageError}
+                />
                 <div className="product-info">
                   <span className="product-name">{p.name}</span>
                   <span className="product-price">₹{p.price}</span>

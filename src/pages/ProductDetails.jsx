@@ -12,7 +12,6 @@ function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [user, setUser] = useState(null);
   const [ordering, setOrdering] = useState(false);
-  const [relatedProducts, setRelatedProducts] = useState([]);
 
   // Helper function to format price safely
   const formatPrice = (price) => {
@@ -59,27 +58,12 @@ function ProductDetails() {
     loadProduct();
   }, [id]);
 
-  // Handle image error - safe version
+  // Handle image error
   const handleImageError = (e) => {
     const target = e.target;
     if (target && target.tagName === 'IMG') {
       target.src = "/images/product-placeholder.jpg";
-      target.onerror = null; // Prevent infinite loop
-    }
-  };
-
-  // Handle Google icon error - safe version
-  const handleGoogleIconError = (e) => {
-    const target = e.target;
-    if (target && target.style) {
-      try {
-        target.style.display = 'none';
-      } catch (err) {
-        // If style property doesn't exist, just remove the element
-        if (target.parentNode) {
-          target.parentNode.removeChild(target);
-        }
-      }
+      target.onerror = null;
     }
   };
 
@@ -121,7 +105,6 @@ function ProductDetails() {
 
       const order = await createOrder(orderData);
       
-      // Show success message with order details
       const successMessage = `
 ✅ Order placed successfully!
 
@@ -136,8 +119,6 @@ Thank you for your purchase!
       `;
       
       alert(successMessage);
-      
-      // Or just go back home
       navigate("/");
     } catch (err) {
       console.error("Order error:", err);
@@ -148,7 +129,6 @@ Thank you for your purchase!
   };
 
   const handleAdminLogin = () => {
-    // For admin access - redirect to admin login
     navigate("/admin/login");
   };
 
@@ -375,16 +355,12 @@ Thank you for your purchase!
                   🔐 Please login to place an order
                 </p>
                 <button className="login-btn" onClick={handleLogin}>
-                  <img 
-                    src="/images/google-logo.png" 
-                    alt="Google" 
-                    className="google-icon"
-                    onError={handleGoogleIconError}
-                  />
-                  Login with Google
+                  Login Now
                 </button>
                 <p className="login-note">
-                  Or <a href="/admin/login">login as admin</a> to manage products
+                  Or <button className="admin-link-btn" onClick={handleAdminLogin}>
+                    login as admin
+                  </button> to manage products
                 </p>
               </div>
             )}
@@ -421,7 +397,6 @@ Thank you for your purchase!
                   className="delete-btn"
                   onClick={() => {
                     if (window.confirm(`Delete "${product.name}"?`)) {
-                      // Implement delete functionality
                       alert("Delete functionality to be implemented");
                     }
                   }}
@@ -433,17 +408,6 @@ Thank you for your purchase!
           )}
         </section>
       </main>
-
-      {/* Related Products (Optional Future Feature) */}
-      {relatedProducts.length > 0 && (
-        <section className="related-products">
-          <h3>You might also like</h3>
-          <div className="related-products-grid">
-            {/* This would be populated with fetchProductsByCategory or similar */}
-            <p className="coming-soon">Related products coming soon...</p>
-          </div>
-        </section>
-      )}
     </div>
   );
 }
