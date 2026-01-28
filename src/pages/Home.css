@@ -155,6 +155,76 @@ body {
 .nav-links a:hover::after {
   width: 100%;
 }
+/* ===================== LOGIN HIGHLIGHT (TESTIMONIAL EFFECT) ===================== */
+
+.login-highlight {
+  position: relative;
+  padding: 8px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  color: var(--dark-orange);
+  transition: all 0.35s ease;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Gradient glow background */
+.login-highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--dark-orange),
+    var(--light-orange)
+  );
+  opacity: 0.12;
+  z-index: -1;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* Shine sweep (testimonial-style polish) */
+.login-highlight::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.5),
+    transparent
+  );
+  transform: skewX(-20deg);
+}
+
+/* Hover animation */
+.login-highlight:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.login-highlight:hover::before {
+  opacity: 1;
+}
+
+.login-highlight:hover::after {
+  left: 120%;
+  transition: left 0.7s ease;
+}
+
+/* Scroll state tuning */
+.navbar.scrolled .login-highlight {
+  color: #000;
+  font-weight: 700;
+}
+
+.navbar.scrolled .login-highlight:hover {
+  color: #fff;
+}
+
 /* ===================== HERO SECTION ===================== */
 /* Hero section - Button only */
 .hero {
