@@ -1,5 +1,5 @@
 // src/api/adminAPI.js
-const API_URL = "http://127.0.0.1:8000/admin";
+const API_URL = "https://ekb-backend.onrender.com";
 
 export const adminLogin = async (email, password) => {
   const form = new FormData();
