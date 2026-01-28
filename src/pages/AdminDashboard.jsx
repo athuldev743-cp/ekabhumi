@@ -75,29 +75,37 @@ function AdminDashboard() {
     }
   };
 
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    try {
-      const formData = new FormData();
-      Object.keys(newProduct).forEach(key => {
-        if (newProduct[key]) formData.append(key, newProduct[key]);
-      });
-      
-      await createProduct(formData, token);
-      setShowAddForm(false);
-      setNewProduct({
-        name: "",
-        price: "",
-        description: "",
-        priority: "1",
-        email: "",
-        image: null
-      });
-      fetchProducts();
-    } catch (err) {
-      setError("Failed to add product: " + (err.detail || err.message));
+  // In your AdminDashboard.jsx, update the handleAddProduct function:
+const handleAddProduct = async (e) => {
+  e.preventDefault();
+  try {
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("name", newProduct.name);
+    formData.append("price", newProduct.price);
+    formData.append("description", newProduct.description);
+    formData.append("priority", newProduct.priority);
+    formData.append("email", newProduct.email);
+    if (newProduct.image) {
+      formData.append("image", newProduct.image);
     }
-  };
+    
+    await createProduct(formData, token); // Pass FormData directly
+    
+    setShowAddForm(false);
+    setNewProduct({
+      name: "",
+      price: "",
+      description: "",
+      priority: "1",
+      email: "",
+      image: null
+    });
+    fetchProducts();
+  } catch (err) {
+    setError("Failed to add product: " + (err.detail || err.message));
+  }
+};
 
   const handleFileChange = (e) => {
     setNewProduct({...newProduct, image: e.target.files[0]});

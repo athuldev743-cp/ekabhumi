@@ -1,29 +1,38 @@
-// src/api/product.js
+// src/api/product.js - REMOVE or UPDATE to match adminAPI.js
+// This file seems redundant since adminAPI.js already has createProduct
+// Either remove it or update it to use the same API_URL
 
-const API_URL = "http://127.0.0.1:8000"; // your FastAPI backend
+const API_URL = process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
 
-export async function createProduct({ name, price, description, priority, email, image }) {
-  try {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("description", description);
-    formData.append("priority", priority);
-    formData.append("email", email);
-    formData.append("image", image);
+export async function createProduct(productData, token) {
+  const formData = new FormData();
+  Object.keys(productData).forEach(key => {
+    formData.append(key, productData[key]);
+  });
 
-    const response = await fetch(`${API_URL}/admin/products`, {
-      method: "POST",
-      body: formData
-    });
+  const response = await fetch(`${API_URL}/admin/products`, {
+    method: "POST",
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData
+  });
 
-    if (!response.ok) {
-      throw new Error(`Server error: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.error(err);
-    throw err;
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Server error' }));
+    throw new Error(error.detail || `Server error: ${response.status}`);
   }
+
+  return await response.json();
+}
+
+// If you need public product functions
+export async function getPublicProducts() {
+  const response = await fetch(`${API_URL}/products`);
+  
+  if (!response.ok) {
+    throw new Error(`Server error: ${response.status}`);
+  }
+  
+  return await response.json();
 }
