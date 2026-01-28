@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminLogin } from "../api/adminAPI";  // FIXED PATH
-import styles from "./Login.module.css";
+import { adminLogin } from "../api/adminAPI";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -16,30 +15,31 @@ function AdminLogin() {
       localStorage.setItem("adminToken", data.access_token);
       navigate("/admin/dashboard");
     } catch (err) {
-      setError(err.detail || "Login failed");
+      setError("Invalid credentials");
     }
   };
 
   return (
-    <div className={styles.container}>
-      <form className={styles.form} onSubmit={handleLogin}>
-        <h2>Admin Login</h2>
+    <div style={{ maxWidth: 400, margin: "100px auto" }}>
+      <h2>Admin Login</h2>
+
+      <form onSubmit={handleLogin}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={styles.input}
           required
-        />
+        /><br /><br />
+
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={styles.input}
           required
-        />
+        /><br /><br />
+
         <button type="submit">Login</button>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
