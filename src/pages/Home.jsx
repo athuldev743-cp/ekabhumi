@@ -41,31 +41,44 @@ const Home = () => {
   }, []);
 
   // Fetch products - UPDATED with better error handling
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        console.log("Fetching products from API...");
-        const data = await fetchProducts();
-        console.log("Fetched products:", data);
+  // In your Home.jsx, update the fetchProducts useEffect:
+useEffect(() => {
+  async function loadProducts() {
+    try {
+      console.log("Fetching products from API...");
+      const data = await fetchProducts();
+      console.log("Fetched products:", data);
+      
+      if (data && Array.isArray(data)) {
+        // Filter out mock products (if any)
+        const realProducts = data.filter(product => 
+          !product.image_url.includes('unsplash.com') && 
+          !product.image_url.includes('placehold.co')
+        );
         
-        if (data && Array.isArray(data)) {
-          setProducts(data);
+        if (realProducts.length > 0) {
+          setProducts(realProducts);
           setError("");
         } else {
-          console.error("Invalid products data:", data);
+          // If no real products, show empty state
           setProducts([]);
-          setError("No products available");
+          setError("No products available. Add products from admin dashboard.");
         }
-      } catch (err) {
-        console.error("Failed to load products", err);
+      } else {
+        console.error("Invalid products data:", data);
         setProducts([]);
-        setError("Failed to load products. Please try again later.");
-      } finally {
-        setLoading(false);
+        setError("No products available");
       }
+    } catch (err) {
+      console.error("Failed to load products", err);
+      setProducts([]);
+      setError("Failed to load products. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-    loadProducts();
-  }, []);
+  }
+  loadProducts();
+}, []);
 
   // Google OAuth
   useEffect(() => {

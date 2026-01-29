@@ -1,4 +1,4 @@
-// src/api/publicAPI.js - UPDATED VERSION
+// src/api/publicAPI.js - CORRECTED VERSION
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // Helper function to get URL
@@ -7,54 +7,72 @@ const getUrl = (endpoint) => {
 };
 
 /**
- * Get all products (Home page) - UPDATED
+ * Get all products (Home page) - CORRECTED (No mock data)
  */
 export async function fetchProducts() {
   const url = getUrl('/products');
   
   try {
-    console.log("Fetching products from:", url); // Debug log
+    console.log("Fetching products from:", url);
     
     const res = await fetch(url, {
       headers: {
         'Accept': 'application/json',
         'Cache-Control': 'no-cache'
       },
-      mode: 'cors', // Ensure CORS mode
+      mode: 'cors',
       credentials: 'omit'
     });
     
-    console.log("Response status:", res.status); // Debug log
+    console.log("Response status:", res.status);
     
     if (!res.ok) {
       console.error("Fetch products failed with status:", res.status);
-      throw new Error(`Failed to fetch products: ${res.status}`);
+      // Return empty array instead of throwing error
+      return [];
     }
     
     const data = await res.json();
-    console.log("Fetched products data:", data); // Debug log
+    console.log("Fetched products data:", data);
     
-    // Process image URLs
+    // Process image URLs - handle mixed slashes and prepend backend URL if needed
     const processedData = data.map(product => {
       let imageUrl = product.image_url;
       
-      // If image_url exists but doesn't start with http, prepend backend URL
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        // Fix mixed slashes
-        imageUrl = imageUrl.replace(/\\/g, '/');
-        
-        // Ensure it has a leading slash
-        if (!imageUrl.startsWith('/')) {
-          imageUrl = '/' + imageUrl;
-        }
-        
-        // Prepend backend URL
-        imageUrl = `${API_BASE}${imageUrl}`;
+      // If no image URL, return as is
+      if (!imageUrl) {
+        return product;
       }
       
+      // Fix mixed slashes
+      imageUrl = imageUrl.replace(/\\/g, '/');
+      
+      // If it's already a full URL (Cloudinary or external), keep it
+      if (imageUrl.startsWith('http')) {
+        return {
+          ...product,
+          image_url: imageUrl
+        };
+      }
+      
+      // If it's a local path, prepend backend URL
+      // Ensure it has a leading slash
+      if (!imageUrl.startsWith('/')) {
+        imageUrl = '/' + imageUrl;
+      }
+      
+      // Check if it's a Cloudinary-like URL without http prefix
+      if (imageUrl.includes('res.cloudinary.com')) {
+        return {
+          ...product,
+          image_url: `https:${imageUrl}`
+        };
+      }
+      
+      // For local uploaded images
       return {
         ...product,
-        image_url: imageUrl || "https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?w=400&h=400&fit=crop"
+        image_url: `${API_BASE}${imageUrl}`
       };
     });
     
@@ -62,34 +80,12 @@ export async function fetchProducts() {
     
   } catch (error) {
     console.error('Error fetching products:', error);
-    // Return mock data as fallback
-    return [
-      { 
-        id: 1, 
-        name: "Redensyl Hair Growth Serum", 
-        price: 299, 
-        description: "Advanced hair growth serum with Redensyl complex", 
-        image_url: "https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?w=400&h=400&fit=crop"
-      },
-      { 
-        id: 2, 
-        name: "Vitamin C Brightening Serum", 
-        price: 499, 
-        description: "Antioxidant serum for brighter, even-toned skin", 
-        image_url: "https://images.unsplash.com/photo-1556228578-9c360e1d8d34?w=400&h=400&fit=crop"
-      },
-      { 
-        id: 3, 
-        name: "Hyaluronic Acid Hydrator", 
-        price: 399, 
-        description: "Intense hydration serum for plump, dewy skin", 
-        image_url: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=400&fit=crop"
-      }
-    ];
+    // Return empty array - NO MOCK DATA
+    return [];
   }
 }
 
-// ... rest of the functions remain the same
+// ... rest of the functions remain the same ...
 /**
  * Get single product by ID (Product details page)
  */
