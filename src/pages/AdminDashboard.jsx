@@ -22,31 +22,74 @@ function AdminDashboard() {
     email: "",
     image: null
   });
-  const token = localStorage.getItem("authToken");
-
+  
   const navigate = useNavigate();
 
+  // Get token from localStorage - FIXED: using userToken from Google login
+  const getToken = () => {
+    // Try to get userToken (from Google login) first
+    const userToken = localStorage.getItem("userToken");
+    if (userToken) return userToken;
+    
+    // Fallback to authToken (from traditional login)
+    const authToken = localStorage.getItem("authToken");
+    return authToken;
+  };
+
+  // Check if user is admin
+  const isUserAdmin = () => {
+    const userData = localStorage.getItem("userData");
+    if (!userData) return false;
+    
+    try {
+      const parsedUser = JSON.parse(userData);
+      return parsedUser.role === "admin" || parsedUser.isAdmin === true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const fetchProducts = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setError("No authentication token found");
+      return;
+    }
+    
     try {
       const data = await getProducts(token);
       setProducts(data);
     } catch (err) {
       setError("Failed to fetch products: " + (err.detail || err.message));
     }
-  }, [token]);
+  }, []);
 
   const fetchOrders = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setError("No authentication token found");
+      return;
+    }
+    
     try {
       const data = await getOrders(token);
       setOrders(data);
     } catch (err) {
       setError("Failed to fetch orders: " + (err.detail || err.message));
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
+    // Check if user is logged in and is admin
+    if (!isUserAdmin()) {
+      alert("Access denied. Admin privileges required.");
+      navigate("/");
+      return;
+    }
+
+    const token = getToken();
     if (!token) {
-      navigate("/admin/login");
+      navigate("/");
       return;
     }
 
@@ -63,10 +106,16 @@ function AdminDashboard() {
     };
 
     fetchData();
-  }, [fetchProducts, fetchOrders, token, navigate]);
+  }, [fetchProducts, fetchOrders, navigate]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
+      const token = getToken();
+      if (!token) {
+        setError("No authentication token found");
+        return;
+      }
+      
       try {
         await deleteProduct(id, token);
         fetchProducts();
@@ -76,37 +125,42 @@ function AdminDashboard() {
     }
   };
 
-  // In your AdminDashboard.jsx, update the handleAddProduct function:
-const handleAddProduct = async (e) => {
-  e.preventDefault();
-  try {
-    // Create FormData object
-    const formData = new FormData();
-    formData.append("name", newProduct.name);
-    formData.append("price", newProduct.price);
-    formData.append("description", newProduct.description);
-    formData.append("priority", newProduct.priority);
-    formData.append("email", newProduct.email);
-    if (newProduct.image) {
-      formData.append("image", newProduct.image);
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    const token = getToken();
+    if (!token) {
+      setError("No authentication token found");
+      return;
     }
     
-    await createProduct(formData, token); // Pass FormData directly
-    
-    setShowAddForm(false);
-    setNewProduct({
-      name: "",
-      price: "",
-      description: "",
-      priority: "1",
-      email: "",
-      image: null
-    });
-    fetchProducts();
-  } catch (err) {
-    setError("Failed to add product: " + (err.detail || err.message));
-  }
-};
+    try {
+      // Create FormData object
+      const formData = new FormData();
+      formData.append("name", newProduct.name);
+      formData.append("price", newProduct.price);
+      formData.append("description", newProduct.description);
+      formData.append("priority", newProduct.priority);
+      formData.append("email", newProduct.email);
+      if (newProduct.image) {
+        formData.append("image", newProduct.image);
+      }
+      
+      await createProduct(formData, token); // Pass FormData directly
+      
+      setShowAddForm(false);
+      setNewProduct({
+        name: "",
+        price: "",
+        description: "",
+        priority: "1",
+        email: "",
+        image: null
+      });
+      fetchProducts();
+    } catch (err) {
+      setError("Failed to add product: " + (err.detail || err.message));
+    }
+  };
 
   const handleFileChange = (e) => {
     setNewProduct({...newProduct, image: e.target.files[0]});
@@ -116,11 +170,10 @@ const handleAddProduct = async (e) => {
     setNewProduct({...newProduct, [e.target.name]: e.target.value});
   };
 
- const logout = () => {
-  localStorage.clear();
-  navigate("/");
-};
-
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
   if (loading) {
     return (
