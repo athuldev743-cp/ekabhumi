@@ -307,7 +307,7 @@ const Home = () => {
                       {user ? (
                         <button 
                           className="view-details-btn"
-                          onClick={() => navigate(`/product/${p.id}`)}
+                          onClick={() => navigate(`/products/${p.id}`)}
                         >
                           View Details
                         </button>

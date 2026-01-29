@@ -10,7 +10,8 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+
         
         {/* Protected Admin Route - Using ProtectedRoute */}
         <Route
