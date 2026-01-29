@@ -32,23 +32,9 @@ function AdminDashboard() {
   };
 
   const ensureJWTToken = async () => {
-    const userToken = localStorage.getItem("userToken");
-    const adminToken = localStorage.getItem("adminToken");
-    
-    if (adminToken) return adminToken;
-    
-    if (userToken) {
-      try {
-        // If you have a convertGoogleToJWT function, implement it here
-        // For now, just return the test token
-        return "test-token";
-      } catch (error) {
-        console.error("Failed to convert Google token:", error);
-      }
-    }
-    
-    return "test-token";
-  };
+  const adminToken = localStorage.getItem("adminToken");
+  return adminToken || "test-token";
+};
 
   const fetchProducts = useCallback(async () => {
     try {
