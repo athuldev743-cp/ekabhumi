@@ -38,34 +38,38 @@ const Home = () => {
       }
     }
   }, []);
+const loadProducts = async () => {
+  try {
+    setLoading(true);
+    const data = await fetchProducts();
+    setProducts(Array.isArray(data) ? data : []);
+    setError("");
+  } catch (err) {
+    console.error("Failed to load products", err);
+    setProducts([]);
+    setError("Failed to load products.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Fetch products - CORRECTED VERSION
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        console.log("Fetching products from API...");
-        const data = await fetchProducts();
-        console.log("Fetched products:", data);
-        
-        if (data && Array.isArray(data) && data.length > 0) {
-          // DON'T filter out products! Cloudinary URLs might contain these domains
-          setProducts(data);
-          setError("");
-        } else {
-          console.log("No products returned from API");
-          setProducts([]);
-          setError("No products available. Add products from admin dashboard.");
-        }
-      } catch (err) {
-        console.error("Failed to load products", err);
-        setProducts([]);
-        setError("Failed to load products. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  loadProducts();
+
+  const syncProducts = (e) => {
+    if (e.key === "productsUpdated") {
+      loadProducts();
     }
-    loadProducts();
-  }, []);
+  };
+
+  window.addEventListener("storage", syncProducts);
+
+  return () => {
+    window.removeEventListener("storage", syncProducts);
+  };
+}, []);
+
 
   // Google OAuth
   useEffect(() => {
@@ -169,15 +173,22 @@ const Home = () => {
   const nextSlide = () => setCurrentSlide((p) => Math.min(p + 1, getTotalSlides()));
   const prevSlide = () => setCurrentSlide((p) => Math.max(p - 1, 0));
 
-  useEffect(() => {
-    if (!trackRef.current || !containerRef.current) return;
-    const visible = getVisibleCards();
-    const containerWidth = containerRef.current.offsetWidth;
-    const cardWidth = containerWidth / visible;
-    const gap = 30;
-    const translateX = -(currentSlide * (cardWidth + gap) * visible);
-    trackRef.current.style.transform = `translateX(${translateX}px)`;
-  }, [currentSlide, products]);
+useEffect(() => {
+  if (!trackRef.current || !containerRef.current) return;
+  if (products.length === 0) return; // 🔴 IMPORTANT
+
+  const visible = getVisibleCards();
+  const containerWidth = containerRef.current.offsetWidth;
+  const cardWidth = containerWidth / visible;
+  const gap = 30;
+
+  const translateX = -(currentSlide * (cardWidth + gap) * visible);
+  trackRef.current.style.transform = `translateX(${translateX}px)`;
+}, [currentSlide, products]);
+useEffect(() => {
+  setCurrentSlide(0);
+}, [products.length]);
+
 
   // Scroll effect
   useEffect(() => {
@@ -307,7 +318,11 @@ const Home = () => {
                       {user ? (
                         <button 
                           className="view-details-btn"
-                          onClick={() => navigate(`/product/${p.id}`)}
+                          onClick={() => {
+                           setCurrentSlide(0);
+                            navigate(`/product/${p.id}`);
+                            }}
+
                         >
                           View Details
                         </button>

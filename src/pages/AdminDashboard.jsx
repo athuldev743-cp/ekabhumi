@@ -139,6 +139,8 @@ const ensureJWTToken = async () => {
         }
         
         await fetchProducts();
+        localStorage.setItem("productsUpdated", Date.now().toString());
+
         alert("Product deleted successfully!");
       } catch (err) {
         console.error("Delete error:", err);
@@ -195,8 +197,13 @@ const ensureJWTToken = async () => {
       });
       
       await fetchProducts();
-      setError("");
-      alert("Product added successfully!");
+
+/* 🔔 notify Home.jsx */
+localStorage.setItem("productsUpdated", Date.now().toString());
+
+setError("");
+alert("Product added successfully!");
+
       
     } catch (err) {
       console.error("Add product error:", err);
