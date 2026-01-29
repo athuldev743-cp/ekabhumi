@@ -42,16 +42,24 @@ const loadProducts = async () => {
   try {
     setLoading(true);
     const data = await fetchProducts();
-    setProducts(Array.isArray(data) ? data : []);
-    setError("");
+
+    if (Array.isArray(data) && data.length > 0) {
+      setProducts(data);
+      setError("");
+    } else {
+      // only show "no products" if you genuinely got empty list
+      setProducts([]);
+      setError("No products available. Add products from admin dashboard.");
+    }
   } catch (err) {
     console.error("Failed to load products", err);
-    setProducts([]);
-    setError("Failed to load products.");
+    // ✅ keep existing products instead of wiping
+    setError("Temporary issue loading products. Please try again.");
   } finally {
     setLoading(false);
   }
 };
+
 
   // Fetch products - CORRECTED VERSION
 useEffect(() => {
@@ -63,12 +71,25 @@ useEffect(() => {
     }
   };
 
+
+
   window.addEventListener("storage", syncProducts);
 
   return () => {
     window.removeEventListener("storage", syncProducts);
   };
 }, []);
+
+useEffect(() => {
+  const onFocus = () => loadProducts();
+
+  window.addEventListener("focus", onFocus);
+
+  return () => {
+    window.removeEventListener("focus", onFocus);
+  };
+}, []);
+
 
 
   // Google OAuth

@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -69,58 +71,85 @@ const ensureJWTToken = async () => {
       }
       
       const data = await response.json();
-      setProducts(data || []);
+      setProducts(Array.isArray(data) ? data : []);
+
     } catch (err) {
-      console.error("Failed to fetch products:", err);
-      setError("Failed to fetch products: " + (err.detail || err.message || "Network error"));
-      setProducts([]);
+  console.error("Failed to fetch products:", err);
+  setError(
+    "Temporary issue loading products: " +
+      (err.detail || err.message || "Network error")
+  );
+
+      
     }
   }, []);
 
-  const fetchOrders = useCallback(async () => {
+ const fetchOrders = useCallback(async () => {
+  try {
+    const token = await ensureJWTToken();
+    const API_BASE =
+      process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
+
+    const response = await fetch(`${API_BASE}/admin/orders`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Cache-Control": "no-cache",
+      },
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`HTTP error ${response.status}: ${text}`);
+    }
+
+    const data = await response.json();
+
+    // ✅ Only update if response is valid
+    setOrders(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Failed to fetch orders:", err);
+
+    // ✅ Do NOT wipe existing orders on transient error
+    setError(
+      "Temporary issue loading orders: " +
+        (err?.message || "Network error")
+    );
+
+    // ❌ remove this:
+    // setOrders([]);
+  }
+}, []);
+
+useEffect(() => {
+  if (!isUserAdmin()) {
+    alert("Access denied. Admin privileges required.");
+    navigate("/");
+    return;
+  }
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError("");
+
     try {
-      const token = await ensureJWTToken();
-      const API_BASE = process.env.REACT_APP_API_URL || 'https://ekb-backend.onrender.com';
-      const response = await fetch(`${API_BASE}/admin/orders`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setOrders(data || []);
-    } catch (err) {
-      console.error("Failed to fetch orders:", err);
-      setOrders([]);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isUserAdmin()) {
-      alert("Access denied. Admin privileges required.");
-      navigate("/");
-      return;
-    }
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError("");
+      await Promise.all([fetchProducts(), fetchOrders()]);
+    } catch (e) {
+      await sleep(800); // cold start retry
       try {
         await Promise.all([fetchProducts(), fetchOrders()]);
-      } catch (err) {
-        console.error("Failed to load dashboard data:", err);
-        setError("Failed to load dashboard data. Please try again.");
-      } finally {
-        setLoading(false);
+      } catch (err2) {
+        console.error("Failed after retry:", err2);
+        setError(err2?.message || "Failed to load dashboard data.");
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [fetchProducts, fetchOrders, navigate]);
+  fetchData();
+}, [fetchProducts, fetchOrders, navigate]);
+
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {

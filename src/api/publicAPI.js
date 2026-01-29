@@ -10,80 +10,52 @@ const getUrl = (endpoint) => {
  * Get all products (Home page) - CORRECTED (No mock data)
  */
 export async function fetchProducts() {
-  const url = getUrl('/products');
-  
-  try {
-    console.log("Fetching products from:", url);
-    
-    const res = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
-      },
-      mode: 'cors',
-      credentials: 'omit'
-    });
-    
-    console.log("Response status:", res.status);
-    
-    if (!res.ok) {
-      console.error("Fetch products failed with status:", res.status);
-      // Return empty array instead of throwing error
-      return [];
-    }
-    
-    const data = await res.json();
-    console.log("Fetched products data:", data);
-    
-    // Process image URLs - handle mixed slashes and prepend backend URL if needed
-    const processedData = data.map(product => {
-      let imageUrl = product.image_url;
-      
-      // If no image URL, return as is
-      if (!imageUrl) {
-        return product;
-      }
-      
-      // Fix mixed slashes
-      imageUrl = imageUrl.replace(/\\/g, '/');
-      
-      // If it's already a full URL (Cloudinary or external), keep it
-      if (imageUrl.startsWith('http')) {
-        return {
-          ...product,
-          image_url: imageUrl
-        };
-      }
-      
-      // If it's a local path, prepend backend URL
-      // Ensure it has a leading slash
-      if (!imageUrl.startsWith('/')) {
-        imageUrl = '/' + imageUrl;
-      }
-      
-      // Check if it's a Cloudinary-like URL without http prefix
-      if (imageUrl.includes('res.cloudinary.com')) {
-        return {
-          ...product,
-          image_url: `https:${imageUrl}`
-        };
-      }
-      
-      // For local uploaded images
-      return {
-        ...product,
-        image_url: `${API_BASE}${imageUrl}`
-      };
-    });
-    
-    return processedData;
-    
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    // Return empty array - NO MOCK DATA
-    return [];
+  const url = getUrl("/products");
+
+  console.log("Fetching products from:", url);
+
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache",
+    },
+    mode: "cors",
+    credentials: "omit",
+  });
+
+  console.log("Response status:", res.status);
+
+  if (!res.ok) {
+    // 🔴 IMPORTANT: do NOT return []
+    const text = await res.text().catch(() => "");
+    throw new Error(`fetchProducts failed: ${res.status} ${text}`);
   }
+
+  const data = await res.json();
+
+  const processedData = (Array.isArray(data) ? data : []).map((product) => {
+    let imageUrl = product.image_url;
+    if (!imageUrl) return product;
+
+    imageUrl = imageUrl.replace(/\\/g, "/");
+
+    if (imageUrl.startsWith("http")) {
+      return { ...product, image_url: imageUrl };
+    }
+
+    if (!imageUrl.startsWith("/")) imageUrl = "/" + imageUrl;
+
+    if (imageUrl.includes("res.cloudinary.com")) {
+      return { ...product, image_url: `https:${imageUrl}` };
+    }
+
+    return { ...product, image_url: `${API_BASE}${imageUrl}` };
+  });
+
+  return processedData;
 }
+
+
 
 // ... rest of the functions remain the same ...
 /**
