@@ -1,25 +1,19 @@
+// src/pages/ProductDetails.jsx
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { fetchProductById, createOrder } from "../api/publicAPI";
 import "./ProductDetails.css";
 
-function ProductDetails() {
+const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
   const [user, setUser] = useState(null);
-  const [ordering, setOrdering] = useState(false);
-
-  // Helper function to format price safely
-  const formatPrice = (price) => {
-    if (typeof price !== 'number' || isNaN(price)) {
-      return "0.00";
-    }
-    return price.toFixed(2);
-  };
 
   // Check if user is logged in
   useEffect(() => {
@@ -27,112 +21,70 @@ function ProductDetails() {
     if (userData) {
       try {
         setUser(JSON.parse(userData));
-      } catch (err) {
-        console.error("Error parsing user data:", err);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
       }
     }
   }, []);
 
-  // Fetch product
   useEffect(() => {
     async function loadProduct() {
       try {
-        setLoading(true);
         const data = await fetchProductById(id);
-        // Ensure price is a number
-        if (data.price) {
-          data.price = Number(data.price);
-        }
-        if (data.original_price) {
-          data.original_price = Number(data.original_price);
-        }
         setProduct(data);
       } catch (err) {
-        console.error(err);
-        setError(err.message || "Failed to load product. Try again later.");
+        console.error("Failed to load product:", err);
+        setError("Failed to load product details. Please try again.");
       } finally {
         setLoading(false);
       }
     }
-
     loadProduct();
   }, [id]);
 
-  // Handle image error
-  const handleImageError = (e) => {
-    const target = e.target;
-    if (target && target.tagName === 'IMG') {
-      target.src = "/images/product-placeholder.jpg";
-      target.onerror = null;
-    }
-  };
-
-  const handleLogin = () => {
-    // Mock login - replace with actual Google OAuth
-    const mockUser = {
-      id: 1,
-      name: "Demo User",
-      email: "user@example.com",
-      role: "user",
-      profile_pic: "/images/user-avatar.png"
-    };
-    
-    localStorage.setItem("userToken", "mock-jwt-token");
-    localStorage.setItem("userData", JSON.stringify(mockUser));
-    setUser(mockUser);
-    alert("Logged in as demo user! You can now place orders.");
-  };
-
   const handleOrder = async () => {
     if (!user) {
-      alert("Please login to place an order");
+      alert("Please login to place an order!");
+      navigate("/");
       return;
     }
 
-    if (!window.confirm(`Place order for ${quantity} × ${product.name}?`)) {
-      return;
-    }
+    if (!product) return;
 
-    setOrdering(true);
+    setOrderLoading(true);
     try {
-      const productPrice = product.price || 0;
       const orderData = {
-        user_email: user.email,
+        product_id: product.id,
         product_name: product.name,
         quantity: quantity,
-        total_price: productPrice * quantity
+        total_amount: product.price * quantity,
+        customer_name: user.name,
+        customer_email: user.email,
+        shipping_address: "To be provided", // In real app, get from form
+        status: "pending"
       };
 
-      const order = await createOrder(orderData);
+      const result = await createOrder(orderData);
+      console.log("Order created:", result);
       
-      const successMessage = `
-✅ Order placed successfully!
-
-Order ID: ${order.id}
-Product: ${order.product_name}
-Quantity: ${order.quantity}
-Total: ₹${order.total_price}
-Status: ${order.status}
-Date: ${new Date(order.created_at || new Date()).toLocaleDateString()}
-
-Thank you for your purchase!
-      `;
+      setOrderSuccess(true);
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
       
-      alert(successMessage);
-      navigate("/");
     } catch (err) {
-      console.error("Order error:", err);
-      alert(`Failed to place order: ${err.message}`);
+      console.error("Failed to create order:", err);
+      setError("Failed to place order. Please try again.");
     } finally {
-      setOrdering(false);
+      setOrderLoading(false);
     }
   };
 
-  const handleAdminLogin = () => {
-    navigate("/admin/login");
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = "https://placehold.co/600x400/EEE/31343C?text=Product+Image";
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="loading-container">
@@ -142,274 +94,156 @@ Thank you for your purchase!
     );
   }
 
-  // Error state
-  if (error) {
+  if (error || !product) {
     return (
       <div className="error-container">
-        <h2>Error</h2>
-        <p>{error}</p>
-        <div className="error-actions">
-          <button onClick={() => navigate("/")} className="back-btn">
-            Back to Home
-          </button>
-          <button onClick={() => window.location.reload()} className="retry-btn">
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Product not found
-  if (!product) {
-    return (
-      <div className="not-found">
-        <h2>Product not found</h2>
-        <p>The product you're looking for doesn't exist or has been removed.</p>
-        <button onClick={() => navigate("/")} className="back-btn">
-          Back to Home
+        <h2>⚠️ Product Not Found</h2>
+        <p>{error || "The product you're looking for doesn't exist."}</p>
+        <button 
+          className="back-btn"
+          onClick={() => navigate("/")}
+        >
+          ← Back to Home
         </button>
       </div>
     );
   }
 
-  // Safely get product values
-  const productPrice = product.price || 0;
-  const originalPrice = product.original_price || 0;
-  const hasDiscount = originalPrice > productPrice;
+  const totalPrice = product.price * quantity;
 
   return (
     <div className="product-details-container">
-      {/* Navigation */}
-      <nav className="product-nav">
-        <button onClick={() => navigate("/")} className="nav-back-btn">
-          &larr; Back to Products
+      {/* Header */}
+      <div className="details-header">
+        <button 
+          className="back-btn"
+          onClick={() => navigate("/")}
+        >
+          ← Back to Products
         </button>
-        <div className="nav-actions">
-          {user?.role === "admin" ? (
-            <button onClick={() => navigate("/admin/dashboard")} className="admin-btn">
-              Admin Dashboard
-            </button>
-          ) : (
-            <button onClick={handleAdminLogin} className="admin-login-btn">
-              Admin Login
-            </button>
-          )}
-        </div>
-      </nav>
+        <h1>Product Details</h1>
+      </div>
 
-      {/* Product Content */}
-      <main className="product-main">
+      {/* Success Message */}
+      {orderSuccess && (
+        <div className="success-message">
+          <h3>🎉 Order Placed Successfully!</h3>
+          <p>Thank you for your order. You will receive a confirmation email shortly.</p>
+          <p>Redirecting to homepage...</p>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="product-details-content">
         {/* Left: Product Image */}
-        <section className="product-image-section">
-          <div className="image-wrapper">
-            <img
-              src={product.image_url || "/images/product-placeholder.jpg"}
-              alt={product.name}
-              className="product-image"
-              onError={handleImageError}
-            />
-          </div>
-          
-          {/* Image Badges */}
-          <div className="image-badges">
-            {product.priority < 50 && (
-              <span className="badge featured">Featured</span>
-            )}
-            {product.created_at && (
-              <span className="badge new">New Arrival</span>
-            )}
-          </div>
-        </section>
+        <div className="product-image-section">
+          <img 
+            src={product.image_url} 
+            alt={product.name}
+            className="product-detail-image"
+            onError={handleImageError}
+          />
+        </div>
 
         {/* Right: Product Info */}
-        <section className="product-info-section">
-          {/* Product Header */}
-          <header className="product-header">
-            <h1 className="product-title">{product.name}</h1>
-            <div className="product-meta">
-              {product.category && (
-                <span className="category">{product.category}</span>
-              )}
-              {product.brand && (
-                <span className="brand">by {product.brand}</span>
-              )}
-            </div>
-          </header>
+        <div className="product-info-section">
+          <div className="product-header">
+            <h2 className="product-name">{product.name}</h2>
+            <div className="product-price-large">₹{product.price}</div>
+          </div>
 
-          {/* Price Section */}
-          <div className="price-section">
-            <div className="current-price">
-              <span className="price-label">Price:</span>
-              <span className="price">₹{formatPrice(productPrice)}</span>
-            </div>
-            {hasDiscount && (
-              <div className="original-price">
-                <span className="strikethrough">₹{formatPrice(originalPrice)}</span>
-                <span className="discount">
-                  {Math.round((1 - productPrice / originalPrice) * 100)}% OFF
-                </span>
-              </div>
+          {/* Product ID */}
+          <div className="product-meta">
+            <span className="product-id">Product ID: #{product.id}</span>
+            {product.priority && (
+              <span className="product-priority">Priority: {product.priority}</span>
             )}
           </div>
 
           {/* Description */}
           <div className="description-section">
             <h3>Description</h3>
-            <p>{product.description || "No description available."}</p>
+            <p className="product-description">
+              {product.description || "No description available."}
+            </p>
           </div>
 
-          {/* Specifications */}
-          <div className="specifications">
-            <h3>Product Details</h3>
-            <div className="specs-grid">
-              <div className="spec-item">
-                <span className="spec-label">Product ID:</span>
-                <span className="spec-value">#{product.id}</span>
-              </div>
-              {product.category && (
-                <div className="spec-item">
-                  <span className="spec-label">Category:</span>
-                  <span className="spec-value">{product.category}</span>
-                </div>
-              )}
-              {product.brand && (
-                <div className="spec-item">
-                  <span className="spec-label">Brand:</span>
-                  <span className="spec-value">{product.brand}</span>
-                </div>
-              )}
-              <div className="spec-item">
-                <span className="spec-label">Availability:</span>
-                <span className="spec-value available">In Stock</span>
-              </div>
-              {product.created_at && (
-                <div className="spec-item">
-                  <span className="spec-label">Added:</span>
-                  <span className="spec-value">
-                    {new Date(product.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
+          {/* Quantity Selector */}
+          <div className="quantity-section">
+            <h3>Quantity</h3>
+            <div className="quantity-controls">
+              <button 
+                className="quantity-btn"
+                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                disabled={quantity <= 1}
+              >
+                −
+              </button>
+              <span className="quantity-display">{quantity}</span>
+              <button 
+                className="quantity-btn"
+                onClick={() => setQuantity(prev => prev + 1)}
+              >
+                +
+              </button>
             </div>
+            <p className="quantity-note">Select the quantity you want to order</p>
           </div>
 
-          {/* Order Section */}
-          <div className="order-section">
-            {/* Quantity Selector */}
-            <div className="quantity-selector">
-              <label htmlFor="quantity">Quantity:</label>
-              <div className="quantity-controls">
-                <button 
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  disabled={quantity <= 1}
-                  className="qty-btn minus"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  id="quantity"
-                  value={quantity}
-                  min="1"
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setQuantity(Math.max(1, value));
-                  }}
-                  className="qty-input"
-                />
-                <button 
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="qty-btn plus"
-                >
-                  +
-                </button>
-              </div>
+          {/* Order Summary */}
+          <div className="order-summary">
+            <h3>Order Summary</h3>
+            <div className="summary-row">
+              <span>Price (each):</span>
+              <span>₹{product.price}</span>
             </div>
-
-            {/* Total Price */}
-            <div className="total-price">
+            <div className="summary-row">
+              <span>Quantity:</span>
+              <span>{quantity}</span>
+            </div>
+            <div className="summary-row total">
               <span>Total Amount:</span>
-              <span className="total">₹{formatPrice(productPrice * quantity)}</span>
+              <span className="total-amount">₹{totalPrice.toFixed(2)}</span>
             </div>
+          </div>
 
-            {/* Order Button */}
+          {/* Order Button */}
+          <div className="order-action-section">
             {user ? (
               <button 
-                className={`order-btn ${ordering ? 'ordering' : ''}`}
+                className="order-btn"
                 onClick={handleOrder}
-                disabled={ordering}
+                disabled={orderLoading}
               >
-                {ordering ? (
+                {orderLoading ? (
                   <>
                     <span className="spinner"></span>
-                    Processing Order...
+                    Processing...
                   </>
                 ) : (
-                  `🛒 Place Order - ₹${formatPrice(productPrice * quantity)}`
+                  "🛒 Place Order"
                 )}
               </button>
             ) : (
-              <div className="login-prompt">
-                <p className="login-message">
-                  🔐 Please login to place an order
-                </p>
-                <button className="login-btn" onClick={handleLogin}>
+              <div className="login-required">
+                <p>Please login to place an order</p>
+                <button 
+                  className="login-btn"
+                  onClick={() => navigate("/")}
+                >
                   Login Now
                 </button>
-                <p className="login-note">
-                  Or <button className="admin-link-btn" onClick={handleAdminLogin}>
-                    login as admin
-                  </button> to manage products
-                </p>
               </div>
             )}
-
-            {/* Additional Info */}
-            <div className="additional-info">
-              <div className="info-item">
-                <span className="info-icon">🚚</span>
-                <span>Free shipping on orders above ₹500</span>
-              </div>
-              <div className="info-item">
-                <span className="info-icon">↩️</span>
-                <span>Easy 7-day returns</span>
-              </div>
-              <div className="info-item">
-                <span className="info-icon">📞</span>
-                <span>Need help? Call: <strong>+91 98765 43210</strong></span>
-              </div>
-            </div>
+            
+            <p className="order-note">
+              * Order will be confirmed via email. Our team will contact you for delivery details.
+            </p>
           </div>
-
-          {/* Admin Actions (only for admins) */}
-          {user?.role === "admin" && (
-            <div className="admin-actions">
-              <h4>Admin Actions</h4>
-              <div className="admin-buttons">
-                <button 
-                  className="edit-btn"
-                  onClick={() => navigate(`/admin/dashboard?edit=${product.id}`)}
-                >
-                  ✏️ Edit Product
-                </button>
-                <button 
-                  className="delete-btn"
-                  onClick={() => {
-                    if (window.confirm(`Delete "${product.name}"?`)) {
-                      alert("Delete functionality to be implemented");
-                    }
-                  }}
-                >
-                  🗑️ Delete Product
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default ProductDetails;

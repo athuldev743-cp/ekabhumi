@@ -19,7 +19,6 @@ body {
 }
 
 /* ===================== NAVBAR ===================== */
-/* ===================== NAVBAR ===================== */
 .navbar {
   position: fixed;
   top: 0;
@@ -155,10 +154,27 @@ body {
 .nav-links a:hover::after {
   width: 100%;
 }
-/* ===================== LOGIN HIGHLIGHT (TESTIMONIAL EFFECT) ===================== */
 
-/* 
-/* ===================== NAVBAR LOGIN BUTTON ===================== */
+/* ===================== USER NAVIGATION ===================== */
+.auth-section {
+  display: flex;
+  align-items: center;
+}
+
+.user-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  font-size: 14px;
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+/* ===================== BUTTON STYLES ===================== */
+/* Navbar Login Button */
 .login-nav-btn {
   display: inline-flex;
   align-items: center;
@@ -186,14 +202,91 @@ body {
   box-shadow: 0 3px 10px rgba(242, 103, 34, 0.3);
 }
 
-/* Optional: Small icon inside button */
-.login-nav-btn img {
-  height: 20px;
-  width: 20px;
+/* Admin Dashboard Button */
+.admin-dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--charcoal), #444);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(46, 46, 47, 0.2);
+}
+
+.admin-dashboard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(46, 46, 47, 0.3);
+}
+
+/* Logout Button */
+.logout-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  color: var(--charcoal);
+  border: 2px solid #ddd;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-nav-btn:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+  transform: translateY(-2px);
+}
+
+/* ===================== VIEW DETAILS BUTTONS ===================== */
+.view-details-btn,
+.login-to-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--dark-orange), var(--light-orange));
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(242, 103, 34, 0.3);
+  min-width: 160px;
+  margin-top: auto;
+}
+
+.view-details-btn:hover,
+.login-to-view-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(242, 103, 34, 0.5);
+}
+
+.view-details-btn:active,
+.login-to-view-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 3px 10px rgba(242, 103, 34, 0.3);
+}
+
+/* Lock icon for login button */
+.login-to-view-btn::after {
+  content: '🔒';
+  font-size: 14px;
+  margin-left: 4px;
 }
 
 /* ===================== HERO SECTION ===================== */
-/* Hero section - Button only */
 .hero {
   min-height: 100vh;
   width: 100%;
@@ -258,7 +351,6 @@ body {
 .product-preview {
   padding: 100px 60px;
   background: #f8f9fa;
-  position: relative;
 }
 
 .product-preview h2 {
@@ -266,148 +358,135 @@ body {
   margin-bottom: 50px;
   text-align: center;
   color: var(--charcoal);
-  position: relative;
 }
 
-.product-preview h2::after {
-  content: '';
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: var(--dark-orange);
-  border-radius: 2px;
-}
-
-/* Carousel Container - IMPORTANT FIX */
+/* ===================== CAROUSEL ===================== */
 .carousel-container {
   position: relative;
   max-width: 1400px;
   margin: 0 auto;
   overflow: hidden;
-  padding: 0 80px; /* Increased padding for arrows */
+  padding: 0 80px;
 }
 
-/* Carousel Track - FIXED FOR SLIDING */
 .carousel-track {
   display: flex;
   transition: transform 0.5s ease-in-out;
-  will-change: transform;
-  /* NO gap property here - we'll use margins */
 }
 
-/* Product Card - FIXED WIDTH CALCULATION */
+/* ===================== PRODUCT CARD ===================== */
 .product-card {
-  flex: 0 0 calc(100% / 4); /* Exactly 25% width for 4 cards */
-  min-width: 0; /* Important for flex items */
-  margin-right: 30px; /* Gap between cards */
-  background: var(--white);
-  border-radius: 12px;
-  overflow: hidden;
-  text-align: center;
+  flex: 0 0 calc(100% / 4);
+  margin-right: 30px;
+  background: #ffffff;
+  border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* IMPORTANT FIX */
   display: flex;
   flex-direction: column;
-  height: 450px;
+  overflow: visible;
 }
 
-/* Remove margin from last card */
 .product-card:last-child {
   margin-right: 0;
 }
 
 .product-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Product Image */
+/* ===================== PRODUCT IMAGE ===================== */
 .product-image {
   width: 100%;
-  height: 280px;
+  height: 360px;
   object-fit: cover;
-  object-position: center;
-  display: block;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
   flex-shrink: 0;
 }
 
-/* Product Info */
+/* ===================== PRODUCT INFO ===================== */
 .product-info {
-  padding: 25px 15px;
-  flex-grow: 1;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
 }
 
+
+/* Product Name */
 .product-name {
-  display: block;
   font-size: 18px;
   font-weight: 600;
   color: var(--charcoal);
-  margin-bottom: 10px;
-  min-height: 44px;
+  text-align: center;
+  line-height: 1.4;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.product-price {
-  color: var(--dark-orange);
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  display: block;
-}
-
-.product-btn {
-  background: transparent;
-  color: var(--dark-orange);
-  border: 2px solid var(--dark-orange);
-  padding: 12px 30px;
-  border-radius: 25px;
+/* ===================== VIEW DETAILS BUTTON ===================== */
+.view-details-btn,
+.login-to-view-btn {
+  margin-top: auto; /* Push button to bottom */
+  width: 85%;
+  padding: 12px 0;
+  border-radius: 30px;
   font-size: 15px;
   font-weight: 600;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: auto;
+
+  background: linear-gradient(
+    135deg,
+    var(--dark-orange),
+    var(--light-orange)
+  );
+  color: #ffffff;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 18px rgba(242, 103, 34, 0.35);
 }
 
-.product-btn:hover {
-  background: var(--dark-orange);
-  color: white;
-  transform: translateY(-2px);
+.view-details-btn:hover,
+.login-to-view-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 28px rgba(242, 103, 34, 0.55);
 }
 
-/* Carousel Navigation Arrows */
+.view-details-btn:active,
+.login-to-view-btn:active {
+  transform: scale(0.97);
+}
+
+/* Lock icon */
+.login-to-view-btn::after {
+  
+  font-size: 14px;
+}
+
+/* ===================== CAROUSEL ARROWS ===================== */
 .carousel-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: white;
+  background: #ffffff;
   border: none;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   font-size: 24px;
   color: var(--charcoal);
-}
-
-.carousel-arrow:hover {
-  background: var(--dark-orange);
-  color: white;
-  transform: translateY(-50%) scale(1.1);
 }
 
 .carousel-arrow.prev {
@@ -418,119 +497,75 @@ body {
   right: 10px;
 }
 
-/* Carousel Indicators */
-.carousel-indicators {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 40px;
-}
-
-.indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ddd;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.indicator.active {
+.carousel-arrow:hover {
   background: var(--dark-orange);
-  transform: scale(1.2);
+  color: #ffffff;
 }
 
-/* ===================== RESPONSIVE DESIGN ===================== */
+/* ===================== RESPONSIVE ===================== */
 
 /* Tablet (3 cards) */
 @media (max-width: 1200px) {
-  .carousel-container {
-    padding: 0 70px;
-  }
-  
   .product-card {
-    flex: 0 0 calc(100% / 3); /* 33.33% for 3 cards */
-    margin-right: 30px;
-    height: 420px;
+    flex: 0 0 calc(100% / 3);
   }
-  
+
   .product-image {
-    height: 250px;
+    height: 240px;
   }
 }
 
-/* Medium Tablet (2 cards) */
+/* Tablet (2 cards) */
 @media (max-width: 992px) {
-  .product-preview {
-    padding: 80px 40px;
-  }
-  
-  .carousel-container {
-    padding: 0 60px;
-  }
-  
-  .carousel-arrow {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-  }
-  
-  .product-card {
-    flex: 0 0 calc(100% / 2); /* 50% for 2 cards */
-    margin-right: 30px;
-    height: 400px;
-  }
-  
-  .product-image {
-    height: 230px;
-  }
-}
-
-/* Mobile (2 cards smaller) */
-@media (max-width: 768px) {
-  .product-preview {
-    padding: 60px 20px;
-  }
-  
-  .product-preview h2 {
-    font-size: 32px;
-  }
-  
-  .carousel-container {
-    padding: 0 50px;
-  }
-  
   .product-card {
     flex: 0 0 calc(100% / 2);
-    margin-right: 20px;
-    height: 380px;
   }
-  
+
+  .product-image {
+    height: 220px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .carousel-container {
+    padding: 0 40px;
+  }
+
+  .product-card {
+    flex: 0 0 100%;
+    margin-right: 0;
+  }
+
   .product-image {
     height: 200px;
   }
-  
-  .carousel-arrow {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
-  }
-  
-  .product-name {
-    font-size: 16px;
-    min-height: 40px;
-  }
-  
-  .product-price {
-    font-size: 20px;
-  }
-  
-  .product-btn {
-    padding: 10px 25px;
+
+  .view-details-btn,
+  .login-to-view-btn {
+    width: 90%;
     font-size: 14px;
   }
 }
+
+  
+  .navbar {
+    padding: 0 20px;
+  }
+  
+  .nav-links {
+    gap: 20px;
+  }
+  
+  .nav-links a {
+    font-size: 14px;
+  }
+  
+  .login-nav-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+
 
 /* Small Mobile (1 card) */
 @media (max-width: 576px) {
@@ -560,5 +595,35 @@ body {
   
   .carousel-indicators {
     margin-top: 30px;
+  }
+  
+  .view-details-btn,
+  .login-to-view-btn {
+    min-width: 120px;
+    padding: 8px 18px;
+    font-size: 12px;
+  }
+  
+  .nav-links {
+    gap: 15px;
+  }
+  
+  .nav-links a {
+    font-size: 13px;
+  }
+  
+  .user-nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .user-greeting {
+    font-size: 12px;
+  }
+  
+  .admin-dashboard-btn,
+  .logout-nav-btn {
+    font-size: 12px;
+    padding: 6px 15px;
   }
 }

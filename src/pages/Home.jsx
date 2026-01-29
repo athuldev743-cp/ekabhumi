@@ -317,7 +317,7 @@ const Home = () => {
                           onClick={handleGoogleLogin}
                           title="Login to view product details"
                         >
-                          Login to View Details
+                           View Details
                         </button>
                       )}
                     </div>

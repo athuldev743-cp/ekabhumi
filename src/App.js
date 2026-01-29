@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminRoute from "./routes/AdminRoute";
+import ProtectedRoute from "./components/ProtectedRoute"; // Update import
 
 function App() {
   return (
@@ -12,20 +12,18 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         
-        {/* Protected Admin Route - Direct access after Google login */}
+        {/* Protected Admin Route - Using ProtectedRoute */}
         <Route
           path="/admin/dashboard"
           element={
-            <AdminRoute>
+            <ProtectedRoute requireAdmin={true}>
               <AdminDashboard />
-            </AdminRoute>
+            </ProtectedRoute>
           }
         />
         
         {/* Catch all route - redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
-        
-        {/* REMOVED: <Route path="/admin/login" element={<AdminLogin />} /> */}
       </Routes>
     </Router>
   );
