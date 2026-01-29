@@ -10,7 +10,7 @@ import { ADMIN_EMAILS } from "../config/auth";
 import { convertGoogleToJWT } from "../api/adminAPI";
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+// REMOVED: const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
