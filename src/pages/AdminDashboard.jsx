@@ -21,19 +21,37 @@ function AdminDashboard() {
   // Check if user is admin
   const isUserAdmin = () => {
     const userData = localStorage.getItem("userData");
-    if (!userData) return false;
+    if (!userData) {
+      return false;
+    }
     
     try {
       const parsedUser = JSON.parse(userData);
-      return parsedUser.role === "admin" || parsedUser.isAdmin === true;
+      const isAdmin = parsedUser.role === "admin" || parsedUser.isAdmin === true;
+      return isAdmin;
     } catch (e) {
+      console.error("Error parsing user data:", e);
       return false;
     }
   };
 
-  const ensureJWTToken = async () => {
+const ensureJWTToken = async () => {
+  const userToken = localStorage.getItem("userToken");
   const adminToken = localStorage.getItem("adminToken");
-  return adminToken || "test-token";
+  
+  if (adminToken) {
+    return adminToken;
+  }
+  
+  // If we have a userToken, we could convert it, but for now return test-token
+  if (userToken) {
+    // In the future, you might want to convert the Google token to JWT here
+    // For now, just return test-token
+    return "test-token";
+  }
+  
+  // No tokens found, return test-token for development
+  return "test-token";
 };
 
   const fetchProducts = useCallback(async () => {
@@ -186,15 +204,8 @@ function AdminDashboard() {
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewProduct({...newProduct, image: e.target.files[0]});
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setNewProduct({...newProduct, [e.target.name]: e.target.value});
-  };
+  // REMOVED: const handleFileChange = (e) => { ... }
+  // REMOVED: const handleInputChange = (e) => { ... }
 
   const logout = () => {
     localStorage.clear();
@@ -206,7 +217,7 @@ function AdminDashboard() {
     const imgElement = e.currentTarget;
     if (imgElement) {
       imgElement.onerror = null;
-      imgElement.src = 'https://via.placeholder.com/200x150?text=No+Image';
+      imgElement.src = 'https://placehold.co/200x150/EEE/31343C?text=No+Image';
     }
   };
 
@@ -260,7 +271,7 @@ function AdminDashboard() {
                     name="name"
                     placeholder="Enter product name"
                     value={newProduct.name}
-                    onChange={handleInputChange}
+                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                     required
                   />
                 </div>
@@ -272,7 +283,7 @@ function AdminDashboard() {
                     name="price"
                     placeholder="Enter price"
                     value={newProduct.price}
-                    onChange={handleInputChange}
+                    onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
                     required
                     min="1"
                     step="0.01"
@@ -285,7 +296,7 @@ function AdminDashboard() {
                     name="description"
                     placeholder="Enter product description"
                     value={newProduct.description}
-                    onChange={handleInputChange}
+                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                     required
                     rows={3}
                   />
@@ -298,7 +309,7 @@ function AdminDashboard() {
                     name="priority"
                     placeholder="Enter priority"
                     value={newProduct.priority}
-                    onChange={handleInputChange}
+                    onChange={(e) => setNewProduct({...newProduct, priority: e.target.value})}
                     required
                     min="1"
                   />
@@ -309,7 +320,11 @@ function AdminDashboard() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setNewProduct({...newProduct, image: e.target.files[0]});
+                      }
+                    }}
                     required
                   />
                   <small>Select a product image (JPEG, PNG, etc.)</small>
@@ -355,9 +370,13 @@ function AdminDashboard() {
                         src={p.image_url.startsWith('http') ? p.image_url : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${p.image_url}`} 
                         alt={p.name} 
                         onError={handleImageError}
+                        style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                       />
                     ) : (
-                      <div className={styles.noImage}>📷 No Image</div>
+                      <div className={styles.noImage}>
+                        <div style={{ fontSize: '48px' }}>📷</div>
+                        <div>No Image</div>
+                      </div>
                     )}
                   </div>
                   <div className={styles.productContent}>

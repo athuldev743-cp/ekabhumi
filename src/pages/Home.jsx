@@ -189,7 +189,7 @@ const Home = () => {
   // Image fallback
   const handleImageError = (e) => {
     e.target.onerror = null;
-    e.target.src = "/images/product-placeholder.jpg";
+    e.target.src = 'https://placehold.co/400x300/EEE/31343C?text=Product+Image';
   };
 
   // Logo image fallback
