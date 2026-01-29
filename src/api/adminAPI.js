@@ -1,12 +1,11 @@
+// src/api/adminAPI.js - UPDATED WITH EMAIL HANDLING
 const API_URL = process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
 
 // Function to get the correct token
 const getAuthToken = () => {
-  // Try to get Google token from userToken
   const userToken = localStorage.getItem('userToken');
   if (userToken) return userToken;
   
-  // Fallback to adminToken if exists
   const adminToken = localStorage.getItem('adminToken');
   return adminToken;
 };
@@ -42,7 +41,6 @@ export const getProducts = async () => {
   const token = getAuthToken();
   if (!token) throw new Error("No authentication token found");
   
-  // Check if user is admin before making request
   const userData = getUserData();
   if (!userData || userData.role !== "admin") {
     throw new Error("Admin access required");
@@ -71,17 +69,21 @@ export const createProduct = async (formData) => {
     throw new Error("Admin access required");
   }
 
+  // Add placeholder email automatically since backend requires it
+  if (!formData.has('email')) {
+    formData.append('email', 'admin@ekabhumi.com');
+  }
+
   const res = await fetch(`${API_URL}/admin/products`, {
     method: "POST",
     headers: { 
       Authorization: `Bearer ${token}`,
-      // Don't set Content-Type for FormData - browser sets automatically
+      // Don't set Content-Type for FormData
     },
     body: formData,
   });
   
   if (!res.ok) {
-    // Get detailed error message
     const errorText = await res.text();
     console.error("Backend error response:", errorText);
     
@@ -168,7 +170,7 @@ export const getOrders = async () => {
   return res.json();
 };
 
-// NEW: Function to convert Google token to JWT via your auth endpoint
+// Function to convert Google token to JWT via your auth endpoint
 export const convertGoogleToJWT = async (googleToken) => {
   try {
     const res = await fetch(`${API_URL}/auth/google`, {

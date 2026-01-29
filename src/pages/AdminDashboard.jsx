@@ -21,7 +21,7 @@ function AdminDashboard() {
     description: "",
     priority: "1",
     image: null
-  }); // REMOVED: email field
+  });
   
   const navigate = useNavigate();
 
@@ -38,15 +38,12 @@ function AdminDashboard() {
     }
   };
 
-  // Function to convert Google token to JWT if needed
   const ensureJWTToken = async () => {
     const userToken = localStorage.getItem("userToken");
     const adminToken = localStorage.getItem("adminToken");
     
-    // If we already have adminToken, use it
     if (adminToken) return adminToken;
     
-    // If we have userToken (Google), convert it to JWT
     if (userToken) {
       try {
         const result = await convertGoogleToJWT(userToken);
@@ -81,7 +78,6 @@ function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    // Check if user is logged in and is admin
     if (!isUserAdmin()) {
       alert("Access denied. Admin privileges required.");
       navigate("/");
@@ -92,10 +88,7 @@ function AdminDashboard() {
       setLoading(true);
       setError("");
       try {
-        // Ensure we have a valid JWT token
         await ensureJWTToken();
-        
-        // Fetch data
         await Promise.all([fetchProducts(), fetchOrders()]);
       } catch (err) {
         setError("Failed to load dashboard data: " + (err.message || err.toString()));
@@ -118,32 +111,20 @@ function AdminDashboard() {
     }
   };
 
-  // UPDATED: handleAddProduct - removed email field
   const handleAddProduct = async (e) => {
     e.preventDefault();
     
     try {
-      // Create FormData object
       const formData = new FormData();
       formData.append("name", newProduct.name || "");
-      formData.append("price", newProduct.price.toString()); // Convert to string
+      formData.append("price", newProduct.price.toString());
       formData.append("description", newProduct.description || "");
       formData.append("priority", newProduct.priority || "1");
-      
-      // Send placeholder email since backend requires it
-      formData.append("email", "admin@ekabhumi.com");
-      
-      // Debug: Log what we're sending
-      console.log("Sending FormData:");
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value, typeof value);
-      }
+      // Email is added automatically in adminAPI.js
       
       if (newProduct.image) {
-        console.log("Image file:", newProduct.image.name, newProduct.image.type, newProduct.image.size);
         formData.append("image", newProduct.image);
       } else {
-        console.error("No image selected!");
         setError("Please select an image file");
         return;
       }
@@ -160,8 +141,8 @@ function AdminDashboard() {
       });
       fetchProducts();
     } catch (err) {
-      console.error("Add product error details:", err);
-      setError("Failed to add product: " + JSON.stringify(err));
+      console.error("Add product error:", err);
+      setError("Failed to add product: " + (err.detail || err.message || "Unknown error"));
     }
   };
 
@@ -202,7 +183,6 @@ function AdminDashboard() {
       )}
 
       <div className={styles.mainContent}>
-        {/* Products Section */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2>🛍️ Products</h2>
@@ -270,7 +250,6 @@ function AdminDashboard() {
                     <h3>{p.name}</h3>
                     <p className={styles.productPrice}>₹{p.price}</p>
                     <p>{p.description}</p>
-                    {/* REMOVED: email display since it's not needed */}
                   </div>
                   <button 
                     className={styles.deleteBtn}
@@ -284,7 +263,6 @@ function AdminDashboard() {
           )}
         </div>
 
-        {/* Orders Section */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2>📋 Orders</h2>
@@ -312,46 +290,10 @@ function AdminDashboard() {
                       📅 {new Date(o.created_at).toLocaleDateString()}
                     </p>
                   )}
-                  <div style={{marginTop: '10px'}}>
-                    <button style={{background: '#4299e1', color: 'white', padding: '5px 15px', border: 'none', borderRadius: '5px', marginRight: '10px', cursor: 'pointer'}}>
-                      View Details
-                    </button>
-                    {o.status === 'pending' && (
-                      <button style={{background: '#48bb78', color: 'white', padding: '5px 15px', border: 'none', borderRadius: '5px', cursor: 'pointer'}}>
-                        Mark Complete
-                      </button>
-                    )}
-                  </div>
                 </li>
               ))}
             </ul>
           )}
-        </div>
-      </div>
-
-      {/* Stats Footer */}
-      <div className={styles.card}>
-        <div style={{display: 'flex', justifyContent: 'space-around', textAlign: 'center'}}>
-          <div>
-            <h3 style={{color: '#667eea', fontSize: '24px', margin: '0'}}>{products.length}</h3>
-            <p style={{color: '#718096', margin: '5px 0 0 0'}}>Total Products</p>
-          </div>
-          <div>
-            <h3 style={{color: '#48bb78', fontSize: '24px', margin: '0'}}>{orders.length}</h3>
-            <p style={{color: '#718096', margin: '5px 0 0 0'}}>Total Orders</p>
-          </div>
-          <div>
-            <h3 style={{color: '#ed8936', fontSize: '24px', margin: '0'}}>
-              {orders.filter(o => o.status === 'pending').length}
-            </h3>
-            <p style={{color: '#718096', margin: '5px 0 0 0'}}>Pending Orders</p>
-          </div>
-          <div>
-            <h3 style={{color: '#f56565', fontSize: '24px', margin: '0'}}>
-              ₹{orders.reduce((sum, o) => sum + (o.total || 0), 0)}
-            </h3>
-            <p style={{color: '#718096', margin: '5px 0 0 0'}}>Total Revenue</p>
-          </div>
         </div>
       </div>
     </div>
