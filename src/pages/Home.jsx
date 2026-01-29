@@ -21,20 +21,21 @@ const Home = () => {
   const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  // ---------- Check user session ----------
+  // ---------- Check if user is already logged in ----------
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        if (parsedUser.role === "admin") navigate("/admin/dashboard");
-      } catch {
+        // NO AUTO-REDIRECT - user stays on home page
+      } catch (error) {
+        console.error("Error parsing user data:", error);
         localStorage.removeItem("userToken");
         localStorage.removeItem("userData");
       }
     }
-  }, [navigate]);
+  }, []); // Removed navigate dependency
 
   // ---------- Fetch products ----------
   useEffect(() => {
@@ -61,36 +62,61 @@ const Home = () => {
   }, []);
 
   const handleGoogleLogin = () => {
-    if (!window.google) return alert("Google login loading");
+    if (!window.google) {
+      alert("Google login loading... Please try again in a moment.");
+      return;
+    }
 
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleResponse,
     });
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignInDiv"),
+      { theme: "outline", size: "large" }
+    );
     window.google.accounts.id.prompt();
   };
 
   const handleGoogleResponse = (response) => {
     try {
       const payload = JSON.parse(atob(response.credential.split(".")[1]));
-      const role = ADMIN_EMAILS.includes(payload.email) ? "admin" : "user";
+      const userEmail = payload.email;
+      
+      // Check if email is in admin list
+      const isAdmin = ADMIN_EMAILS.includes(userEmail);
+      const role = isAdmin ? "admin" : "user";
 
       const userData = {
         name: payload.name,
-        email: payload.email,
+        email: userEmail,
         profile_pic: payload.picture,
-        role,
+        role: role,
+        isAdmin: isAdmin
       };
 
+      // Save to localStorage
       localStorage.setItem("userToken", response.credential);
       localStorage.setItem("userData", JSON.stringify(userData));
       setUser(userData);
 
-      if (role === "admin") navigate("/admin/dashboard");
-      else alert(`Logged in as ${userData.name}!`);
+      // Show success message
+      if (isAdmin) {
+        alert(`Welcome Admin ${userData.name}! You can access the admin dashboard from the button in the navbar.`);
+      } else {
+        alert(`Welcome ${userData.name}! You are now logged in.`);
+      }
+
+      console.log("User logged in:", {
+        name: userData.name,
+        email: userData.email,
+        role: userData.role,
+        isAdmin: userData.isAdmin
+      });
+
     } catch (err) {
-      console.error("Login failed", err);
-      alert("Login failed");
+      console.error("Login failed:", err);
+      alert("Login failed. Please try again.");
     }
   };
 
@@ -99,6 +125,16 @@ const Home = () => {
     localStorage.removeItem("userData");
     setUser(null);
     alert("Logged out successfully!");
+  };
+
+  const goToAdminDashboard = () => {
+    // Double-check user is admin before navigating
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+    if (userData && userData.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      alert("Access denied. Admin privileges required.");
+    }
   };
 
   // ---------- Carousel helpers ----------
@@ -153,11 +189,23 @@ const Home = () => {
           <a href="#blog">Blog</a>
           <a href="#testimonials">Testimonials</a>
         </div>
-         {/* LOGIN/LOGOUT IN NAVBAR ONLY */}
+        
+        {/* LOGIN/LOGOUT SECTION - OPTIONAL LOGIN */}
         <div className="auth-section">
           {user ? (
             <div className="user-nav">
               <span className="user-greeting">Hi, {user.name}</span>
+              
+              {/* Show Admin Dashboard button ONLY if user is admin */}
+              {user.isAdmin === true && (
+                <button 
+                  className="admin-dashboard-btn"
+                  onClick={goToAdminDashboard}
+                >
+                  Admin Dashboard
+                </button>
+              )}
+              
               <button className="logout-nav-btn" onClick={handleLogout}>
                 Logout
               </button>
@@ -168,19 +216,25 @@ const Home = () => {
             </button>
           )}
         </div>
+        
+        {/* Hidden div for Google Sign In button */}
+        <div id="googleSignInDiv" style={{ display: 'none' }}></div>
       </nav>
 
-      {/* HERO */}
+      {/* HERO SECTION */}
       <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
         <div className="hero-content">
-         
-          <button className="primary-btn" onClick={() => document.getElementById("products").scrollIntoView({ behavior: "smooth" })}>
+          
+          <button 
+            className="primary-btn" 
+            onClick={() => document.getElementById("products").scrollIntoView({ behavior: "smooth" })}
+          >
             Shop Now
           </button>
         </div>
       </section>
 
-      {/* PRODUCTS */}
+      {/* PRODUCTS SECTION - NO LOGIN REQUIRED TO VIEW */}
       <section id="products" className="product-preview">
         <h2>Our Products</h2>
         {loading && <p className="loading-text">Loading products...</p>}
@@ -191,14 +245,33 @@ const Home = () => {
           <div className="carousel-track" ref={trackRef}>
             {products.map((p) => (
               <div className="product-card" key={p.id}>
-                <img src={p.image_url || "/images/product-placeholder.jpg"} alt={p.name} className="product-image" onError={handleImageError} />
+                <img 
+                  src={p.image_url || "/images/product-placeholder.jpg"} 
+                  alt={p.name} 
+                  className="product-image" 
+                  onError={handleImageError} 
+                />
                 <div className="product-info">
                   <span className="product-name">{p.name}</span>
                   <span className="product-price">₹{p.price}</span>
+                  <p className="product-description">{p.description?.substring(0, 60)}...</p>
+                  
+                  {/* Show different button based on login status */}
                   {user ? (
-                    <button onClick={() => navigate(`/product/${p.id}`)}>View Details</button>
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => navigate(`/product/${p.id}`)}
+                    >
+                      View Details
+                    </button>
                   ) : (
-                    <button onClick={handleGoogleLogin} title="Login to view details">Login to View</button>
+                    <button 
+                      className="login-to-view-btn"
+                      onClick={handleGoogleLogin}
+                      title="Login to view product details"
+                    >
+                      Login to View Details
+                    </button>
                   )}
                 </div>
               </div>
@@ -206,16 +279,17 @@ const Home = () => {
           </div>
           <button className="carousel-arrow next" onClick={nextSlide}>&#10095;</button>
         </div>
+        
+        {/* Info message about optional login */}
+        <div className="login-info">
+         
+        </div>
       </section>
 
-      {/* SECTIONS */}
+      {/* OTHER SECTIONS */}
       <section id="about"><About /></section>
       <Blog />
       <Testimonial />
-
-      {/* LOGIN SECTION AFTER TESTIMONIALS */}
-     
-
       <Footer />
     </>
   );
