@@ -75,13 +75,24 @@ export const createProduct = async (formData) => {
     method: "POST",
     headers: { 
       Authorization: `Bearer ${token}`,
+      // Don't set Content-Type for FormData - browser sets automatically
     },
     body: formData,
   });
   
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: "Create product failed" }));
-    throw error;
+    // Get detailed error message
+    const errorText = await res.text();
+    console.error("Backend error response:", errorText);
+    
+    let errorDetail;
+    try {
+      errorDetail = JSON.parse(errorText);
+    } catch {
+      errorDetail = { detail: errorText || "Create product failed" };
+    }
+    
+    throw errorDetail;
   }
   return res.json();
 };
