@@ -106,53 +106,42 @@ export const getOrders = async () => {
 
 // Function to convert Google token to JWT
 export const convertGoogleToJWT = async (googleToken) => {
-  try {
-    const response = await fetch(`${API_URL}/auth/google`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token: googleToken }),
-    });
-    
-    const data = await handleResponse(response);
-    
-    if (data.access_token) {
-      localStorage.setItem('adminToken', data.access_token);
-    }
-    
-    return data;
-  } catch (error) {
-    console.error("Google token conversion failed:", error);
-    
-    // For development/testing, return a mock token
-    const mockResponse = {
-      access_token: "test-token",
-      token_type: "bearer",
-      role: "admin",
-      email: "admin@ekabhumi.com"
-    };
-    
-    localStorage.setItem('adminToken', mockResponse.access_token);
-    return mockResponse;
+  const response = await fetch(`${API_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: googleToken }),
+  });
+
+  const data = await handleResponse(response);
+
+  if (data.access_token) {
+    localStorage.setItem("adminToken", data.access_token);
   }
+
+  return data;
 };
+
 
 // Add this helper function for your AdminDashboard
 export const ensureAdminToken = async () => {
-  const adminToken = localStorage.getItem('adminToken');
-  const userToken = localStorage.getItem('userToken');
-  
+  const adminToken = localStorage.getItem("adminToken");
   if (adminToken) return adminToken;
-  
+
+  const userToken = localStorage.getItem("userToken");
   if (userToken) {
-    try {
-      const result = await convertGoogleToJWT(userToken);
-      return result.access_token;
-    } catch (error) {
-      console.error("Failed to convert Google token:", error);
-    }
+    const result = await convertGoogleToJWT(userToken);
+    return result.access_token;
   }
-  
-  return 'test-token'; // Fallback for development
+
+  if (process.env.NODE_ENV !== "production") return "test-token";
+  throw new Error("No valid token. Please login again.");
+};
+
+export const approveOrder = async (orderId) => {
+  const token = getAuthToken();
+  const response = await fetch(`${API_URL}/admin/orders/${orderId}/approve`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return handleResponse(response);
 };

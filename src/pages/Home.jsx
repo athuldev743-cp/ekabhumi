@@ -42,23 +42,18 @@ const loadProducts = async () => {
   try {
     setLoading(true);
     const data = await fetchProducts();
-
-    if (Array.isArray(data) && data.length > 0) {
-      setProducts(data);
-      setError("");
-    } else {
-      // only show "no products" if you genuinely got empty list
-      setProducts([]);
-      setError("No products available. Add products from admin dashboard.");
-    }
+    setProducts(Array.isArray(data) ? data : []);
+    setError("");
   } catch (err) {
     console.error("Failed to load products", err);
-    // ✅ keep existing products instead of wiping
-    setError("Temporary issue loading products. Please try again.");
+    setError("Temporary issue loading products.");
+    // ✅ DO NOT clear products here (keep last known UI)
+    // setProducts([]);
   } finally {
     setLoading(false);
   }
 };
+
 
 
   // Fetch products - CORRECTED VERSION

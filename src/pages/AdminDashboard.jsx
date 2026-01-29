@@ -454,23 +454,59 @@ alert("Product added successfully!");
                 <div key={o.id} className={styles.orderCard}>
                   <div className={styles.orderHeader}>
                     <h3>Order #{o.id}</h3>
-                    <span className={`${styles.statusBadge} ${o.status === 'completed' ? styles.statusCompleted : styles.statusPending}`}>
+                    <span className={`${styles.statusBadge} ${o.status === "confirmed" ? styles.statusCompleted : styles.statusPending}`}>
                       {o.status}
-                    </span>
+                      </span>
+  
+
+
                   </div>
                   <div className={styles.orderDetails}>
-                    {o.user_email && <p><strong>Customer:</strong> {o.user_email}</p>}
-                    <p><strong>Total:</strong> ₹{parseFloat(o.total_amount || 0).toFixed(2)}</p>
-                    {o.created_at && (
-                      <p><strong>Date:</strong> {new Date(o.created_at).toLocaleDateString()}</p>
-                    )}
-                  </div>
-                  <div className={styles.orderActions}>
-                    <button className={styles.viewBtn}>View Details</button>
-                    {o.status === 'pending' && (
-                      <button className={styles.completeBtn}>Mark Complete</button>
-                    )}
-                  </div>
+  {o.customer_email && (
+    <p><strong>Customer:</strong> {o.customer_email}</p>
+  )}
+
+  <p><strong>Total:</strong> ₹{parseFloat(o.total_amount || 0).toFixed(2)}</p>
+
+  {o.order_date && (
+    <p><strong>Date:</strong> {new Date(o.order_date).toLocaleDateString()}</p>
+  )}
+</div>
+
+                 <div className={styles.orderActions}>
+  <button className={styles.viewBtn}>View Details</button>
+
+  {o.status === "pending" && (
+    <button
+      className={styles.completeBtn}
+      onClick={async () => {
+        try {
+          const token = await ensureJWTToken();
+          const API_BASE =
+            process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
+
+          const res = await fetch(`${API_BASE}/admin/orders/${o.id}/approve`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!res.ok) {
+            const text = await res.text().catch(() => "");
+            throw new Error(`Approve failed: ${res.status} ${text}`);
+          }
+
+          await fetchOrders();
+          alert("✅ Order approved and email sent!");
+        } catch (e) {
+          alert(e?.message || "Failed to approve order");
+        }
+      }}
+    >
+      Approve & Send Email
+    </button>
+  )}
+</div>
+
                 </div>
               ))}
             </div>

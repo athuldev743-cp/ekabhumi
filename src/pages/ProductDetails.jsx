@@ -129,7 +129,7 @@ const ProductDetails = () => {
       const orderData = {
         product_id: product.id,
         product_name: product.name,
-        quantity: quantity,
+        quantity,
         unit_price: product.price,
         total_amount: product.price * quantity,
         customer_name: orderForm.fullName,
@@ -139,7 +139,6 @@ const ProductDetails = () => {
         notes: orderForm.notes,
         status: "pending",
         payment_status: "pending",
-        order_date: new Date().toISOString()
       };
 
       console.log("Submitting order:", orderData);
@@ -147,7 +146,7 @@ const ProductDetails = () => {
       console.log("Order created:", result);
       
       // Show success message
-      alert("✅ Order placed successfully! You'll receive a confirmation email shortly.");
+      alert("✅ Order placed! You will receive an email once the admin confirms your order.");
       
       // Reset and navigate
       setShowOrderForm(false);
@@ -157,7 +156,13 @@ const ProductDetails = () => {
       
     } catch (err) {
       console.error("Failed to create order:", err);
-      alert("Failed to place order. Please try again.");
+
+      const msg =
+        typeof err?.message === "string" && err.message.trim()
+          ? err.message
+          : "Failed to place order. Please try again.";
+
+      alert(msg);
     } finally {
       setOrderLoading(false);
     }

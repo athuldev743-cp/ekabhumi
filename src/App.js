@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
-import ProductDetails from "./pages/ProductDetails";
+import ProductDetails from "./pages/ProductDetails.jsx";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute"; // Update import
 
