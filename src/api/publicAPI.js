@@ -116,8 +116,12 @@ export async function fetchProductById(id) {
 /**
  * Create order (Checkout page) - REQUIRED EXPORT
  */
+// In publicAPI.js - update createOrder function
 export async function createOrder(orderData) {
   const url = getUrl('/orders');
+  
+  console.log("🟡 [Frontend] Sending order to:", url);
+  console.log("🟡 [Frontend] Order data being sent:", JSON.stringify(orderData, null, 2));
   
   try {
     const res = await fetch(url, {
@@ -129,19 +133,23 @@ export async function createOrder(orderData) {
       body: JSON.stringify(orderData),
     });
 
+    console.log("🟡 [Frontend] Response status:", res.status);
+    
     if (!res.ok) {
       const errorText = await res.text();
-      console.error("Create order error:", errorText);
+      console.error("❌ [Frontend] Create order error:", errorText);
       throw new Error(errorText || 'Failed to create order');
     }
     
-    return await res.json();
+    const responseData = await res.json();
+    console.log("✅ [Frontend] Order created successfully:", responseData);
+    return responseData;
+    
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('❌ [Frontend] Error creating order:', error);
     throw error;
   }
 }
-
 /**
  * Get order by ID (Order confirmation page) - REQUIRED EXPORT
  */
