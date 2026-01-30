@@ -1,47 +1,31 @@
-// src/pages/ProductDetails.jsx - UPDATED
+// src/pages/ProductDetails.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchProductById, createOrder } from "../api/publicAPI";
+import { fetchProductById } from "../api/publicAPI";
+import BuyModal from "../components/Buy"; // <-- new component
 import "./ProductDetails.css";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [quantity, setQuantity] = useState(1);
-  const [orderLoading, setOrderLoading] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
+
   const [user, setUser] = useState(null);
-  
-  // Order form state
-  const [orderForm, setOrderForm] = useState({
-    fullName: "",
-    phoneNumber: "",
-    email: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-    notes: ""
-  });
+  const [showBuy, setShowBuy] = useState(false);
 
   // Check if user is logged in
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        // Pre-fill user data
-        setOrderForm(prev => ({
-          ...prev,
-          fullName: parsedUser.name || "",
-          email: parsedUser.email || ""
-        }));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
       }
     }
   }, []);
@@ -49,6 +33,7 @@ const ProductDetails = () => {
   useEffect(() => {
     async function loadProduct() {
       try {
+        setLoading(true);
         const data = await fetchProductById(id);
         setProduct(data);
       } catch (err) {
@@ -61,482 +46,210 @@ const ProductDetails = () => {
     loadProduct();
   }, [id]);
 
-  const handleOrderClick = () => {
+  const handleBuyNow = () => {
     if (!user) {
       alert("Please login to place an order!");
       navigate("/");
       return;
     }
-    setShowOrderForm(true);
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setOrderForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const validateForm = () => {
-    const { fullName, phoneNumber, email, address, city, state, pincode } = orderForm;
-    
-    if (!fullName.trim()) {
-      alert("Please enter your full name");
-      return false;
-    }
-    
-    if (!phoneNumber.trim() || !/^\d{10}$/.test(phoneNumber)) {
-      alert("Please enter a valid 10-digit phone number");
-      return false;
-    }
-    
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
-      alert("Please enter a valid email address");
-      return false;
-    }
-    
-    if (!address.trim()) {
-      alert("Please enter your delivery address");
-      return false;
-    }
-    
-    if (!city.trim()) {
-      alert("Please enter your city");
-      return false;
-    }
-    
-    if (!state.trim()) {
-      alert("Please enter your state");
-      return false;
-    }
-    
-    if (!pincode.trim() || !/^\d{6}$/.test(pincode)) {
-      alert("Please enter a valid 6-digit pincode");
-      return false;
-    }
-    
-    return true;
-  };
-
-  const handleOrderSubmit = async () => {
-    if (!validateForm()) return;
-    
-    if (!product) return;
-
-    setOrderLoading(true);
-    try {
-      const orderData = {
-        product_id: product.id,
-        product_name: product.name,
-        quantity,
-        unit_price: product.price,
-        total_amount: product.price * quantity,
-        customer_name: orderForm.fullName,
-        customer_email: orderForm.email,
-        customer_phone: orderForm.phoneNumber,
-        shipping_address: `${orderForm.address}, ${orderForm.city}, ${orderForm.state} - ${orderForm.pincode}`,
-        notes: orderForm.notes,
-        status: "pending",
-        payment_status: "pending",
-      };
-
-      console.log("Submitting order:", orderData);
-      const result = await createOrder(orderData);
-      console.log("Order created:", result);
-      
-      // Show success message
-      alert("✅ Order placed! You will receive an email once the admin confirms your order.");
-      
-      // Reset and navigate
-      setShowOrderForm(false);
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-      
-    } catch (err) {
-      console.error("Failed to create order:", err);
-
-      const msg =
-        typeof err?.message === "string" && err.message.trim()
-          ? err.message
-          : "Failed to place order. Please try again.";
-
-      alert(msg);
-    } finally {
-      setOrderLoading(false);
-    }
+    setShowBuy(true);
   };
 
   // --- Cart helpers (localStorage) ---
-const getCart = () => {
-  try {
-    return JSON.parse(localStorage.getItem("cart") || "[]");
-  } catch {
-    return [];
-  }
-};
+  const getCart = () => {
+    try {
+      return JSON.parse(localStorage.getItem("cart") || "[]");
+    } catch {
+      return [];
+    }
+  };
 
-const saveCart = (next) => {
-  localStorage.setItem("cart", JSON.stringify(next));
-  // Optional: notify other tabs/components
-  window.dispatchEvent(new Event("cart:updated"));
-};
+  const saveCart = (next) => {
+    localStorage.setItem("cart", JSON.stringify(next));
+    window.dispatchEvent(new Event("cart:updated"));
+  };
 
-const addToCart = () => {
-  if (!product) return;
+  const addToCart = () => {
+    if (!product) return;
 
-  const cart = getCart();
+    const cart = getCart();
+    const existing = cart.find((x) => String(x.id) === String(product.id));
+    let next;
 
-  const existing = cart.find((x) => String(x.id) === String(product.id));
-  let next;
+    if (existing) {
+      next = cart.map((x) =>
+        String(x.id) === String(product.id)
+          ? { ...x, qty: Number(x.qty || 1) + Number(quantity || 1) }
+          : x
+      );
+    } else {
+      next = [
+        ...cart,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: Number(quantity || 1),
+        },
+      ];
+    }
 
-  if (existing) {
-    // Add quantity to existing item
-    next = cart.map((x) =>
-      String(x.id) === String(product.id)
-        ? { ...x, qty: Number(x.qty || 1) + Number(quantity || 1) }
-        : x
-    );
-  } else {
-    // Add new item
-    next = [
-      ...cart,
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        qty: Number(quantity || 1),
-      },
-    ];
-  }
-
-  saveCart(next);
-  alert("✅ Added to cart!");
-};
-
+    saveCart(next);
+    alert("✅ Added to cart!");
+  };
 
   const handleImageError = (e) => {
     e.target.onerror = null;
-    e.target.src = "https://placehold.co/600x400/EEE/31343C?text=Product+Image";
+    e.target.src = "https://placehold.co/900x700/EEE/31343C?text=Product+Image";
   };
 
   const totalPrice = product ? product.price * quantity : 0;
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading product details...</p>
+      <div className="pd-page">
+        <div className="pd-state">
+          <div className="pd-spinner" />
+          <p>Loading product details...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="error-container">
-        <h2>⚠️ Product Not Found</h2>
-        <p>{error || "The product you're looking for doesn't exist."}</p>
-        <button 
-          className="back-btn"
-          onClick={() => navigate("/")}
-        >
-          ← Back to Home
-        </button>
+      <div className="pd-page">
+        <div className="pd-state">
+          <h2>⚠️ Product Not Found</h2>
+          <p>{error || "The product you're looking for doesn't exist."}</p>
+          <button className="pd-btn pd-btn-outline" onClick={() => navigate("/")}>
+            ← Back to Home
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="product-details-container">
+    <div className="pd-page">
       {/* Header */}
-      <div className="details-header">
-        <button 
-          className="back-btn"
-          onClick={() => navigate("/")}
-        >
+      <div className="pd-header">
+        <button className="pd-btn pd-btn-outline" onClick={() => navigate("/")}>
           ← Back to Products
         </button>
-        <h1>Product Details</h1>
+        <h1 className="pd-title">Product Details</h1>
       </div>
 
-      
+      {/* Premium Card */}
+      <div className="pd-card">
+        <div className="pd-grid">
+          {/* Image */}
+          <div className="pd-imageWrap">
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="pd-image"
+              onError={handleImageError}
+              loading="lazy"
+            />
+          </div>
 
-
-      {/* Order Form Modal */}
-      {showOrderForm && (
-        <div className="order-modal-overlay">
-          <div className="order-modal">
-            <div className="modal-header">
-              <h2>Complete Your Order</h2>
-              <button 
-                className="modal-close"
-                onClick={() => setShowOrderForm(false)}
-                disabled={orderLoading}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="modal-content">
-              {/* Order Summary */}
-              <div className="modal-order-summary">
-                <h3>Order Summary</h3>
-                <div className="summary-item">
-                  <span>Product:</span>
-                  <span>{product.name}</span>
-                </div>
-                <div className="summary-item">
-                  <span>Price:</span>
-                  <span>₹{product.price} × {quantity}</span>
-                </div>
-                <div className="summary-item total">
-                  <span>Total:</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
-                </div>
+          {/* Content */}
+          <div className="pd-content">
+            <div className="pd-top">
+              <div>
+                <h2 className="pd-name">{product.name}</h2>
+                <p className="pd-sub">Premium quality • Authentic feel • Fast delivery</p>
               </div>
+              <div className="pd-price">₹{product.price}</div>
+            </div>
 
-              {/* Shipping Details Form */}
-              <div className="shipping-form">
-                <h3>Shipping Details</h3>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="fullName">Full Name *</label>
-                    <input
-                      type="text"
-                      id="fullName"
-                      name="fullName"
-                      value={orderForm.fullName}
-                      onChange={handleFormChange}
-                      placeholder="Enter your full name"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="phoneNumber">Phone Number *</label>
-                    <input
-                      type="tel"
-                      id="phoneNumber"
-                      name="phoneNumber"
-                      value={orderForm.phoneNumber}
-                      onChange={handleFormChange}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                      pattern="[0-9]{10}"
-                      required
-                    />
-                  </div>
-                </div>
+            {/* Description */}
+            <div className="pd-section">
+              <h3 className="pd-h3">Description</h3>
+              <p className="pd-desc">{product.description || "No description available."}</p>
+            </div>
 
-                <div className="form-group">
-                  <label htmlFor="email">Email Address *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={orderForm.email}
-                    onChange={handleFormChange}
-                    placeholder="Enter your email"
-                    required
-                  />
-                </div>
+            {/* Quantity */}
+            <div className="pd-section">
+              <h3 className="pd-h3">Quantity</h3>
+              <div className="pd-qtyRow">
+                <button
+                  className="pd-qtyBtn"
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="pd-qty">{quantity}</span>
+                <button
+                  className="pd-qtyBtn"
+                  onClick={() => setQuantity((prev) => prev + 1)}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+              <p className="pd-note">Choose how many units you want.</p>
+            </div>
 
-                <div className="form-group">
-                  <label htmlFor="address">Delivery Address *</label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    value={orderForm.address}
-                    onChange={handleFormChange}
-                    placeholder="Full address with landmark"
-                    rows={3}
-                    required
-                  />
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="city">City *</label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={orderForm.city}
-                      onChange={handleFormChange}
-                      placeholder="City"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="state">State *</label>
-                    <input
-                      type="text"
-                      id="state"
-                      name="state"
-                      value={orderForm.state}
-                      onChange={handleFormChange}
-                      placeholder="State"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="pincode">Pincode *</label>
-                    <input
-                      type="text"
-                      id="pincode"
-                      name="pincode"
-                      value={orderForm.pincode}
-                      onChange={handleFormChange}
-                      placeholder="6-digit pincode"
-                      maxLength={6}
-                      pattern="[0-9]{6}"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="notes">Order Notes (Optional)</label>
-                  <textarea
-                    id="notes"
-                    name="notes"
-                    value={orderForm.notes}
-                    onChange={handleFormChange}
-                    placeholder="Any special instructions or notes"
-                    rows={2}
-                  />
-                </div>
+            {/* Summary */}
+            <div className="pd-summary">
+              <div className="pd-srow">
+                <span>Price (each)</span>
+                <span>₹{product.price}</span>
+              </div>
+              <div className="pd-srow">
+                <span>Quantity</span>
+                <span>{quantity}</span>
+              </div>
+              <div className="pd-srow pd-total">
+                <span>Total</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
-                onClick={() => setShowOrderForm(false)}
-                disabled={orderLoading}
-              >
-                Cancel
+            {/* Actions */}
+            <div className="pd-actions">
+              <button className="pd-btn pd-btn-soft" onClick={addToCart}>
+                Add to Cart
               </button>
-              <button 
-                className="confirm-order-btn"
-                onClick={handleOrderSubmit}
-                disabled={orderLoading}
-              >
-                {orderLoading ? (
-                  <>
-                    <span className="spinner"></span>
-                    Processing...
-                  </>
-                ) : (
-                  "✅ Confirm Order"
-                )}
+
+              <button className="pd-btn pd-btn-primary" onClick={handleBuyNow} disabled={!user}>
+                Buy Now
               </button>
+
+              {!user ? (
+                <div className="pd-loginHint">
+                  Please login to continue checkout.
+                  <button className="pd-linkBtn" onClick={() => navigate("/")}>
+                    Login
+                  </button>
+                </div>
+              ) : (
+                <button className="pd-btn pd-btn-outline" onClick={() => navigate("/account")}>
+                  View Cart
+                </button>
+              )}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="product-details-content">
-        {/* Left: Product Image */}
-        <div className="product-image-section">
-          <img 
-            src={product.image_url} 
-            alt={product.name}
-            className="product-detail-image"
-            onError={handleImageError}
-          />
-        </div>
-
-        {/* Right: Product Info */}
-        <div className="product-info-section">
-          <div className="product-header">
-            <h2 className="product-name">{product.name}</h2>
-            <div className="product-price-large">₹{product.price}</div>
-          </div>
-
-         
-
-          {/* Description */}
-          <div className="description-section">
-            <h3>Description</h3>
-            <p className="product-description">
-              {product.description || "No description available."}
-            </p>
-          </div>
-
-          {/* Quantity Selector */}
-          <div className="quantity-section">
-            <h3>Quantity</h3>
-            <div className="quantity-controls">
-              <button 
-                className="quantity-btn"
-                onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                disabled={quantity <= 1}
-              >
-                −
-              </button>
-              <span className="quantity-display">{quantity}</span>
-              <button 
-                className="quantity-btn"
-                onClick={() => setQuantity(prev => prev + 1)}
-              >
-                +
-              </button>
-            </div>
-            <p className="quantity-note">Select the quantity you want to order</p>
-          </div>
-
-          {/* Order Summary */}
-          <div className="order-summary">
-            <h3>Order Summary</h3>
-            <div className="summary-row">
-              <span>Price (each):</span>
-              <span>₹{product.price}</span>
-            </div>
-            <div className="summary-row">
-              <span>Quantity:</span>
-              <span>{quantity}</span>
-            </div>
-            <div className="summary-row total">
-              <span>Total Amount:</span>
-              <span className="total-amount">₹{totalPrice.toFixed(2)}</span>
-            </div>
-          </div>
-
-         {/* Actions */}
-<div className="actions">
-  <div className="actions-row">
-    <button className="add-cart-btn" onClick={addToCart}>
-      Add to Cart
-    </button>
-
-    <button className="buy-btn" onClick={handleOrderClick} disabled={!user}>
-      Buy Now
-    </button>
-  </div>
-
-  {!user ? (
-    <div className="login-hint">
-      Please login to continue checkout.
-      <button className="link-btn" onClick={() => navigate("/")}>
-        Login
-      </button>
-    </div>
-  ) : (
-    <button className="go-cart-btn" onClick={() => navigate("/account")}>
-      View Cart
-    </button>
-  )}
-
-  <p className="order-note">
-    Secure checkout • Fast delivery • Support available
-  </p>
-</div>
-
         </div>
       </div>
+
+      {/* Buy Modal (separate component + separate CSS) */}
+      <BuyModal
+        open={showBuy}
+        onClose={() => setShowBuy(false)}
+        product={product}
+        quantity={quantity}
+        user={user}
+        onSuccess={() => {
+          setShowBuy(false);
+          // You can redirect after success:
+          navigate("/");
+        }}
+      />
     </div>
   );
 };
