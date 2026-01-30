@@ -342,64 +342,99 @@ const Home = () => {
 
       {/* ✅ Mobile menu overlay ONLY when logged in (because hamburger only appears then) */}
       {menuOpen && user && (
-        <div className="mobileMenuOverlay" onMouseDown={closeMenu}>
-          <div className="mobileMenuPanel" onMouseDown={(e) => e.stopPropagation()}>
-            {/* 1) Account first */}
-            <div className="mobileMenuSection">
-              <button
-                className="mobileMenuItem"
-                type="button"
-                onClick={() => {
-                  closeMenu();
-                  navigate("/account");
-                }}
-              >
-                <span className="mmIcon">
-                  {user.profile_pic ? (
-                    <img
-                      src={user.profile_pic}
-                      alt="Account"
-                      className="mmAvatar"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <User size={18} />
-                  )}
-                </span>
-                Account
-              </button>
-            </div>
+  <div className="mobileMenuOverlay" onMouseDown={closeMenu}>
+    <div className="mobileMenuPanel" onMouseDown={(e) => e.stopPropagation()}>
 
-            {/* 2) Nav links */}
-            <div className="mobileMenuSection">
-              <a className="mobileMenuItem" href="#home" onClick={closeMenu}>Home</a>
-              <a className="mobileMenuItem" href="#products" onClick={closeMenu}>Products</a>
-              <a className="mobileMenuItem" href="#about" onClick={closeMenu}>About</a>
-              <a className="mobileMenuItem" href="#blog" onClick={closeMenu}>Blog</a>
-              <a className="mobileMenuItem" href="#testimonials" onClick={closeMenu}>Testimonials</a>
-            </div>
+      {/* ✅ Header with Back Arrow */}
+      <div className="mobileMenuHeader">
+        <button
+          type="button"
+          className="mobileMenuBack"
+          onClick={closeMenu}
+          aria-label="Back"
+        >
+          ←
+        </button>
 
-            {/* 3) Admin Dashboard last (if admin) */}
-            {user?.isAdmin === true && (
-              <div className="mobileMenuSection">
-                <button className="mobileMenuItem" type="button" onClick={goToAdminDashboard}>
-                  Admin Dashboard
-                </button>
-              </div>
+        <div className="mobileMenuTitle">Menu</div>
+
+        {/* spacer to keep title centered */}
+        <div className="mobileMenuSpacer" />
+      </div>
+
+      {/* 1) Account first */}
+      <div className="mobileMenuSection">
+        <button
+          className="mobileMenuItem"
+          type="button"
+          onClick={() => {
+            closeMenu();
+            navigate("/account");
+          }}
+        >
+          <span className="mmIcon">
+            {user.profile_pic ? (
+              <img
+                src={user.profile_pic}
+                alt="Account"
+                className="mmAvatar"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <User size={18} />
             )}
-          </div>
-        </div>
-      )}
+          </span>
+          Account
+        </button>
+      </div>
 
-      {/* HERO (desktop unchanged) + mobile-only image */}
-      <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
-        <img className="hero-mobile-img" src="/images/hero-mobile.png" alt="Eka Bhumi" loading="lazy" />
-        <div className="hero-content">
-          <button className="primary-btn" onClick={goToPriorityOneProduct}>
-            Shop Now
+      {/* 2) Nav links */}
+      <div className="mobileMenuSection">
+        <a className="mobileMenuItem" href="#home" onClick={closeMenu}>Home</a>
+        <a className="mobileMenuItem" href="#products" onClick={closeMenu}>Products</a>
+        <a className="mobileMenuItem" href="#about" onClick={closeMenu}>About</a>
+        <a className="mobileMenuItem" href="#blog" onClick={closeMenu}>Blog</a>
+        <a className="mobileMenuItem" href="#testimonials" onClick={closeMenu}>Testimonials</a>
+      </div>
+
+      {/* 3) Admin Dashboard last (if admin) */}
+      {user?.isAdmin === true && (
+        <div className="mobileMenuSection">
+          <button
+            className="mobileMenuItem"
+            type="button"
+            onClick={goToAdminDashboard}
+          >
+            Admin Dashboard
           </button>
         </div>
-      </section>
+      )}
+    </div>
+  </div>
+)}
+
+      {/* HERO (desktop unchanged) + mobile-only image */}
+     <section
+  id="home"
+  className="hero"
+  style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}
+>
+  <div className="hero-mobile-wrap">
+    <img
+      className="hero-mobile-img"
+      src="/images/hero-mobile.png"
+      alt="Eka Bhumi"
+      loading="lazy"
+    />
+
+    <div className="hero-content">
+      <button className="primary-btn" onClick={goToPriorityOneProduct}>
+        Shop Now
+      </button>
+    </div>
+  </div>
+</section>
+
 
       <section id="products" className="product-preview">
         <h2>Our Products</h2>

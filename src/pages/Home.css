@@ -50,7 +50,7 @@ body {
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
 }
 
-/* Logo container - FIXED SIZE */
+/* Logo container */
 .logo {
   display: flex;
   align-items: center;
@@ -59,7 +59,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Logo image - FORCE LARGE SIZE */
+/* Logo image */
 .logo-img {
   height: 70px !important;
   width: auto !important;
@@ -71,7 +71,6 @@ body {
   transform-origin: center;
 }
 
-/* Make it even larger on larger screens */
 @media (min-width: 1200px) {
   .logo-img {
     height: 75px !important;
@@ -79,13 +78,12 @@ body {
   }
 }
 
-/* Alternative: If logo is too small, scale it up */
 .logo-img.scaled {
   transform: scale(1.5);
   transform-origin: left center;
 }
 
-/* When scrolled - hide the image logo */
+/* When scrolled - hide image logo */
 .navbar.scrolled .logo-img {
   opacity: 0;
   visibility: hidden;
@@ -110,7 +108,6 @@ body {
   white-space: nowrap;
 }
 
-/* When scrolled - show text logo */
 .navbar.scrolled .text-logo {
   opacity: 1;
   visibility: visible;
@@ -122,8 +119,6 @@ body {
   gap: 32px;
   align-items: center;
   height: 80px;
-
-  /* ✅ Prevent nav-links pushing auth section */
   flex: 1;
   justify-content: center;
 }
@@ -140,7 +135,6 @@ body {
   align-items: center;
 }
 
-/* Links become darker on scroll */
 .navbar.scrolled .nav-links a {
   color: #000000;
   font-weight: 600;
@@ -296,7 +290,7 @@ body {
   box-shadow: 0 3px 10px rgba(242, 103, 34, 0.3);
 }
 
-/* Lock icon for login button */
+/* Lock icon for login-to-view button */
 .login-to-view-btn::after {
   content: '🔒';
   font-size: 14px;
@@ -317,6 +311,7 @@ body {
   justify-content: center;
 }
 
+/* Desktop button position (unchanged) */
 .hero-content {
   position: absolute;
   bottom: 100px;
@@ -325,6 +320,7 @@ body {
   z-index: 2;
 }
 
+/* Desktop button unchanged */
 .primary-btn {
   background: linear-gradient(135deg, var(--dark-orange), #ff8c42);
   color: white;
@@ -360,18 +356,19 @@ body {
   box-shadow: 0 20px 40px rgba(242, 103, 34, 0.6);
 }
 
-/* ✅ Mobile-only hero image (hidden on desktop) */
-.hero-mobile-img{
+/* Mobile hero wrap (hidden on desktop) */
+.hero-mobile-wrap {
   display: none;
-  width: min(92vw, 520px);
+  position: relative;
+  width: min(94vw, 560px);
+}
+
+.hero-mobile-img {
+  display: none;
+  width: 100%;
   height: auto;
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
   border-radius: 18px;
-  pointer-events: none; /* ✅ prevents blocking Shop Now click */
+  pointer-events: none;
 }
 
 /* ===================== PRODUCT CAROUSEL SECTION ===================== */
@@ -508,7 +505,7 @@ body {
   color: #ffffff;
 }
 
-/* ===================== RESPONSIVE (YOUR EXISTING) ===================== */
+/* ===================== RESPONSIVE ===================== */
 
 /* Tablet (3 cards) */
 @media (max-width: 1200px) {
@@ -588,13 +585,14 @@ body {
 /* ✅ Hamburger hidden by default (desktop) */
 .hamburger { display: none; }
 
-/* Hamburger button base style (applies when shown on mobile) */
-.hamburger{
+/* Hamburger button style */
+.hamburger {
   width: 44px;
   height: 44px;
   border-radius: 12px;
   border: 1px solid rgba(46,46,47,0.20);
   background: #fff;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -602,7 +600,7 @@ body {
   cursor: pointer;
 }
 
-.hamburger span{
+.hamburger span {
   width: 20px;
   height: 2px;
   background: var(--charcoal);
@@ -611,7 +609,7 @@ body {
 }
 
 /* Mobile menu overlay */
-.mobileMenuOverlay{
+.mobileMenuOverlay {
   position: fixed;
   inset: 0;
   background: rgba(46,46,47,0.55);
@@ -620,7 +618,7 @@ body {
   justify-content: flex-end;
 }
 
-.mobileMenuPanel{
+.mobileMenuPanel {
   width: min(360px, 92vw);
   height: 100%;
   background: #fff;
@@ -629,14 +627,14 @@ body {
   overflow: auto;
 }
 
-.mobileMenuSection{
+.mobileMenuSection {
   border: 1px solid rgba(46,46,47,0.14);
   border-radius: 14px;
   padding: 10px;
   margin-bottom: 12px;
 }
 
-.mobileMenuItem{
+.mobileMenuItem {
   width: 100%;
   display: flex;
   align-items: center;
@@ -651,12 +649,12 @@ body {
   cursor: pointer;
 }
 
-.mobileMenuItem:hover{
+.mobileMenuItem:hover {
   border-color: rgba(242,103,34,0.35);
   background: rgba(242,103,34,0.05);
 }
 
-.mmIcon{
+.mmIcon {
   width: 28px;
   height: 28px;
   border-radius: 10px;
@@ -667,34 +665,104 @@ body {
   border: 1px solid rgba(242,103,34,0.22);
 }
 
-.mmAvatar{
+.mmAvatar {
   width: 28px;
   height: 28px;
   border-radius: 10px;
   object-fit: cover;
 }
 
-/* ✅ Mobile-only behaviors (NO desktop changes) */
-@media (max-width: 992px){
-  .desktop-only{ display: none !important; }
-  .mobile-only{ display: inline-flex !important; }
+/* ✅ Mobile menu header (Back arrow) */
+.mobileMenuHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(46,46,47,0.12);
+}
+
+.mobileMenuBack {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(46,46,47,0.18);
+  background: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileMenuTitle {
+  font-weight: 800;
+  color: var(--charcoal);
+  letter-spacing: 0.3px;
+}
+
+.mobileMenuSpacer {
+  width: 44px; /* keeps title centered */
+}
+
+/* ===================== MOBILE-ONLY OVERRIDES ===================== */
+@media (max-width: 992px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: inline-flex !important; }
 
   /* show hamburger in mobile */
-  .hamburger{ display: flex; }
+  .hamburger { display: flex; }
 
   /* navbar spacing only for mobile */
-  .navbar{ padding: 0 20px; }
+  .navbar { padding: 0 20px; }
 
-  /* show mobile hero image */
-  .hero-mobile-img{ display: block; }
+  /* ✅ Hide desktop hero background on mobile & show only mobile hero image */
+  .hero {
+    background-image: none !important;
+    background: #fff;
+    align-items: flex-start;
+    padding-top: 12px;
+  }
 
-  /* Touch carousel: scroll track, container stays clean */
-  .carousel-container{
+  .hero-mobile-wrap { display: block; }
+  .hero-mobile-img { display: block; }
+
+  /* ✅ Put Shop Now ON the image bottom */
+  .hero-content {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 14px;
+    z-index: 3;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .hero-content .primary-btn {
+    pointer-events: auto;
+    padding: 14px 26px;
+    font-size: 16px;
+    border-radius: 16px;
+    letter-spacing: 0.6px;
+    text-transform: none;
+    box-shadow: 0 10px 22px rgba(242, 103, 34, 0.35);
+    max-width: 86%;
+  }
+
+  .hero-content .primary-btn:hover {
+    transform: scale(1.02);
+  }
+
+  /* Touch carousel */
+  .carousel-container {
     overflow: hidden;
     padding: 0 12px;
   }
 
-  .carousel-track{
+  .carousel-track {
     display: flex;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -705,35 +773,41 @@ body {
     transform: none !important;
   }
 
-  .carousel-track::-webkit-scrollbar{ height: 6px; }
-  .carousel-track::-webkit-scrollbar-thumb{
+  .carousel-track::-webkit-scrollbar { height: 6px; }
+  .carousel-track::-webkit-scrollbar-thumb {
     background: rgba(46,46,47,0.25);
     border-radius: 999px;
   }
 
   /* swipe cards */
-  .product-card{
+  .product-card {
     scroll-snap-align: start;
     flex: 0 0 78%;
     max-width: 78%;
     margin-right: 16px;
   }
 
-  /* Mobile button sizing */
-  .login-nav-btn{
+  /* Mobile login button sizing */
+  .login-nav-btn {
     padding: 8px 20px;
     font-size: 14px;
   }
 }
 
 /* Smaller phones */
-@media (max-width: 480px){
-  .product-card{
+@media (max-width: 480px) {
+  .product-card {
     flex: 0 0 88%;
     max-width: 88%;
   }
 
-  .hero-content{
-    bottom: 60px;
+  .hero-mobile-wrap { width: 94vw; }
+
+  .hero-content { bottom: 12px; }
+
+  .hero-content .primary-btn {
+    padding: 12px 20px;
+    font-size: 15px;
+    border-radius: 14px;
   }
 }
