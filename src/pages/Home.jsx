@@ -226,6 +226,37 @@ useEffect(() => {
     e.target.onerror = null;
     e.target.src = "/images/logo-placeholder.png";
   };
+  const goToPriorityOneProduct = () => {
+  // If products not loaded yet, fallback scroll
+  if (!products || products.length === 0) {
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  // Find priority = 1 product, else fallback to lowest priority product
+  const priorityOne = products.find((p) => Number(p.priority) === 1);
+
+  const top =
+    priorityOne ||
+    [...products].sort(
+      (a, b) => Number(a.priority ?? 9999) - Number(b.priority ?? 9999)
+    )[0];
+
+  if (!top?.id) {
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  // If user not logged in, force login first
+  if (!user) {
+    handleGoogleLogin();
+    return;
+  }
+
+  // ✅ Go to that product details page (where the order happens)
+  navigate(`/products/${top.id}`);
+};
+
 
   return (
     <>
@@ -306,12 +337,10 @@ useEffect(() => {
 
       <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
         <div className="hero-content">
-          <button 
-            className="primary-btn" 
-            onClick={() => document.getElementById("products").scrollIntoView({ behavior: "smooth" })}
-          >
-            Shop Now
-          </button>
+          <button className="primary-btn" onClick={goToPriorityOneProduct}>
+  Shop Now
+</button>
+
         </div>
       </section>
 
