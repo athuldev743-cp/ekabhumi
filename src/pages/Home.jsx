@@ -289,19 +289,23 @@ useEffect(() => {
     <div className="user-nav">
       {/* Account Icon (replaces Login after auth) */}
       <button
-        className="accountBtn"
-        title="Account"
-      >
-        {user.profile_pic ? (
-          <img
-            src={user.profile_pic}
-            alt="Account"
-            className="accountAvatar"
-          />
-        ) : (
-          <User size={20} />
-        )}
-      </button>
+  className="accountBtn"
+  title="Account"
+  type="button"
+  onClick={() => navigate("/account")}
+>
+  {user.profile_pic ? (
+    <img
+      src={user.profile_pic}
+      alt="Account"
+      className="accountAvatar"
+      referrerPolicy="no-referrer"
+    />
+  ) : (
+    <User size={20} />
+  )}
+</button>
+
 
       {/* Optional greeting (can remove if you want cleaner UI) */}
       <span className="user-greeting">Hi, {user.name}</span>

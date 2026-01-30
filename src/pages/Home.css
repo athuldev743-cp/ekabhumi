@@ -651,3 +651,20 @@ body {
     padding: 6px 15px;
   }
 }
+/* ✅ Ensure right-side buttons always clickable */
+.auth-section {
+  position: relative;
+  z-index: 2000;
+  flex-shrink: 0;
+}
+
+/* ✅ Prevent nav-links from pushing / overlapping auth section */
+.nav-links {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ✅ Logo should not stretch */
+.logo {
+  flex-shrink: 0;
+}
