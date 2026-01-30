@@ -15,17 +15,23 @@ const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
+  
   // ✅ Mobile menu
   const [menuOpen, setMenuOpen] = useState(false);
 
   const trackRef = useRef(null);
   const containerRef = useRef(null);
+
   const navigate = useNavigate();
+
+  
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -55,8 +61,8 @@ const Home = () => {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+      } catch (e) {
+        console.error("Error parsing user data:", e);
         localStorage.removeItem("userToken");
         localStorage.removeItem("userData");
         localStorage.removeItem("adminToken");
@@ -78,14 +84,12 @@ const Home = () => {
     }
   };
 
-  // Fetch products
+  // Fetch products + sync
   useEffect(() => {
     loadProducts();
 
     const syncProducts = (e) => {
-      if (e.key === "productsUpdated") {
-        loadProducts();
-      }
+      if (e.key === "productsUpdated") loadProducts();
     };
 
     window.addEventListener("storage", syncProducts);
@@ -118,7 +122,6 @@ const Home = () => {
       callback: handleGoogleResponse,
     });
 
-    // ✅ This opens Google prompt instantly (1 tap login)
     window.google.accounts.id.prompt();
   };
 
@@ -151,7 +154,6 @@ const Home = () => {
         console.error("JWT conversion failed:", jwtError);
       }
 
-      // ✅ After login, close menu and (on mobile) user will use hamburger
       closeMenu();
       alert(isAdmin ? `Welcome Admin ${userData.name}!` : `Welcome ${userData.name}!`);
     } catch (err) {
@@ -170,39 +172,6 @@ const Home = () => {
     }
   };
 
-  // Carousel helpers
-  const getVisibleCards = () => {
-    if (window.innerWidth <= 480) return 1;
-    if (window.innerWidth <= 768) return 2;
-    if (window.innerWidth <= 1200) return 3;
-    return 4;
-  };
-
-  const getTotalSlides = () => Math.max(0, Math.ceil(products.length / getVisibleCards()) - 1);
-  const nextSlide = () => setCurrentSlide((p) => Math.min(p + 1, getTotalSlides()));
-  const prevSlide = () => setCurrentSlide((p) => Math.max(p - 1, 0));
-
-  // ✅ Desktop translate only; Mobile uses native scroll
-  useEffect(() => {
-    const isMobile = window.matchMedia("(max-width: 992px)").matches;
-    if (isMobile) return;
-
-    if (!trackRef.current || !containerRef.current) return;
-    if (products.length === 0) return;
-
-    const visible = getVisibleCards();
-    const containerWidth = containerRef.current.offsetWidth;
-    const cardWidth = containerWidth / visible;
-    const gap = 30;
-
-    const translateX = -(currentSlide * (cardWidth + gap) * visible);
-    trackRef.current.style.transform = `translateX(${translateX}px)`;
-  }, [currentSlide, products]);
-
-  useEffect(() => {
-    setCurrentSlide(0);
-  }, [products.length]);
-
   // Scroll effect
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -210,13 +179,12 @@ const Home = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Image fallback
+  // Fallbacks
   const handleImageError = (e) => {
     e.target.onerror = null;
     e.target.src = "https://placehold.co/400x300/EEE/31343C?text=Product+Image";
   };
 
-  // Logo fallback
   const handleLogoError = (e) => {
     e.target.onerror = null;
     e.target.src = "/images/logo-placeholder.png";
@@ -247,9 +215,65 @@ const Home = () => {
     navigate(`/products/${top.id}`);
   };
 
+  // Carousel helpers (desktop translate)
+  const getVisibleCards = () => {
+    if (window.innerWidth <= 480) return 1;
+    if (window.innerWidth <= 768) return 2;
+    if (window.innerWidth <= 1200) return 3;
+    return 4;
+  };
+
+  const getTotalSlides = () => Math.max(0, Math.ceil(products.length / getVisibleCards()) - 1);
+
+  // ✅ Desktop translate only; Mobile uses scroll
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 992px)").matches;
+    if (mobile) return;
+
+    if (!trackRef.current || !containerRef.current) return;
+    if (products.length === 0) return;
+
+    const visible = getVisibleCards();
+    const containerWidth = containerRef.current.offsetWidth;
+    const cardWidth = containerWidth / visible;
+    const gap = 16; // matches CSS gap-ish
+
+    const translateX = -(currentSlide * (cardWidth + gap) * visible);
+    trackRef.current.style.transform = `translateX(${translateX}px)`;
+  }, [currentSlide, products]);
+
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, [products.length]);
+
+  // ✅ Arrow click handler: desktop uses slides, mobile uses scrollBy
+  const goNext = () => {
+    const mobile = window.matchMedia("(max-width: 992px)").matches;
+
+    if (mobile) {
+      const el = trackRef.current;
+      if (!el) return;
+      el.scrollBy({ left: Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+      return;
+    }
+
+    setCurrentSlide((p) => Math.min(p + 1, getTotalSlides()));
+  };
+
+  const goPrev = () => {
+    const mobile = window.matchMedia("(max-width: 992px)").matches;
+
+    if (mobile) {
+      const el = trackRef.current;
+      if (!el) return;
+      el.scrollBy({ left: -Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+      return;
+    }
+
+    setCurrentSlide((p) => Math.max(p - 1, 0));
+  };
+
   // ✅ Mobile right button behavior:
-  // - Not logged in => show Login button
-  // - Logged in => show Hamburger button
   const MobileRightButton = () => {
     if (!user) {
       return (
@@ -290,7 +314,7 @@ const Home = () => {
           )}
         </div>
 
-        {/* Desktop links (unchanged) */}
+        {/* Desktop links */}
         <div className="nav-links desktop-only">
           <a href="#home">Home</a>
           <a href="#products">Products</a>
@@ -299,16 +323,11 @@ const Home = () => {
           <a href="#testimonials">Testimonials</a>
         </div>
 
-        {/* Desktop auth (Login -> Account Icon) */}
+        {/* Desktop auth */}
         <div className="auth-section desktop-only">
           {user ? (
             <div className="user-nav">
-              <button
-                className="accountBtn"
-                title="Account"
-                type="button"
-                onClick={() => navigate("/account")}
-              >
+              <button className="accountBtn" title="Account" type="button" onClick={() => navigate("/account")}>
                 {user.profile_pic ? (
                   <img
                     src={user.profile_pic}
@@ -336,122 +355,79 @@ const Home = () => {
           )}
         </div>
 
-        {/* ✅ Mobile right button (Login OR Hamburger) */}
+        {/* Mobile right button */}
         <MobileRightButton />
       </nav>
 
-      {/* ✅ Mobile menu overlay ONLY when logged in (because hamburger only appears then) */}
+      {/* Mobile menu */}
       {menuOpen && user && (
-  <div className="mobileMenuOverlay" onMouseDown={closeMenu}>
-    <div className="mobileMenuPanel" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mobileMenuOverlay" onMouseDown={closeMenu}>
+          <div className="mobileMenuPanel" onMouseDown={(e) => e.stopPropagation()}>
+            <div className="mobileMenuHeader">
+              <button type="button" className="mobileMenuBack" onClick={closeMenu} aria-label="Back">
+                ←
+              </button>
+              <div className="mobileMenuTitle">Menu</div>
+              <div className="mobileMenuSpacer" />
+            </div>
 
-      {/* ✅ Header with Back Arrow */}
-      <div className="mobileMenuHeader">
-        <button
-          type="button"
-          className="mobileMenuBack"
-          onClick={closeMenu}
-          aria-label="Back"
-        >
-          ←
-        </button>
+            <div className="mobileMenuSection">
+              <button
+                className="mobileMenuItem"
+                type="button"
+                onClick={() => {
+                  closeMenu();
+                  navigate("/account");
+                }}
+              >
+                <span className="mmIcon">
+                  {user.profile_pic ? (
+                    <img src={user.profile_pic} alt="Account" className="mmAvatar" referrerPolicy="no-referrer" />
+                  ) : (
+                    <User size={18} />
+                  )}
+                </span>
+                Account
+              </button>
+            </div>
 
-        <div className="mobileMenuTitle">Menu</div>
+            <div className="mobileMenuSection">
+              <a className="mobileMenuItem" href="#home" onClick={closeMenu}>Home</a>
+              <a className="mobileMenuItem" href="#products" onClick={closeMenu}>Products</a>
+              <a className="mobileMenuItem" href="#about" onClick={closeMenu}>About</a>
+              <a className="mobileMenuItem" href="#blog" onClick={closeMenu}>Blog</a>
+              <a className="mobileMenuItem" href="#testimonials" onClick={closeMenu}>Testimonials</a>
+            </div>
 
-        {/* spacer to keep title centered */}
-        <div className="mobileMenuSpacer" />
-      </div>
-
-      {/* 1) Account first */}
-      <div className="mobileMenuSection">
-        <button
-          className="mobileMenuItem"
-          type="button"
-          onClick={() => {
-            closeMenu();
-            navigate("/account");
-          }}
-        >
-          <span className="mmIcon">
-            {user.profile_pic ? (
-              <img
-                src={user.profile_pic}
-                alt="Account"
-                className="mmAvatar"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <User size={18} />
+            {user?.isAdmin === true && (
+              <div className="mobileMenuSection">
+                <button className="mobileMenuItem" type="button" onClick={goToAdminDashboard}>
+                  Admin Dashboard
+                </button>
+              </div>
             )}
-          </span>
-          Account
-        </button>
-      </div>
-
-      {/* 2) Nav links */}
-      <div className="mobileMenuSection">
-        <a className="mobileMenuItem" href="#home" onClick={closeMenu}>Home</a>
-        <a className="mobileMenuItem" href="#products" onClick={closeMenu}>Products</a>
-        <a className="mobileMenuItem" href="#about" onClick={closeMenu}>About</a>
-        <a className="mobileMenuItem" href="#blog" onClick={closeMenu}>Blog</a>
-        <a className="mobileMenuItem" href="#testimonials" onClick={closeMenu}>Testimonials</a>
-      </div>
-
-      {/* 3) Admin Dashboard last (if admin) */}
-      {user?.isAdmin === true && (
-        <div className="mobileMenuSection">
-          <button
-            className="mobileMenuItem"
-            type="button"
-            onClick={goToAdminDashboard}
-          >
-            Admin Dashboard
-          </button>
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}
 
-      {/* HERO (desktop unchanged) + mobile-only image */}
-     <section
-  id="home"
-  className="hero"
-  style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}
->
-  <div className="hero-mobile-wrap">
-    <img
-      className="hero-mobile-img"
-      src="/images/hero-mobile.png"
-      alt="Eka Bhumi"
-      loading="lazy"
-    />
+      {/* HERO */}
+      <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
+        <div className="hero-mobile-wrap">
+          <img className="hero-mobile-img" src="/images/hero-mobile.png" alt="Eka Bhumi" loading="lazy" />
+          <div className="hero-content">
+            <button className="primary-btn" onClick={goToPriorityOneProduct}>
+              Shop Now
+            </button>
+          </div>
+        </div>
+      </section>
 
-    <div className="hero-content">
-      <button className="primary-btn" onClick={goToPriorityOneProduct}>
-        Shop Now
-      </button>
-    </div>
-  </div>
-</section>
-
-
+      {/* PRODUCTS */}
       <section id="products" className="product-preview">
         <h2>Our Products</h2>
 
         {error && (
-          <div
-            className="error-message"
-            style={{
-              backgroundColor: "#fff3cd",
-              border: "1px solid #ffeaa7",
-              padding: "10px",
-              borderRadius: "5px",
-              margin: "20px 0",
-              color: "#856404",
-              textAlign: "center",
-            }}
-          >
+          <div className="error-message">
             ⚠️ {error}
           </div>
         )}
@@ -464,9 +440,14 @@ const Home = () => {
 
         {!loading && products.length > 0 && (
           <div className="carousel-container" ref={containerRef}>
-            {/* Desktop arrows only */}
-            <button className="carousel-arrow prev desktop-only" onClick={prevSlide} disabled={currentSlide === 0}>
-              &#10094;
+            <button
+              className="carousel-arrow prev"
+              onClick={goPrev}
+              type="button"
+              aria-label="Previous"
+              disabled={!window.matchMedia("(max-width: 992px)").matches && currentSlide === 0}
+            >
+              ‹
             </button>
 
             <div className="carousel-track" ref={trackRef}>
@@ -484,21 +465,11 @@ const Home = () => {
                     <span className="product-price">₹{p.price}</span>
 
                     {user ? (
-                      <button
-                        className="view-details-btn"
-                        onClick={() => {
-                          setCurrentSlide(0);
-                          navigate(`/products/${p.id}`);
-                        }}
-                      >
+                      <button className="view-details-btn" onClick={() => navigate(`/products/${p.id}`)}>
                         View Details
                       </button>
                     ) : (
-                      <button
-                        className="login-to-view-btn"
-                        onClick={handleGoogleLogin}
-                        title="Login to view product details"
-                      >
+                      <button className="login-to-view-btn" onClick={handleGoogleLogin} title="Login to view product details">
                         View Details
                       </button>
                     )}
@@ -508,19 +479,31 @@ const Home = () => {
             </div>
 
             <button
-              className="carousel-arrow next desktop-only"
-              onClick={nextSlide}
-              disabled={currentSlide >= getTotalSlides()}
+              className="carousel-arrow next"
+              onClick={goNext}
+              type="button"
+              aria-label="Next"
+              disabled={!window.matchMedia("(max-width: 992px)").matches && currentSlide >= getTotalSlides()}
             >
-              &#10095;
+              ›
             </button>
           </div>
         )}
       </section>
 
-      <section id="about"><About /></section>
-      <Blog />
-      <section id="testimonials"><Testimonial /></section>
+      {/* WHITE background / no black strips */}
+      <section id="about" className="pageSection">
+        <About />
+      </section>
+
+      <section id="blog" className="pageSection">
+        <Blog />
+      </section>
+
+      <section id="testimonials" className="pageSection">
+        <Testimonial />
+      </section>
+
       <Footer />
     </>
   );
