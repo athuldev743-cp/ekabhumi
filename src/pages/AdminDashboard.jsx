@@ -1,18 +1,25 @@
-import { useEffect, useState, useCallback } from "react";
+// AdminDashboard.jsx
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
 
 import AddProduct from "./AddProduct";
 import Orders from "./Orders";
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState("orders"); // default Orders
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+
   const [loading, setLoading] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
   const [error, setError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -23,81 +30,78 @@ function AdminDashboard() {
 
   const navigate = useNavigate();
 
-  // Check if user is admin
+  const API_BASE = useMemo(
+    () => process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com",
+    []
+  );
+
   const isUserAdmin = () => {
     const userData = localStorage.getItem("userData");
     if (!userData) return false;
-
     try {
-      const parsedUser = JSON.parse(userData);
-      return parsedUser.role === "admin" || parsedUser.isAdmin === true;
-    } catch (e) {
-      console.error("Error parsing user data:", e);
+      const parsed = JSON.parse(userData);
+      return parsed.role === "admin" || parsed.isAdmin === true;
+    } catch {
       return false;
     }
   };
 
- const ensureJWTToken = async () => {
-  const adminToken = localStorage.getItem("adminToken");
-  if (adminToken) return adminToken;
-
-  // if adminToken missing, force re-login instead of silently using "test-token"
-  throw new Error("Admin token missing. Please login again as admin.");
-};
-
-  const fetchProducts = useCallback(async () => {
-    try {
-      const token = await ensureJWTToken();
-      const API_BASE =
-        process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
-
-      const response = await fetch(`${API_BASE}/admin/admin-products`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setProducts(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Failed to fetch products:", err);
-      setError(
-        "Temporary issue loading products: " +
-          (err.detail || err.message || "Network error")
-      );
-    }
+  // ✅ returns token or null (no throw)
+  const ensureJWTToken = useCallback(async () => {
+    const t = localStorage.getItem("adminToken");
+    return t || null;
   }, []);
 
   const fetchOrders = useCallback(async () => {
     try {
-      const token = await ensureJWTToken();
-      const API_BASE =
-        process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
+      setLoadingOrders(true);
 
-      const response = await fetch(`${API_BASE}/admin/orders`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "Cache-Control": "no-cache",
-        },
+      const token = await ensureJWTToken();
+      if (!token) throw new Error("Admin token missing. Please login again as admin.");
+
+      const res = await fetch(`${API_BASE}/admin/orders`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       });
 
-      if (!response.ok) {
-        const text = await response.text().catch(() => "");
-        throw new Error(`HTTP error ${response.status}: ${text}`);
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Orders failed: ${res.status} ${text}`);
       }
 
-      const data = await response.json();
+      const data = await res.json().catch(() => []);
       setOrders(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Failed to fetch orders:", err);
-      setError("Temporary issue loading orders: " + (err?.message || "Network error"));
-      // don't wipe existing orders
+    } catch (e) {
+      setError(e?.message || "Failed to load orders");
+    } finally {
+      setLoadingOrders(false);
     }
-  }, []);
+  }, [API_BASE, ensureJWTToken]);
 
+  const fetchProducts = useCallback(async () => {
+    setLoadingProducts(true);
+    try {
+      const token = await ensureJWTToken();
+      if (!token) throw new Error("Admin token missing. Please login again as admin.");
+
+      const res = await fetch(`${API_BASE}/admin/admin-products`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Products failed: ${res.status} ${text}`);
+      }
+
+      const data = await res.json().catch(() => []);
+      setProducts(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setError(e?.message || "Failed to load products");
+    } finally {
+      setLoadingProducts(false);
+    }
+  }, [API_BASE, ensureJWTToken]);
+
+  // ✅ Boot: only fetch orders (fast)
   useEffect(() => {
     if (!isUserAdmin()) {
       alert("Access denied. Admin privileges required.");
@@ -105,69 +109,78 @@ function AdminDashboard() {
       return;
     }
 
-    const fetchData = async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      setLoading(false);
+      setError("Admin token missing. Please login again as admin.");
+      navigate("/");
+      return;
+    }
+
+    const boot = async () => {
       setLoading(true);
       setError("");
-
-      try {
-        await Promise.all([fetchProducts(), fetchOrders()]);
-      } catch (e) {
-        await sleep(800); // cold start retry
-        try {
-          await Promise.all([fetchProducts(), fetchOrders()]);
-        } catch (err2) {
-          console.error("Failed after retry:", err2);
-          setError(err2?.message || "Failed to load dashboard data.");
-        }
-      } finally {
-        setLoading(false);
-      }
+      await fetchOrders();
+      setLoading(false);
     };
 
-    fetchData();
-  }, [fetchProducts, fetchOrders, navigate]);
+    boot();
+  }, [fetchOrders, navigate]);
+
+  // ✅ Fetch products only when Products tab opened (on-demand)
+  useEffect(() => {
+    if (activeTab === "products" && products.length === 0 && !loadingProducts) {
+      fetchProducts();
+    }
+  }, [activeTab, fetchProducts, products.length, loadingProducts]);
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
+
+  const handleImageError = (e) => {
+    const img = e.currentTarget;
+    img.onerror = null;
+    img.src = "https://placehold.co/200x150/EEE/31343C?text=No+Image";
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     try {
       const token = await ensureJWTToken();
-      const API_BASE =
-        process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
+      if (!token) throw new Error("Admin token missing. Please login again as admin.");
 
-      const response = await fetch(`${API_BASE}/admin/delete-product/${id}`, {
+      const res = await fetch(`${API_BASE}/admin/delete-product/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Delete failed: ${res.status} ${text}`);
+      }
 
       await fetchProducts();
       localStorage.setItem("productsUpdated", Date.now().toString());
       alert("Product deleted successfully!");
-    } catch (err) {
-      console.error("Delete error:", err);
-      setError("Failed to delete product: " + (err.detail || err.message));
+    } catch (e) {
+      setError(e?.message || "Failed to delete product");
     }
   };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
 
-    if (!newProduct.image) {
-      setError("Please select an image file");
-      return;
-    }
-
+    if (!newProduct.image) return setError("Please select an image file");
     if (!newProduct.name || !newProduct.price || !newProduct.description) {
-      setError("Please fill all required fields");
-      return;
+      return setError("Please fill all required fields");
     }
 
     try {
       const token = await ensureJWTToken();
-      const API_BASE =
-        process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
+      if (!token) throw new Error("Admin token missing. Please login again as admin.");
 
       const formData = new FormData();
       formData.append("name", newProduct.name);
@@ -176,51 +189,55 @@ function AdminDashboard() {
       formData.append("priority", newProduct.priority || "1");
       formData.append("image", newProduct.image);
 
-      const response = await fetch(`${API_BASE}/admin/create-product`, {
+      const res = await fetch(`${API_BASE}/admin/create-product`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Create failed: ${res.status} ${text}`);
       }
 
-      await response.json();
-
       setShowAddForm(false);
-      setNewProduct({
-        name: "",
-        price: "",
-        description: "",
-        priority: "1",
-        image: null,
-      });
+      setNewProduct({ name: "", price: "", description: "", priority: "1", image: null });
 
       await fetchProducts();
-
       localStorage.setItem("productsUpdated", Date.now().toString());
-      setError("");
       alert("Product added successfully!");
-    } catch (err) {
-      console.error("Add product error:", err);
-      setError("Failed to add product: " + (err.message || "Unknown error"));
+      setError("");
+    } catch (e) {
+      setError(e?.message || "Failed to add product");
     }
   };
 
-  const logout = () => {
-    localStorage.clear();
-    navigate("/");
-  };
+  const approveOrder = useCallback(
+    async (orderId) => {
+      try {
+        const token = await ensureJWTToken();
+        if (!token) throw new Error("Admin token missing. Please login again as admin.");
 
-  const handleImageError = (e) => {
-    const imgElement = e.currentTarget;
-    if (imgElement) {
-      imgElement.onerror = null;
-      imgElement.src = "https://placehold.co/200x150/EEE/31343C?text=No+Image";
-    }
-  };
+        const res = await fetch(`${API_BASE}/admin/orders/${orderId}/approve`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(`Approve failed: ${res.status} ${text}`);
+        }
+
+        await fetchOrders();
+        alert("✅ Order approved and email sent!");
+      } catch (e) {
+        const msg = e?.message || "Failed to approve order";
+        setError(msg);
+        alert(msg);
+      }
+    },
+    [API_BASE, ensureJWTToken, fetchOrders]
+  );
 
   if (loading) {
     return (
@@ -234,32 +251,117 @@ function AdminDashboard() {
   return (
     <div className={styles.dashboardContainer}>
       <div className={styles.header}>
-        <h1>📊 Admin Dashboard</h1>
-        <button className={styles.logoutBtn} onClick={logout}>
-          <span>🚪</span> Logout
-        </button>
+        <h1>🛠️ Admin Dashboard</h1>
+
+        <div className={styles.headerActions}>
+          <div className={styles.tabs}>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${activeTab === "orders" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("orders")}
+            >
+              Orders
+            </button>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${activeTab === "products" ? styles.tabActive : ""}`}
+              onClick={() => setActiveTab("products")}
+            >
+              Products
+            </button>
+          </div>
+
+          <button className={styles.logoutBtn} onClick={logout} type="button">
+            <span>🚪</span> Logout
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className={styles.errorAlert}>
           ⚠️ {error}
-          <button onClick={() => setError("")} className={styles.dismissBtn}>
+          <button onClick={() => setError("")} className={styles.dismissBtn} type="button">
             ×
           </button>
         </div>
       )}
 
-      <div className={styles.mainContent}>
-        {/* Products + Add Product */}
+      {/* ORDERS TAB */}
+      {activeTab === "orders" && (
+        <div className={styles.twoCol}>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>📋 Orders</h2>
+              <div className={styles.badge}>{orders.length}</div>
+            </div>
+
+            {loadingOrders ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyStateIcon}>⏳</div>
+                <h3>Loading Orders...</h3>
+                <p>Please wait</p>
+              </div>
+            ) : (
+              <Orders
+                orders={orders}
+                onViewDetails={(o) => setSelectedOrder(o)}
+                onApprove={(id) => approveOrder(id)}
+              />
+            )}
+          </div>
+
+          {/* Details panel */}
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>📌 Order Details</h2>
+              <div className={styles.badge}>{selectedOrder ? `#${selectedOrder.id}` : "-"}</div>
+            </div>
+
+            {!selectedOrder ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyStateIcon}>👈</div>
+                <h3>Select an order</h3>
+                <p>Click “View Details” to see address and info.</p>
+              </div>
+            ) : (
+              <div className={styles.detailsBox}>
+                <p><strong>Name:</strong> {selectedOrder.customer_name || "-"}</p>
+                <p><strong>Email:</strong> {selectedOrder.customer_email || "-"}</p>
+                <p><strong>Phone:</strong> {selectedOrder.customer_phone || "-"}</p>
+
+                <p><strong>Product:</strong> {selectedOrder.product_name || "-"}</p>
+                <p><strong>Qty:</strong> {selectedOrder.quantity ?? "-"}</p>
+                <p><strong>Unit Price:</strong> ₹{Number(selectedOrder.unit_price || 0).toFixed(2)}</p>
+                <p><strong>Total:</strong> ₹{Number(selectedOrder.total_amount || 0).toFixed(2)}</p>
+
+                <div className={styles.detailsSection}>
+                  <h3 className={styles.detailsTitle}>Shipping Address</h3>
+                  <p className={styles.mono}>
+                    {selectedOrder.shipping_address || "❌ Shipping address missing from order"}
+                  </p>
+                </div>
+
+                {selectedOrder.notes && (
+                  <p><strong>Notes:</strong> {selectedOrder.notes}</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PRODUCTS TAB */}
+      {activeTab === "products" && (
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h2>🛍️ Products</h2>
-            <div className={styles.badge}>{products.length} items</div>
+            <div className={styles.badge}>{products.length}</div>
           </div>
 
           <button
             className={styles.addProductBtn}
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={() => setShowAddForm((s) => !s)}
+            type="button"
           >
             <span>➕</span> Add New Product
           </button>
@@ -273,11 +375,17 @@ function AdminDashboard() {
             setError={setError}
           />
 
-          {products.length === 0 ? (
+          {loadingProducts ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyStateIcon}>⏳</div>
+              <h3>Loading Products...</h3>
+              <p>Please wait</p>
+            </div>
+          ) : products.length === 0 ? (
             <div className={styles.emptyState}>
               <div className={styles.emptyStateIcon}>📦</div>
               <h3>No Products Found</h3>
-              <p>Add your first product using the "Add New Product" button above.</p>
+              <p>Add your first product using the “Add New Product” button.</p>
             </div>
           ) : (
             <div className={styles.productsGrid}>
@@ -286,14 +394,7 @@ function AdminDashboard() {
                   <div className={styles.productImage}>
                     {p.image_url ? (
                       <img
-                        src={
-                          p.image_url.startsWith("http")
-                            ? p.image_url
-                            : `${
-                                process.env.REACT_APP_API_URL ||
-                                "https://ekb-backend.onrender.com"
-                              }${p.image_url}`
-                        }
+                        src={p.image_url.startsWith("http") ? p.image_url : `${API_BASE}${p.image_url}`}
                         alt={p.name}
                         onError={handleImageError}
                         style={{ width: "100%", height: "200px", objectFit: "cover" }}
@@ -308,15 +409,19 @@ function AdminDashboard() {
 
                   <div className={styles.productContent}>
                     <h3>{p.name}</h3>
-                    <p className={styles.productPrice}>
-                      ₹{parseFloat(p.price).toFixed(2)}
-                    </p>
+                    <p className={styles.productPrice}>₹{parseFloat(p.price).toFixed(2)}</p>
                     <p className={styles.productDescription}>{p.description}</p>
+
                     <div className={styles.productMeta}>
                       <span className={styles.priority}>Priority: {p.priority}</span>
                       <span className={styles.id}>ID: {p.id}</span>
                     </div>
-                    <button className={styles.deleteBtn} onClick={() => handleDelete(p.id)}>
+
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(p.id)}
+                      type="button"
+                    >
                       🗑️ Delete
                     </button>
                   </div>
@@ -325,42 +430,7 @@ function AdminDashboard() {
             </div>
           )}
         </div>
-
-        {/* Orders */}
-        <Orders
-  ensureJWTToken={ensureJWTToken}
-  setError={setError}
-/>
-      </div>
-
-      <div className={styles.statsFooter}>
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{products.length}</div>
-          <div className={styles.statLabel}>Total Products</div>
-        </div>
-
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>{orders.length}</div>
-          <div className={styles.statLabel}>Total Orders</div>
-        </div>
-
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>
-            {orders.filter((o) => o.status === "pending").length}
-          </div>
-          <div className={styles.statLabel}>Pending Orders</div>
-        </div>
-
-        <div className={styles.statItem}>
-          <div className={styles.statValue}>
-            ₹
-            {orders
-              .reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0)
-              .toFixed(2)}
-          </div>
-          <div className={styles.statLabel}>Total Revenue</div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
