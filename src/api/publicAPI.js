@@ -72,3 +72,15 @@ export async function createOrder(orderData) {
   return await res.json();
 }
 
+export async function fetchOrdersByEmail(email) {
+  const res = await fetch(getUrl(`/orders?email=${encodeURIComponent(email)}`), {
+    headers: { Accept: "application/json" },
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Failed to fetch orders: ${res.status} ${text}`);
+  }
+
+  return await res.json();
+}
