@@ -265,10 +265,12 @@ body{
 
 .product-image{
   width:100%;
-  height:380px;          /* ✅ taller on desktop */
-  object-fit:cover;
+  max-width:100%;
+  height:auto;          /* image decides height */
+  object-fit:contain;  /* NO CROP ever */
   display:block;
 }
+
 
 /* ✅ gradient so overlay doesn't feel like image is cut */
 .product-card::after{
@@ -524,8 +526,14 @@ body{
     max-width: calc((100% - 32px) / 3);
   }
 
+  /* ✅ increase height on desktop/tablet */
   .product-image{
-    height:300px;   /* balanced for tablets / small laptops */
+    height:340px;
+  }
+
+  /* ✅ a bit taller gradient to match bigger image */
+  .product-card::after{
+    height:120px;
   }
 }
 
@@ -555,7 +563,7 @@ body{
   .hero-mobile-img{
     display:block;
     width:100%;
-    height:520px;          /* slightly taller hero image */
+    height:520px;
     object-fit:cover;
     border-radius:0;
   }
@@ -599,12 +607,30 @@ body{
   }
 
   .product-image{
-    height:220px;          /* compact but not cramped */
+    height:220px;
+  }
+
+  /* ✅ decrease card height on mobile (tighten overlay area) */
+  .product-card::after{
+    height:80px;   /* smaller gradient */
+  }
+
+  .product-info{
+    padding:6px 8px 8px; /* smaller overlay padding */
+    gap:4px;             /* tighter spacing */
+  }
+
+  .view-details-btn,
+  .login-to-view-btn{
+    padding:7px 0;       /* slimmer button */
+    font-size:13px;
+    border-radius:18px;
   }
 
   .product-name{
-    font-size:14px;
+    font-size:13px;
     min-height:unset;
+    line-height:1.15;
   }
 
   .carousel-arrow{
@@ -614,19 +640,43 @@ body{
     font-size:28px;
   }
 }
-@media (max-width:480px){
 
+/* ===================== ≤ 480px (small phones) ===================== */
+@media (max-width:480px){
+  /* ✅ keep full image visible on very small phones */
   .product-image{
-    width:100%;          /* ✅ max horizontal width */
+    width:100%;
     max-width:100%;
-    height:auto;         /* ✅ keep natural height */
-    object-fit:contain;  /* ✅ no crop */
+    height:auto;
+    object-fit:contain;
     background:#f3f4f6;
     display:block;
   }
 
   .product-card{
     height:auto;
+  }
+
+  /* ✅ further reduce overlay height on small phones */
+  .product-card::after{
+    height:70px;
+  }
+
+  .product-info{
+    padding:5px 8px 7px;
+    gap:3px;
+  }
+
+  .view-details-btn,
+  .login-to-view-btn{
+    padding:6px 0;
+    font-size:12.5px;
+    border-radius:16px;
+  }
+
+  .product-name{
+    font-size:12.5px;
+    line-height:1.12;
   }
 
   .hero-mobile-img{

@@ -347,7 +347,7 @@ const Home = () => {
 
       {/* PRODUCTS */}
       <section id="products" className="product-preview">
-        <h2>Our Products</h2>
+       
 
         {error && <div className="error-message">⚠️ {error}</div>}
         {loading && <p className="loading-text">Loading products...</p>}
