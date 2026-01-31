@@ -614,19 +614,26 @@ body{
     font-size:28px;
   }
 }
-
 /* ===================== ≤ 480px (small phones) ===================== */
 @media (max-width:480px){
+
+  /* Image wrapper respects image ratio */
   .product-image{
-    height:200px;
-    object-fit:cover;        /* ✅ fills card */
-    object-position:top;     /* ✅ prevents bottom crop feeling */
-    padding:0;               /* ✅ remove padding */
-    background:none;
+    width:100%;
+    height:auto;              /* ✅ KEY: remove fixed height */
+    aspect-ratio: 1 / 1;      /* ✅ square card (safe default) */
+    object-fit:contain;       /* ✅ no crop EVER */
+    background:#f3f4f6;       /* neutral fill */
+    display:block;
+  }
+
+  .product-card{
+    height:auto;              /* ✅ card grows naturally */
   }
 
   .hero-mobile-img{
     height:460px;
+    object-fit:cover;
   }
 
   .hero-cta.mobile-cta{
