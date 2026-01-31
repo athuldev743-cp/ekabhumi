@@ -326,7 +326,7 @@ const Home = () => {
       )}
 
       {/* HERO */}
-      <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
+      <section id="home" className="hero" style={{ backgroundImage: "url(/images/hero-mobile.png)" }}>
         {/* ✅ Desktop CTA always visible */}
         <div className="hero-cta desktop-only">
           <button className="primary-btn" onClick={goToPriorityOneProduct}>

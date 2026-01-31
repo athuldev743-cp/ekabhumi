@@ -145,7 +145,7 @@ body{
 /* ===================== HERO ===================== */
 .hero{
   width:100%;
-  min-height:calc(100vh - 80px);
+  min-height:calc(110vh - 80px);
   margin-top:80px;
   position:relative;
   overflow:hidden;
@@ -515,15 +515,31 @@ body{
     max-width:86%;
   }
 
-  .product-preview{padding:35px 15px;}
-  .product-preview h2{font-size:32px;margin-bottom:20px;}
+  /* ✅ UPDATED: slightly reduce section padding (prevents big gaps) */
+  .product-preview{padding:26px 15px;}
+
+  .product-preview h2{font-size:32px;margin-bottom:18px;}
 
   .product-card{flex:0 0 78%;max-width:78%;}
+
+  /* ✅ UPDATED: reduce card height mainly by image height */
+  .product-image{height:180px;}
+
+  /* ✅ UPDATED: reduce forced text height on mobile */
+  .product-name{
+    min-height:0;
+    font-size:16px;
+  }
+
   .carousel-arrow{width:42px;height:42px;border-radius:14px;font-size:28px;}
 }
 
 @media (max-width:480px){
   .product-card{flex:0 0 88%;max-width:88%;}
+
+  /* ✅ UPDATED: even smaller image for small phones */
+  .product-image{height:160px;}
+
   .hero-cta.mobile-cta{bottom:12px;}
   .hero-cta.mobile-cta .primary-btn{padding:12px 20px;font-size:15px;border-radius:14px;}
 }

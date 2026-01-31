@@ -11,6 +11,12 @@ function calcGST(subtotal, gstPercent) {
   return (Number(subtotal || 0) * Number(gstPercent || 0)) / 100;
 }
 
+function isAdminApproved(status) {
+  const s = String(status || "").toLowerCase();
+  // ✅ Decide "approved" purely from existing status string
+  return ["confirmed", "approved", "shipped", "out_for_delivery", "delivered"].includes(s);
+}
+
 export default function Account() {
   const navigate = useNavigate();
 
@@ -22,6 +28,9 @@ export default function Account() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // ✅ Modal open/close
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   // Cart (simple localStorage cart)
   const [cart, setCart] = useState(() => {
@@ -35,12 +44,10 @@ export default function Account() {
   const GST_PERCENT = 18;
   const SHIPPING_FEE = 0;
 
-  // ✅ Logout (moved from Home → Account)
   const handleLogout = () => {
     localStorage.removeItem("userToken");
     localStorage.removeItem("userData");
     localStorage.removeItem("adminToken");
-    // localStorage.removeItem("cart"); // optional: uncomment if you want to clear cart on logout
     navigate("/");
   };
 
@@ -68,10 +75,8 @@ export default function Account() {
         setOrdersError("");
 
         const data = await fetchOrdersByEmail(user.email);
-
         const list = Array.isArray(data) ? data : [];
         setOrders(list);
-        setSelectedOrder(list[0] || null);
       } catch (e) {
         setOrdersError(e?.message || "Failed to load orders");
       } finally {
@@ -79,6 +84,15 @@ export default function Account() {
       }
     })();
   }, [user?.email]);
+
+  // ✅ Close modal on ESC
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === "Escape") setIsOrderModalOpen(false);
+    }
+    if (isOrderModalOpen) window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOrderModalOpen]);
 
   // Cart helpers
   function saveCart(next) {
@@ -112,7 +126,18 @@ export default function Account() {
   const orderGst = useMemo(() => calcGST(orderSubtotal, GST_PERCENT), [orderSubtotal]);
   const orderTotal = useMemo(() => orderSubtotal + orderGst + SHIPPING_FEE, [orderSubtotal, orderGst]);
 
+  function openOrder(o) {
+    setSelectedOrder(o);
+    setIsOrderModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsOrderModalOpen(false);
+  }
+
   if (!user) return null;
+
+  const approved = isAdminApproved(selectedOrder?.status);
 
   return (
     <div className="account-wrap">
@@ -124,19 +149,12 @@ export default function Account() {
           </div>
         </div>
 
-        {/* ✅ Tabs + Logout */}
         <div className="account-actions">
           <div className="tabs">
-            <button
-              className={tab === "orders" ? "active" : ""}
-              onClick={() => setTab("orders")}
-            >
+            <button className={tab === "orders" ? "active" : ""} onClick={() => setTab("orders")}>
               Orders
             </button>
-            <button
-              className={tab === "cart" ? "active" : ""}
-              onClick={() => setTab("cart")}
-            >
+            <button className={tab === "cart" ? "active" : ""} onClick={() => setTab("cart")}>
               Cart
             </button>
           </div>
@@ -148,7 +166,7 @@ export default function Account() {
       </div>
 
       {tab === "orders" && (
-        <div className="orders-grid">
+        <div className="orders-layout">
           <div className="panel">
             <h3>My Orders</h3>
 
@@ -159,12 +177,13 @@ export default function Account() {
             ) : orders.length === 0 ? (
               <div className="muted">No orders yet.</div>
             ) : (
-              <div className="order-list">
+              <div className="order-list vertical">
                 {orders.map((o) => (
                   <button
                     key={o.id}
-                    className={`order-card ${selectedOrder?.id === o.id ? "selected" : ""}`}
-                    onClick={() => setSelectedOrder(o)}
+                    className="order-card"
+                    onClick={() => openOrder(o)}
+                    type="button"
                   >
                     <div className="row">
                       <b>Order #{o.id}</b>
@@ -175,106 +194,143 @@ export default function Account() {
                       <span>{o.order_date ? new Date(o.order_date).toLocaleString() : ""}</span>
                       <span>₹{money(o.total_amount)}</span>
                     </div>
+                    <div className="tapHint">Tap to view details</div>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div className="panel">
-            <h3>Order Details</h3>
-
-            {!selectedOrder ? (
-              <div className="muted">Select an order to view details.</div>
-            ) : (
-              <>
-                <div className="details-grid">
+          {/* ✅ Order Details Popup */}
+          {isOrderModalOpen && (
+            <div className="modalOverlay" onClick={closeModal} role="presentation">
+              <div
+                className="modal"
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Order Details"
+              >
+                <div className="modalHeader">
                   <div>
-                    <div className="muted">Order ID</div>
-                    <div>
-                      <b>#{selectedOrder.id}</b>
+                    <div className="modalTitle">Order Details</div>
+                    <div className="muted small">
+                      {selectedOrder?.order_date
+                        ? new Date(selectedOrder.order_date).toLocaleString()
+                        : "-"}
                     </div>
                   </div>
-                  <div>
-                    <div className="muted">Status</div>
-                    <div>
-                      <b>{selectedOrder.status}</b>
+                  <button className="modalClose" onClick={closeModal} aria-label="Close">
+                    ✕
+                  </button>
+                </div>
+
+                {!selectedOrder ? (
+                  <div className="muted">Select an order to view details.</div>
+                ) : (
+                  <>
+                    {/* ✅ Show this ONLY after admin approved */}
+                    {approved ? (
+                      <div className="infoBanner success">
+                        ✅ Order confirmed — product will arrive in <b>3 days</b>.
+                      </div>
+                    ) : (
+                      <div className="infoBanner">
+                        ⏳ Waiting for admin approval. You’ll see delivery ETA after confirmation.
+                      </div>
+                    )}
+
+                    <div className="details-grid">
+                      <div>
+                        <div className="muted">Order ID</div>
+                        <div>
+                          <b>#{selectedOrder.id}</b>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="muted">Status</div>
+                        <div>
+                          <b>{selectedOrder.status}</b>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="muted">Payment</div>
+                        <div>
+                          <b>{selectedOrder.payment_status}</b>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="muted">Ordered At</div>
+                        <div>
+                          <b>
+                            {selectedOrder.order_date
+                              ? new Date(selectedOrder.order_date).toLocaleString()
+                              : "-"}
+                          </b>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="muted">Payment</div>
-                    <div>
-                      <b>{selectedOrder.payment_status}</b>
+
+                    <hr />
+
+                    <h4>Item</h4>
+                    <div className="row">
+                      <span>{selectedOrder.product_name}</span>
+                      <span>
+                        ₹{money(selectedOrder.unit_price)} × {selectedOrder.quantity}
+                      </span>
                     </div>
-                  </div>
-                  <div>
-                    <div className="muted">Ordered At</div>
-                    <div>
-                      <b>
-                        {selectedOrder.order_date
-                          ? new Date(selectedOrder.order_date).toLocaleString()
-                          : "-"}
-                      </b>
+
+                    <hr />
+
+                    <h4>Billing</h4>
+                    <div className="bill">
+                      <div className="row">
+                        <span>Subtotal</span>
+                        <span>₹{money(orderSubtotal)}</span>
+                      </div>
+                      <div className="row">
+                        <span>GST ({GST_PERCENT}%)</span>
+                        <span>₹{money(orderGst)}</span>
+                      </div>
+                      <div className="row">
+                        <span>Shipping</span>
+                        <span>₹{money(SHIPPING_FEE)}</span>
+                      </div>
+                      <hr />
+                      <div className="row total">
+                        <span>Total</span>
+                        <span>₹{money(orderTotal)}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <hr />
-
-                <h4>Item</h4>
-                <div className="row">
-                  <span>{selectedOrder.product_name}</span>
-                  <span>
-                    ₹{money(selectedOrder.unit_price)} × {selectedOrder.quantity}
-                  </span>
-                </div>
-
-                <hr />
-
-                <h4>Billing</h4>
-                <div className="bill">
-                  <div className="row">
-                    <span>Subtotal</span>
-                    <span>₹{money(orderSubtotal)}</span>
-                  </div>
-                  <div className="row">
-                    <span>GST ({GST_PERCENT}%)</span>
-                    <span>₹{money(orderGst)}</span>
-                  </div>
-                  <div className="row">
-                    <span>Shipping</span>
-                    <span>₹{money(SHIPPING_FEE)}</span>
-                  </div>
-                  <hr />
-                  <div className="row total">
-                    <span>Total</span>
-                    <span>₹{money(orderTotal)}</span>
-                  </div>
-                </div>
-
-                <div className="addr">
-                  <div>
-                    <b>Delivery Address:</b> {selectedOrder.shipping_address}
-                  </div>
-                  <div>
-                    <b>Phone:</b> {selectedOrder.customer_phone}
-                  </div>
-                  <div>
-                    <b>Email:</b> {selectedOrder.customer_email}
-                  </div>
-                  {selectedOrder.notes ? (
-                    <div>
-                      <b>Notes:</b> {selectedOrder.notes}
+                    <div className="addr">
+                      <div>
+                        <b>Delivery Address:</b> {selectedOrder.shipping_address}
+                      </div>
+                      <div>
+                        <b>Phone:</b> {selectedOrder.customer_phone}
+                      </div>
+                      <div>
+                        <b>Email:</b> {selectedOrder.customer_email}
+                      </div>
+                      {selectedOrder.notes ? (
+                        <div>
+                          <b>Notes:</b> {selectedOrder.notes}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                </div>
 
-                <div className="muted" style={{ marginTop: 10 }}>
-                  Delivery status updates can be added later (ETA/arrived) by adding fields in the Order table.
-                </div>
-              </>
-            )}
-          </div>
+                    <div className="modalFooter">
+                      <button className="btnSoft" onClick={closeModal}>
+                        Close
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

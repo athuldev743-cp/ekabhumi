@@ -93,26 +93,13 @@ const Footer = () => {
                   eka<span>Bhumih</span>
                 </span>
               </div>
-              <p className="footer-about">
-                We are a user-friendly center with high standards. We are committed 
-                to providing quality hair care products that deliver visible results.
-              </p>
-              <div className="color-palette">
-                <h4>Brand Colors</h4>
+             
+              
                 <div className="color-items">
-                  <div className="color-item">
-                    <div className="color-swatch dark-orange"></div>
-                    <span className="color-name">DARK ORANGE<br /><span className="color-code">#F26722</span></span>
-                  </div>
-                  <div className="color-item">
-                    <div className="color-swatch light-orange"></div>
-                    <span className="color-name">LIGHT ORANGE<br /><span className="color-code">#F2A254</span></span>
-                  </div>
-                  <div className="color-item">
-                    <div className="color-swatch dark-charcoal"></div>
-                    <span className="color-name">DARK CHARCOAL<br /><span className="color-code">#2E2E2F</span></span>
-                  </div>
-                </div>
+                  
+                  
+                  
+                
               </div>
             </div>
 
