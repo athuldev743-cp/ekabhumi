@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import About from "./About";
@@ -14,28 +14,18 @@ const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
-  
-  // ✅ Mobile menu
   const [menuOpen, setMenuOpen] = useState(false);
 
   const trackRef = useRef(null);
-  const containerRef = useRef(null);
-
   const navigate = useNavigate();
-
-  
 
   const closeMenu = () => setMenuOpen(false);
 
-  // ✅ Close menu when desktop
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth > 992) setMenuOpen(false);
@@ -44,7 +34,6 @@ const Home = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // ✅ Lock scroll when menu open
   useEffect(() => {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
@@ -54,23 +43,19 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  // Check if user is already logged in
   useEffect(() => {
     const userData = localStorage.getItem("userData");
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-      } catch (e) {
-        console.error("Error parsing user data:", e);
-        localStorage.removeItem("userToken");
-        localStorage.removeItem("userData");
-        localStorage.removeItem("adminToken");
-      }
+    if (!userData) return;
+    try {
+      setUser(JSON.parse(userData));
+    } catch {
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userData");
+      localStorage.removeItem("adminToken");
     }
   }, []);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
       const data = await fetchProducts();
@@ -82,27 +67,23 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Fetch products + sync
   useEffect(() => {
     loadProducts();
-
     const syncProducts = (e) => {
       if (e.key === "productsUpdated") loadProducts();
     };
-
     window.addEventListener("storage", syncProducts);
     return () => window.removeEventListener("storage", syncProducts);
-  }, []);
+  }, [loadProducts]);
 
   useEffect(() => {
     const onFocus = () => loadProducts();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
-  }, []);
+  }, [loadProducts]);
 
-  // Google OAuth script
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
@@ -116,12 +97,10 @@ const Home = () => {
       alert("Google login loading... Please try again.");
       return;
     }
-
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleResponse,
     });
-
     window.google.accounts.id.prompt();
   };
 
@@ -172,14 +151,12 @@ const Home = () => {
     }
   };
 
-  // Scroll effect
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Fallbacks
   const handleImageError = (e) => {
     e.target.onerror = null;
     e.target.src = "https://placehold.co/400x300/EEE/31343C?text=Product+Image";
@@ -191,13 +168,12 @@ const Home = () => {
   };
 
   const goToPriorityOneProduct = () => {
-    if (!products || products.length === 0) {
+    if (!products?.length) {
       document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
       return;
     }
 
     const priorityOne = products.find((p) => Number(p.priority) === 1);
-
     const top =
       priorityOne ||
       [...products].sort((a, b) => Number(a.priority ?? 9999) - Number(b.priority ?? 9999))[0];
@@ -215,65 +191,18 @@ const Home = () => {
     navigate(`/products/${top.id}`);
   };
 
-  // Carousel helpers (desktop translate)
-  const getVisibleCards = () => {
-    if (window.innerWidth <= 480) return 1;
-    if (window.innerWidth <= 768) return 2;
-    if (window.innerWidth <= 1200) return 3;
-    return 4;
+  // ✅ ONE MODEL: always scroll track (desktop + mobile) => no transform reflow bugs
+  const scrollCarousel = (dir) => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const card = el.querySelector(".product-card");
+    const gap = 16;
+    const step = card ? card.getBoundingClientRect().width + gap : el.clientWidth * 0.85;
+
+    el.scrollBy({ left: dir === "next" ? step : -step, behavior: "smooth" });
   };
 
-  const getTotalSlides = () => Math.max(0, Math.ceil(products.length / getVisibleCards()) - 1);
-
-  // ✅ Desktop translate only; Mobile uses scroll
-  useEffect(() => {
-    const mobile = window.matchMedia("(max-width: 992px)").matches;
-    if (mobile) return;
-
-    if (!trackRef.current || !containerRef.current) return;
-    if (products.length === 0) return;
-
-    const visible = getVisibleCards();
-    const containerWidth = containerRef.current.offsetWidth;
-    const cardWidth = containerWidth / visible;
-    const gap = 16; // matches CSS gap-ish
-
-    const translateX = -(currentSlide * (cardWidth + gap) * visible);
-    trackRef.current.style.transform = `translateX(${translateX}px)`;
-  }, [currentSlide, products]);
-
-  useEffect(() => {
-    setCurrentSlide(0);
-  }, [products.length]);
-
-  // ✅ Arrow click handler: desktop uses slides, mobile uses scrollBy
-  const goNext = () => {
-    const mobile = window.matchMedia("(max-width: 992px)").matches;
-
-    if (mobile) {
-      const el = trackRef.current;
-      if (!el) return;
-      el.scrollBy({ left: Math.round(el.clientWidth * 0.85), behavior: "smooth" });
-      return;
-    }
-
-    setCurrentSlide((p) => Math.min(p + 1, getTotalSlides()));
-  };
-
-  const goPrev = () => {
-    const mobile = window.matchMedia("(max-width: 992px)").matches;
-
-    if (mobile) {
-      const el = trackRef.current;
-      if (!el) return;
-      el.scrollBy({ left: -Math.round(el.clientWidth * 0.85), behavior: "smooth" });
-      return;
-    }
-
-    setCurrentSlide((p) => Math.max(p - 1, 0));
-  };
-
-  // ✅ Mobile right button behavior:
   const MobileRightButton = () => {
     if (!user) {
       return (
@@ -303,18 +232,12 @@ const Home = () => {
       <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="logo">
           {!scrolled ? (
-            <img
-              src="/images/logo.png"
-              alt="Eka Bhumi"
-              className="logo-img"
-              onError={handleLogoError}
-            />
+            <img src="/images/logo.png" alt="Eka Bhumi" className="logo-img" onError={handleLogoError} />
           ) : (
             <span className="text-logo">EKABHUMI</span>
           )}
         </div>
 
-        {/* Desktop links */}
         <div className="nav-links desktop-only">
           <a href="#home">Home</a>
           <a href="#products">Products</a>
@@ -323,18 +246,12 @@ const Home = () => {
           <a href="#testimonials">Testimonials</a>
         </div>
 
-        {/* Desktop auth */}
         <div className="auth-section desktop-only">
           {user ? (
             <div className="user-nav">
               <button className="accountBtn" title="Account" type="button" onClick={() => navigate("/account")}>
                 {user.profile_pic ? (
-                  <img
-                    src={user.profile_pic}
-                    alt="Account"
-                    className="accountAvatar"
-                    referrerPolicy="no-referrer"
-                  />
+                  <img src={user.profile_pic} alt="Account" className="accountAvatar" referrerPolicy="no-referrer" />
                 ) : (
                   <User size={20} />
                 )}
@@ -355,11 +272,9 @@ const Home = () => {
           )}
         </div>
 
-        {/* Mobile right button */}
         <MobileRightButton />
       </nav>
 
-      {/* Mobile menu */}
       {menuOpen && user && (
         <div className="mobileMenuOverlay" onMouseDown={closeMenu}>
           <div className="mobileMenuPanel" onMouseDown={(e) => e.stopPropagation()}>
@@ -412,9 +327,17 @@ const Home = () => {
 
       {/* HERO */}
       <section id="home" className="hero" style={{ backgroundImage: "url(/images/redensyl-hero.jpg)" }}>
+        {/* ✅ Desktop CTA always visible */}
+        <div className="hero-cta desktop-only">
+          <button className="primary-btn" onClick={goToPriorityOneProduct}>
+            Shop Now
+          </button>
+        </div>
+
+        {/* ✅ Mobile hero image + CTA */}
         <div className="hero-mobile-wrap">
           <img className="hero-mobile-img" src="/images/hero-mobile.png" alt="Eka Bhumi" loading="lazy" />
-          <div className="hero-content">
+          <div className="hero-cta mobile-cta">
             <button className="primary-btn" onClick={goToPriorityOneProduct}>
               Shop Now
             </button>
@@ -426,12 +349,7 @@ const Home = () => {
       <section id="products" className="product-preview">
         <h2>Our Products</h2>
 
-        {error && (
-          <div className="error-message">
-            ⚠️ {error}
-          </div>
-        )}
-
+        {error && <div className="error-message">⚠️ {error}</div>}
         {loading && <p className="loading-text">Loading products...</p>}
 
         {!loading && products.length === 0 && !error && (
@@ -439,27 +357,15 @@ const Home = () => {
         )}
 
         {!loading && products.length > 0 && (
-          <div className="carousel-container" ref={containerRef}>
-            <button
-              className="carousel-arrow prev"
-              onClick={goPrev}
-              type="button"
-              aria-label="Previous"
-              disabled={!window.matchMedia("(max-width: 992px)").matches && currentSlide === 0}
-            >
+          <div className="carousel-container">
+            <button className="carousel-arrow prev" onClick={() => scrollCarousel("prev")} type="button" aria-label="Previous">
               ‹
             </button>
 
             <div className="carousel-track" ref={trackRef}>
               {products.map((p) => (
                 <div className="product-card" key={p.id}>
-                  <img
-                    src={p.image_url}
-                    alt={p.name}
-                    className="product-image"
-                    onError={handleImageError}
-                    loading="lazy"
-                  />
+                  <img src={p.image_url} alt={p.name} className="product-image" onError={handleImageError} loading="lazy" />
                   <div className="product-info">
                     <span className="product-name">{p.name}</span>
                     <span className="product-price">₹{p.price}</span>
@@ -469,7 +375,7 @@ const Home = () => {
                         View Details
                       </button>
                     ) : (
-                      <button className="login-to-view-btn" onClick={handleGoogleLogin} title="Login to view product details">
+                      <button className="login-to-view-btn" onClick={handleGoogleLogin}>
                         View Details
                       </button>
                     )}
@@ -478,20 +384,13 @@ const Home = () => {
               ))}
             </div>
 
-            <button
-              className="carousel-arrow next"
-              onClick={goNext}
-              type="button"
-              aria-label="Next"
-              disabled={!window.matchMedia("(max-width: 992px)").matches && currentSlide >= getTotalSlides()}
-            >
+            <button className="carousel-arrow next" onClick={() => scrollCarousel("next")} type="button" aria-label="Next">
               ›
             </button>
           </div>
         )}
       </section>
 
-      {/* WHITE background / no black strips */}
       <section id="about" className="pageSection">
         <About />
       </section>

@@ -1,34 +1,28 @@
-:root {
-  --white: #ffffff;
-  --dark-orange: #F26722;
-  --charcoal: #2E2E2F;
-}
-
 .about-page {
   width: 100%;
-  height: 800px; /* Adjust height as needed for full display */
+  height: 800px;
+
   background-position: center;
-  background-size: cover;   /* Fill the section without stretching */
+  background-size: cover;
   background-repeat: no-repeat;
-  border-radius: 8px;       /* optional rounded corners */
-  margin: 60px 0;           /* space above and below */
+
+  /* ✅ remove black padding gaps */
+  margin: 0;
+  border-radius: 0;
+
+  /* ✅ prevent margin-collapse issues from outside */
+  display: block;
 }
 
 /* RESPONSIVE */
 @media (max-width: 1200px) {
-  .about-page {
-    height: 400px;
-  }
+  .about-page { height: 500px; }
 }
 
 @media (max-width: 900px) {
-  .about-page {
-    height: 300px;
-  }
+  .about-page { height: 360px; }
 }
 
 @media (max-width: 600px) {
-  .about-page {
-    height: 200px;
-  }
+  .about-page { height: 260px; }
 }

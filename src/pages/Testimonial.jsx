@@ -1,173 +1,122 @@
-import React, { useState } from 'react';
-import './Testimonial.css';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./Testimonial.css";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Testimonial = () => {
-  // Testimonial data
-  const testimonials = [
-    {
-      id: 1,
-      name: "Priya Sharma",
-      role: "Using for 6 months",
-      text: "After struggling with hair fall for years, Redensyl has been a game-changer. My hair is thicker and healthier than ever before!",
-      rating: 5,
-      image: "testimonial1.jpg"
-    },
-    {
-      id: 2,
-      name: "Rahul Mehta",
-      role: "Customer for 1 year",
-      text: "The best hair oil I've ever used. Natural ingredients and visible results within weeks. Highly recommended!",
-      rating: 5,
-      image: "testimonial2.jpg"
-    },
-    {
-      id: 3,
-      name: "Anjali Patel",
-      role: "Professional Stylist",
-      text: "I recommend Eka Bhumih products to all my clients. The quality is exceptional and results speak for themselves.",
-      rating: 4,
-      image: "testimonial3.jpg"
-    },
-    {
-      id: 4,
-      name: "Sanjay Kumar",
-      role: "Using for 8 months",
-      text: "Finally found a solution for my dandruff problem. The anti-dandruff shampoo works wonders without drying my hair.",
-      rating: 5,
-      image: "testimonial4.jpg"
-    },
-    {
-      id: 5,
-      name: "Meera Nair",
-      role: "Customer for 2 years",
-      text: "From hair loss to healthy growth - the transformation has been incredible. Thank you Eka Bhumih!",
-      rating: 5,
-      image: "testimonial5.jpg"
-    },
-    {
-      id: 6,
-      name: "Vikram Singh",
-      role: "First-time user",
-      text: "Impressed with the results in just 3 months. My hair looks fuller and feels stronger. Will continue using!",
-      rating: 4,
-      image: "testimonial6.jpg"
-    }
-  ];
+  const testimonials = useMemo(
+    () => [
+      { id: 1, name: "Priya Sharma", role: "Using for 6 months", text: "After struggling with hair fall for years, Redensyl has been a game-changer.", rating: 5, image: "testimonial1.jpg" },
+      { id: 2, name: "Rahul Mehta", role: "Customer for 1 year", text: "Natural ingredients and visible results within weeks. Highly recommended!", rating: 5, image: "testimonial2.jpg" },
+      { id: 3, name: "Anjali Patel", role: "Professional Stylist", text: "I recommend Eka Bhumih products to all my clients.", rating: 4, image: "testimonial3.jpg" },
+      { id: 4, name: "Sanjay Kumar", role: "Using for 8 months", text: "Finally found a solution for my dandruff problem.", rating: 5, image: "testimonial4.jpg" },
+      { id: 5, name: "Meera Nair", role: "Customer for 2 years", text: "From hair loss to healthy growth - incredible transformation.", rating: 5, image: "testimonial5.jpg" },
+      { id: 6, name: "Vikram Singh", role: "First-time user", text: "Impressed with the results in just 3 months.", rating: 4, image: "testimonial6.jpg" },
+    ],
+    []
+  );
 
-  const [activeSlide, setActiveSlide] = useState(0);
-  const slidesToShow = 3; // Show 3 testimonials at a time on desktop
+  const trackRef = useRef(null);
 
-  // Next slide
-  const nextSlide = () => {
-    const maxSlide = Math.ceil(testimonials.length / slidesToShow) - 1;
-    setActiveSlide(prev => prev >= maxSlide ? maxSlide : prev + 1);
+  // enable/disable arrows based on scroll position
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(true);
+
+  const updateButtons = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    setCanPrev(el.scrollLeft > 2);
+    setCanNext(el.scrollLeft < maxScroll - 2);
   };
 
-  // Previous slide
-  const prevSlide = () => {
-    setActiveSlide(prev => prev <= 0 ? 0 : prev - 1);
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    updateButtons();
+
+    const onScroll = () => updateButtons();
+    const onResize = () => updateButtons();
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  const scrollByOneCard = (dir) => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const card = el.querySelector(".testimonial-card");
+    const gap = 16;
+
+    const step = card ? card.getBoundingClientRect().width + gap : el.clientWidth * 0.9;
+    el.scrollBy({ left: dir === "next" ? step : -step, behavior: "smooth" });
   };
 
-  // Go to specific slide
-  const goToSlide = (index) => {
-    setActiveSlide(index);
-  };
-
-  // Render stars based on rating
-  const renderStars = (rating) => {
-    return (
-      <div className="stars">
-        {[...Array(5)].map((_, i) => (
-          <span key={i} className={i < rating ? "star filled" : "star"}>
-            {i < rating ? "★" : "☆"}
-          </span>
-        ))}
-      </div>
-    );
+  const handleAvatarError = (e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "https://placehold.co/120x120/EEE/31343C?text=User";
   };
 
   return (
-    <section id="testimonials" className="testimonial-section">
+    <section className="testimonial-section">
       <div className="container">
         <div className="section-header">
           <h2 className="section-title">What Our Customers Say</h2>
-          <p className="section-subtitle">Real stories from real people about their transformation</p>
+          <p className="section-subtitle">Real stories from real people</p>
         </div>
 
-        <div className="testimonial-container">
-          <button className="testimonial-arrow prev" onClick={prevSlide}>
-            &#10094;
+        <div className="testimonial-shell">
+          <button
+            className="testimonial-arrow prev"
+            onClick={() => scrollByOneCard("prev")}
+            disabled={!canPrev}
+            type="button"
+            aria-label="Previous"
+          >
+            <ChevronLeft size={20} />
           </button>
 
-          <div className="testimonial-track">
-            <div 
-              className="testimonial-slider" 
-              style={{ transform: `translateX(-${activeSlide * (100 / slidesToShow)}%)` }}
-            >
-              {testimonials.map((testimonial) => (
-                <div className="testimonial-card" key={testimonial.id}>
-                  <div className="testimonial-content">
-                    <div className="quote-icon">"</div>
-                    <p className="testimonial-text">{testimonial.text}</p>
-                    
-                    <div className="testimonial-rating">
-                      {renderStars(testimonial.rating)}
-                      <span className="rating-text">{testimonial.rating}/5</span>
-                    </div>
+          <div className="testimonial-track" ref={trackRef}>
+            {testimonials.map((t) => (
+              <article className="testimonial-card" key={t.id}>
+                <div className="testimonial-content">
+                  <div className="quote-icon">"</div>
+                  <p className="testimonial-text">{t.text}</p>
+                </div>
+
+                <div className="testimonial-author">
+                  <div className="author-image">
+                    <img
+                      src={`${process.env.PUBLIC_URL}/images/${t.image}`}
+                      alt={t.name}
+                      onError={handleAvatarError}
+                      loading="lazy"
+                    />
                   </div>
-                  
-                  <div className="testimonial-author">
-                    <div className="author-image">
-                      <img 
-                        src={`${process.env.PUBLIC_URL}/images/${testimonial.image}`} 
-                        alt={testimonial.name}
-                      />
-                    </div>
-                    <div className="author-info">
-                      <h4 className="author-name">{testimonial.name}</h4>
-                      <p className="author-role">{testimonial.role}</p>
-                    </div>
+                  <div className="author-info">
+                    <h4 className="author-name">{t.name}</h4>
+                    <p className="author-role">{t.role}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </article>
+            ))}
           </div>
 
-          <button className="testimonial-arrow next" onClick={nextSlide}>
-            &#10095;
+          <button
+            className="testimonial-arrow next"
+            onClick={() => scrollByOneCard("next")}
+            disabled={!canNext}
+            type="button"
+            aria-label="Next"
+          >
+            <ChevronRight size={20} />
           </button>
-        </div>
-
-        {/* Indicators */}
-        <div className="testimonial-indicators">
-          {Array.from({ length: Math.ceil(testimonials.length / slidesToShow) }).map((_, index) => (
-            <button
-              key={index}
-              className={`indicator ${activeSlide === index ? 'active' : ''}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-
-        {/* Stats Section */}
-        <div className="stats-container">
-          <div className="stat-item">
-            <h3 className="stat-number">10K+</h3>
-            <p className="stat-label">Happy Customers</p>
-          </div>
-          <div className="stat-item">
-            <h3 className="stat-number">95%</h3>
-            <p className="stat-label">Satisfaction Rate</p>
-          </div>
-          <div className="stat-item">
-            <h3 className="stat-number">50+</h3>
-            <p className="stat-label">Cities Served</p>
-          </div>
-          <div className="stat-item">
-            <h3 className="stat-number">4.8★</h3>
-            <p className="stat-label">Average Rating</p>
-          </div>
         </div>
       </div>
     </section>
