@@ -1,10 +1,13 @@
 body{
   margin:0;
 }
-.App {
-  text-align: center;
+
+/* ✅ DO NOT center the whole website */
+.App{
+  text-align: initial; /* or left */
 }
 
+/* Keep CRA demo styles (only apply if those classes are used) */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -25,6 +28,7 @@ body{
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  text-align: center; /* ✅ only header demo is centered */
 }
 
 .App-link {
@@ -32,10 +36,6 @@ body{
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

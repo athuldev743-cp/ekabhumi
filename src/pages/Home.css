@@ -159,13 +159,13 @@ body{
   z-index:0;
 }
 
-/* CTA base */
+/* CTA base (works for both desktop and mobile, but mobile overrides below) */
 .hero-cta{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
   bottom:100px;
-  z-index:2;
+  z-index:3;
   display:flex;
   justify-content:center;
   width:100%;
@@ -324,7 +324,6 @@ body{
 .carousel-arrow.next{right:12px;}
 
 /* ===================== MOBILE MENU ===================== */
-/* ===================== MOBILE MENU ===================== */
 .desktop-only{display:flex;}
 .mobile-only{display:none;}
 
@@ -407,10 +406,10 @@ body{
   background:#fff;
 }
 
-/* Items (THIS fixes your "straight line" issue) */
+/* Items */
 .mobileMenuItem{
   width:100%;
-  display:flex;                 /* ✅ row layout */
+  display:flex;
   align-items:center;
   justify-content:flex-start;
   gap:12px;
@@ -427,7 +426,7 @@ body{
   text-decoration:none;
 
   line-height:1.2;
-  white-space:normal;           /* ✅ wrap text if needed */
+  white-space:normal;
   text-align:left;
 
   cursor:pointer;
@@ -438,11 +437,10 @@ body{
   background:rgba(242,103,34,.05);
 }
 
-/* Icon box */
 .mmIcon{
   width:34px;height:34px;
   border-radius:12px;
-  flex:0 0 34px;                /* ✅ fixed size, prevents squish */
+  flex:0 0 34px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -457,8 +455,75 @@ body{
   object-fit:cover;
 }
 
-/* Prevent flex overflow causing “single long line” */
 .mobileMenuItem span,
 .mobileMenuItem div{
   min-width:0;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width:1200px){
+  .product-card{flex:0 0 calc(33.333% - 12px);}
+  .product-image{height:260px;}
+}
+
+@media (max-width:992px){
+  /* ✅ force-hide desktop navbar content on mobile */
+  .nav-links{ display:none !important; }
+  .auth-section{ display:none !important; }
+
+  .desktop-only{display:none !important;}
+  .mobile-only{display:inline-flex !important;}
+  .hamburger{display:flex;}
+  .navbar{padding:0 20px;}
+
+  /* ✅ Mobile hero: show image and hide desktop bg */
+  .hero{
+    background-image:none !important;
+    min-height:auto;
+  }
+  .hero-mobile-wrap{
+    display:block;
+    width:100%;
+    position:relative;
+  }
+  .hero-mobile-img{
+    display:block;
+    width:100%;
+    height:auto;
+    object-fit:cover;
+    border-radius:0;
+  }
+
+  /* ✅ Mobile CTA sits on image */
+  .hero-cta.mobile-cta{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:14px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    z-index:4;
+    pointer-events:none;
+  }
+  .hero-cta.mobile-cta .primary-btn{
+    pointer-events:auto;
+    padding:14px 26px;
+    font-size:16px;
+    border-radius:16px;
+    text-transform:none;
+    max-width:86%;
+  }
+
+  .product-preview{padding:35px 15px;}
+  .product-preview h2{font-size:32px;margin-bottom:20px;}
+
+  .product-card{flex:0 0 78%;max-width:78%;}
+  .carousel-arrow{width:42px;height:42px;border-radius:14px;font-size:28px;}
+}
+
+@media (max-width:480px){
+  .product-card{flex:0 0 88%;max-width:88%;}
+  .hero-cta.mobile-cta{bottom:12px;}
+  .hero-cta.mobile-cta .primary-btn{padding:12px 20px;font-size:15px;border-radius:14px;}
 }
