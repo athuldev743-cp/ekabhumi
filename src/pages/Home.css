@@ -543,27 +543,17 @@ body{
   padding-bottom:0 !important;
 }
 
-  .hero-mobile-wrap{
-    display:block !important;
-    width:100%;
-    position:relative;
-    margin:0 !important;
-    padding:0 !important;
-    line-height:0;
-  }
+ .hero-mobile-wrap{
+  margin:0 !important;
+  padding:0 !important;
+  line-height:0;
+}
 
-  .hero-mobile-img{
-    display:block !important;
-    width:100%;
-    height:48vh;              /* responsive height */
-    max-height:380px;         /* safety cap */
-    object-fit:contain;       /* no zoom */
-    object-position:center;
-    background:#f5f5f5;
-    margin:0 !important;
-    padding:0 !important;
-    vertical-align:top;
-  }
+.hero-mobile-img{
+  display:block;
+  vertical-align:top;
+}
+
 
   /* ✅ FORCE Shop Now visible on mobile */
   .hero-cta.mobile-cta{
