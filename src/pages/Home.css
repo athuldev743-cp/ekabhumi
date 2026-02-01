@@ -495,11 +495,12 @@ body{
 }
 
 /* ✅ Mobile/Tablet (≤992px) */
+/* ===================== MOBILE/TABLET (≤992px) ===================== */
 @media (max-width:992px){
 
   /* ✅ prevent double CTA (supports both class styles) */
-  .hero-cta.desktop-cta{display:none !important;}
   .hero-cta.desktop-only{display:none !important;}
+  .hero-cta.desktop-cta{display:none !important;}
   .hero-cta.mobile-cta{display:flex !important;}
 
   /* navbar mobile: hide desktop items */
@@ -531,7 +532,7 @@ body{
 
   .navbar{padding:0 20px;}
 
-  /* hero mobile image */
+  /* hero */
   .hero{background-image:none !important; min-height:auto;}
   .hero-mobile-wrap{display:block;width:100%;position:relative;}
   .hero-mobile-img{
@@ -541,7 +542,6 @@ body{
     object-fit:cover;
     border-radius:0;
   }
-
   .hero-cta.mobile-cta{
     position:absolute;
     left:50%;
@@ -561,40 +561,54 @@ body{
     max-width:86%;
   }
 
+  /* products section */
   .product-preview{padding:26px 15px;}
   .product-preview h2{font-size:32px;margin-bottom:18px;}
 
-  /* ✅ REMOVE side padding feeling */
+  /* ✅ remove side "padding look" */
   .carousel-track{
-    padding:10px 0 14px !important;
-    scroll-padding-left:15px;
-    scroll-padding-right:15px;
+    padding:10px 0 14px !important; /* remove 4px sides */
   }
 
-  /* ✅ cards almost full width */
+  /* ✅ make card almost full-width (uniform look) */
   .product-card{
-    flex:0 0 92% !important;
-    max-width:92% !important;
+    flex:0 0 94% !important;
+    max-width:94% !important;
     height:auto !important;
+    margin:0 auto;                 /* centers the card in the track */
   }
 
-  /* ✅ IMPORTANT: no fixed height */
+  /* ======================================================
+     ✅ THE MAIN FIX: uniform image frame height on mobile
+     - No crop (contain)
+     - Same height for every product on mobile
+     ====================================================== */
   .product-image{
-    height:auto !important;
-    object-fit:contain !important;
-    background:transparent !important; /* ✅ removes bottom “padding look” */
+    width:100%;
+    height:320px !important;        /* 🔥 uniform frame height */
+    object-fit:contain !important;  /* NO CROP */
+    object-position:center;
+    display:block;
+    background:transparent !important;
   }
 
-  /* ✅ reduce overlay space */
-  .product-card::after{height:65px !important;}
+  /* tighten overlay */
+  .product-card::after{height:70px !important;}
   .product-info{padding:6px 8px 6px !important;gap:4px;}
 
-  .view-details-btn,.login-to-view-btn{padding:7px 0;font-size:13px;border-radius:18px;}
+  .view-details-btn,.login-to-view-btn{
+    padding:7px 0;
+    font-size:13px;
+    border-radius:18px;
+  }
   .product-name{font-size:13px;line-height:1.15;}
-  .carousel-arrow{width:42px;height:42px;border-radius:14px;font-size:28px;}
+
+  .carousel-arrow{
+    width:42px;height:42px;border-radius:14px;font-size:28px;
+  }
 }
 
-/* ✅ Small phones (≤480px): cap image height like Redencyl */
+/* ===================== SMALL PHONES (≤480px) ===================== */
 @media (max-width:480px){
 
   .product-card{
@@ -602,13 +616,13 @@ body{
     max-width:96% !important;
   }
 
+  /* smaller uniform image frame */
   .product-image{
-    max-height:300px;
-    height:auto !important;
-    object-fit:contain !important;
+    height:280px !important;        /* 🔥 tune 260–300 */
+    object-fit:contain !important;  /* NO CROP */
   }
 
-  .product-card::after{height:55px !important;}
+  .product-card::after{height:60px !important;}
   .product-info{padding:5px 8px 5px !important;gap:3px;}
 
   .view-details-btn,.login-to-view-btn{
@@ -619,10 +633,4 @@ body{
   .product-name{font-size:12.5px;line-height:1.12;}
 
   .hero-mobile-img{height:460px;}
-  .hero-cta.mobile-cta{bottom:12px;}
-  .hero-cta.mobile-cta .primary-btn{
-    padding:12px 20px;
-    font-size:15px;
-    border-radius:14px;
-  }
 }
