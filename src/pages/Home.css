@@ -1014,72 +1014,107 @@ body{
     display:block;
   }
 }
-
-@media (max-width:992px){
-
-  /* ✅ uniform card */
-  .product-card{
-    flex:0 0 94% !important;
-    max-width:94% !important;
-    margin:0 auto !important;
-    height:420px !important;
-  }
-
-  /* ✅ uniform image frame */
-  .product-image{
-    width:100% !important;
-    height:330px !important;     /* fixed frame height */
-    object-fit:cover !important; /* 🔥 makes all look same */
-    object-position:center;      /* keep product centered */
-    display:block;
-  }
-
-  /* overlay */
-  .product-card::after{ height:90px !important; }
-  .product-info{ padding:8px 10px 10px !important; }
-}
-
-@media (max-width:480px){
-  .product-card{ height:400px !important; }
-  .product-image{ height:300px !important; } /* still fixed */
-}
 /* =========================================================
-   ✅ MOBILE UNIFORM CARDS (put at very bottom of file)
-   Works even if 480px doesn't trigger on your phone
+   ✅ MOBILE FIX PACK (put at VERY END of Home.css)
+   - Bigger full-width cards
+   - Uniform image frame
+   - Fix navbar (no desktop links on mobile)
    ========================================================= */
+
+/* ---- NAVBAR: mobile must hide desktop-only blocks ---- */
+@media (max-width: 992px){
+  /* hard-hide desktop navbar content */
+  .nav-links.desktop-only,
+  .auth-section.desktop-only{
+    display: none !important;
+  }
+
+  /* show the mobile right button only */
+  .mobile-only{
+    display: inline-flex !important;
+  }
+
+  /* hamburger button style */
+  .hamburger{
+    display: flex !important;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    border: 1px solid rgba(46,46,47,.20);
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(10px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .hamburger span{
+    width: 22px;
+    height: 2px;
+    background: var(--charcoal);
+    border-radius: 999px;
+  }
+
+  .navbar{
+    padding: 0 16px !important;
+  }
+}
+
+/* ---- PRODUCTS: full width cards on phones ---- */
 @media (max-width: 600px){
 
-  /* remove left/right “padding” around the whole slider */
+  /* remove side padding that creates small-looking cards */
   .carousel-track{
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    gap: 12px !important; /* slightly smaller gap */
+    padding: 10px 0 14px !important;   /* no left/right padding */
+    gap: 14px !important;
   }
 
-  /* force every card to same size and centered */
+  /* make each card almost full width */
   .product-card{
-    flex: 0 0 calc(100vw - 32px) !important; /* full width minus 16px+16px */
-    max-width: calc(100vw - 32px) !important;
-    margin: 0 16px !important;              /* same left/right for all cards */
-    height: 400px !important;
+    flex: 0 0 92vw !important;      /* ✅ big card */
+    max-width: 92vw !important;
+    height: 420px !important;       /* slightly taller */
+    margin: 0 auto !important;      /* center card */
+    border-radius: 18px !important;
   }
 
-  /* image frame: always uniform like Redencyl */
+  /* uniform image frame */
   .product-image{
     width: 100% !important;
-    height: 300px !important;
-    object-fit: cover !important;
+    height: 310px !important;       /* ✅ same for all */
+    object-fit: cover !important;   /* fills like Redencyl */
     object-position: center !important;
     display: block !important;
-    background: transparent !important; /* remove gray if you don't want it */
+    background: transparent !important;
   }
 
-  /* keep overlay consistent */
+  /* keep overlay tight and consistent */
   .product-card::after{
-    height: 90px !important;
+    height: 95px !important;
   }
+
   .product-info{
-    padding: 8px 10px 10px !important;
-    gap: 6px !important;
+    padding: 10px 12px 12px !important;
+    gap: 8px !important;
+  }
+
+  .view-details-btn,
+  .login-to-view-btn{
+    width: 92% !important;
+    padding: 10px 0 !important;
+    font-size: 14px !important;
+    border-radius: 22px !important;
+  }
+
+  .product-name{
+    font-size: 14px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* arrows slightly smaller on mobile */
+  .carousel-arrow{
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
   }
 }
