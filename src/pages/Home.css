@@ -1015,79 +1015,9 @@ body{
   }
 }
 
-/* ===================== MOBILE/TABLET ===================== */
 @media (max-width:992px){
 
-  /* ✅ FIX: prevent navbar duplicate: hide all desktop blocks */
-  .desktop-only{ display:none !important; }
-  .mobile-only{ display:flex !important; }
-
-  /* also hard-hide in case classes missing somewhere */
-  .nav-links{ display:none !important; }
-  .auth-section{ display:none !important; }
-
-  /* hamburger ONLY here */
-  .hamburger{
-    display:flex !important;
-    width:44px;height:44px;
-    border-radius:12px;
-    border:1px solid rgba(46,46,47,.20);
-    background:#fff;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    cursor:pointer;
-  }
-  .hamburger span{
-    width:20px;height:2px;
-    background:var(--charcoal);
-    border-radius:999px;
-  }
-
-  .navbar{ padding:0 18px; }
-
-  /* hero: use mobile image block */
-  .hero{ background-image:none !important; min-height:auto; }
-  .hero-mobile-wrap{ display:block; width:100%; position:relative; }
-  .hero-mobile-img{
-    display:block;
-    width:100%;
-    height:520px;
-    object-fit:cover;
-  }
-
-  /* ✅ only the mobile CTA should be visible (desktop CTA is desktop-only) */
-  .hero-cta{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:14px;
-    width:100%;
-    display:flex;
-    justify-content:center;
-    z-index:4;
-    pointer-events:none;
-  }
-  .hero-cta .primary-btn{
-    pointer-events:auto;
-    padding:14px 26px;
-    font-size:16px;
-    border-radius:16px;
-    text-transform:none;
-    max-width:86%;
-  }
-
-  /* product section spacing */
-  .product-preview{ padding:26px 14px; }
-  .product-preview h2{ font-size:32px; margin-bottom:18px; }
-
-  /* ✅ remove side padding that causes “small gaps” */
-  .carousel-track{
-    padding:10px 0 14px !important;
-  }
-
-  /* ✅ UNIFORM CARD SIZE ON MOBILE (same height for all) */
+  /* ✅ uniform card */
   .product-card{
     flex:0 0 94% !important;
     max-width:94% !important;
@@ -1095,37 +1025,21 @@ body{
     height:420px !important;
   }
 
+  /* ✅ uniform image frame */
   .product-image{
     width:100% !important;
-    height:330px !important;
-    object-fit:contain !important;
-    object-position:center !important;
-    background:transparent !important;
+    height:330px !important;     /* fixed frame height */
+    object-fit:cover !important; /* 🔥 makes all look same */
+    object-position:center;      /* keep product centered */
+    display:block;
   }
 
+  /* overlay */
   .product-card::after{ height:90px !important; }
-  .product-info{ padding:8px 10px 10px !important; gap:6px !important; }
-  .view-details-btn{ width:92% !important; padding:8px 0 !important; font-size:13px !important; }
-  .product-name{ font-size:13px !important; }
-  .carousel-arrow{ width:42px;height:42px;border-radius:14px;font-size:28px; }
+  .product-info{ padding:8px 10px 10px !important; }
 }
 
-/* ===================== SMALL PHONES ===================== */
 @media (max-width:480px){
-  .product-card{
-    flex:0 0 96% !important;
-    max-width:96% !important;
-    height:400px !important;
-  }
-  .product-image{ height:300px !important; }
-  .product-card::after{ height:80px !important; }
-  .product-info{ padding:7px 10px 9px !important; gap:5px !important; }
-
-  .hero-mobile-img{ height:460px; }
-  .hero-cta{ bottom:12px; }
-  .hero-cta .primary-btn{
-    padding:12px 20px;
-    font-size:15px;
-    border-radius:14px;
-  }
+  .product-card{ height:400px !important; }
+  .product-image{ height:300px !important; } /* still fixed */
 }
