@@ -19,9 +19,7 @@ body{
 }
 
 /* ✅ Only your wrapper sections are white. Do NOT reset all <section> globally */
-.pageSection{
-  background:#fff;
-}
+.pageSection{ background:#fff; }
 
 /* ===================== NAVBAR ===================== */
 .navbar{
@@ -154,12 +152,11 @@ body{
   background-position:center;
   background-repeat:no-repeat;
 
-  /* ✅ own stacking context so product arrows cannot "float" above */
   isolation:isolate;
   z-index:0;
 }
 
-/* CTA base (works for both desktop and mobile, but mobile overrides below) */
+/* CTA base */
 .hero-cta{
   position:absolute;
   left:50%;
@@ -172,6 +169,10 @@ body{
   pointer-events:none;
 }
 .hero-cta .primary-btn{pointer-events:auto;}
+
+/* ✅ Prevent 2 CTAs (desktop vs mobile) */
+.hero-cta.mobile-cta{display:none;}
+.hero-cta.desktop-cta{display:flex;}
 
 .primary-btn{
   background:linear-gradient(135deg,var(--dark-orange),#ff8c42);
@@ -189,7 +190,6 @@ body{
 }
 .primary-btn:hover{transform:scale(1.03);box-shadow:0 22px 45px rgba(242,103,34,.55);}
 
-/* mobile image hidden on desktop */
 .hero-mobile-wrap{display:none;}
 .hero-mobile-img{display:none;}
 
@@ -198,8 +198,6 @@ body{
   background:#f8f9fa;
   padding:50px 60px;
   position:relative;
-
-  /* ✅ arrows must never escape this section */
   isolation:isolate;
   z-index:1;
 }
@@ -222,10 +220,9 @@ body{
 }
 .loading-text{text-align:center;color:#444;}
 
-/* ✅ carousel wrapper clips arrows + keeps them inside */
 .carousel-container{
   position:relative;
-  overflow:hidden;     /* critical */
+  overflow:hidden;
 }
 
 .carousel-track{
@@ -242,10 +239,8 @@ body{
 
 .product-card{
   scroll-snap-align:start;
-
-  /* ✅ 4 cards fit exactly: 3 gaps × 16px = 48px */
-  flex: 0 0 calc((100% - 48px) / 4);
-  max-width: calc((100% - 48px) / 4);
+  flex:0 0 calc((100% - 48px) / 4);
+  max-width:calc((100% - 48px) / 4);
 
   background:#fff;
   border-radius:14px;
@@ -256,15 +251,19 @@ body{
   flex-direction:column;
   overflow:hidden;
 
-  position:relative; /* ✅ required for overlay + gradient */
+  position:relative;
+}
+.product-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 16px 40px rgba(0,0,0,.14);
 }
 
-/* ✅ Available Soon badge (works on all screens) */
+/* ✅ Available Soon badge */
 .available-soon-badge{
   position:absolute;
   top:12px;
   right:12px;
-  z-index:6;                 /* above gradient + overlay */
+  z-index:6;
   background:rgba(46,46,47,.92);
   color:#fff;
   padding:6px 10px;
@@ -275,26 +274,20 @@ body{
   box-shadow:0 10px 22px rgba(0,0,0,.14);
 }
 
-.product-card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 16px 40px rgba(0,0,0,.14);
-}
-
+/* ✅ image baseline (desktop default) */
 .product-image{
   width:100%;
   max-width:100%;
-  height:auto;          /* image decides height */
-  object-fit:contain;  /* NO CROP ever */
+  height:auto;
+  object-fit:contain;
   display:block;
 }
 
-/* ✅ gradient so overlay doesn't feel like image is cut */
+/* gradient */
 .product-card::after{
   content:"";
   position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
+  left:0; right:0; bottom:0;
   height:120px;
   background:linear-gradient(
     to top,
@@ -306,56 +299,41 @@ body{
   z-index:1;
 }
 
-/* ✅ transparent overlay container (sits on top of gradient) */
+/* overlay */
 .product-info{
   position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-
-  padding:10px 10px 12px; /* tight */
+  left:0; right:0; bottom:0;
+  padding:10px 10px 12px;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:6px;
-
   background:transparent;
   z-index:2;
 }
 
-/* ✅ hide price completely */
-.product-price{
-  display:none !important;
-}
+.product-price{display:none !important;}
 
-/* ✅ make button appear first */
 .view-details-btn,
 .login-to-view-btn{
   order:1;
-
   width:90%;
   padding:9px 0;
   border-radius:20px;
   border:none;
   cursor:pointer;
-
   font-size:14px;
   font-weight:900;
-
   background:linear-gradient(135deg,var(--dark-orange),var(--light-orange));
   color:#fff;
-
   box-shadow:0 6px 18px rgba(242,103,34,.35);
   transition:transform .15s ease, box-shadow .15s ease;
 }
-
 .view-details-btn:hover,
 .login-to-view-btn:hover{
   transform:scale(1.02);
   box-shadow:0 10px 26px rgba(242,103,34,.50);
 }
-
-/* ✅ DISABLED state (important) */
 .view-details-btn:disabled,
 .login-to-view-btn:disabled,
 .view-details-btn.isDisabled,
@@ -365,23 +343,20 @@ body{
   cursor:not-allowed !important;
   transform:none !important;
   opacity:0.85;
-  pointer-events:none; /* ✅ prevents any click */
+  pointer-events:none;
 }
 
-/* ✅ name under button */
 .product-name{
   order:2;
-
   font-size:14px;
   font-weight:900;
-  color:#fff;            /* ✅ must be white for dark gradient */
+  color:#fff;
   text-align:center;
-
   min-height:unset;
   line-height:1.2;
 }
 
-/* ✅ arrows only for Products */
+/* arrows */
 .carousel-arrow{
   position:absolute;
   top:50%;
@@ -410,28 +385,12 @@ body{
 .carousel-arrow.prev{left:12px;}
 .carousel-arrow.next{right:12px;}
 
-/* ===================== MOBILE MENU ===================== */
+/* ===================== MOBILE MENU BASE ===================== */
 .desktop-only{display:flex;}
 .mobile-only{display:none;}
 
+/* ✅ Hamburger hidden by default (desktop/laptop) */
 .hamburger{display:none;}
-.hamburger{
-  width:44px;height:44px;
-  border-radius:12px;
-  border:1px solid rgba(46,46,47,.20);
-  background:#fff;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  cursor:pointer;
-}
-.hamburger span{
-  width:20px;height:2px;
-  background:var(--charcoal);
-  border-radius:999px;
-}
 
 /* Overlay + Panel */
 .mobileMenuOverlay{
@@ -442,7 +401,6 @@ body{
   display:flex;
   justify-content:flex-end;
 }
-
 .mobileMenuPanel{
   width:min(360px,92vw);
   height:100%;
@@ -451,8 +409,6 @@ body{
   padding:14px;
   overflow:auto;
 }
-
-/* Header */
 .mobileMenuHeader{
   display:flex;
   align-items:center;
@@ -462,7 +418,6 @@ body{
   margin-bottom:12px;
   border-bottom:1px solid rgba(46,46,47,.12);
 }
-
 .mobileMenuBack{
   width:44px;height:44px;
   border-radius:12px;
@@ -475,16 +430,9 @@ body{
   font-size:20px;
   font-weight:900;
 }
+.mobileMenuTitle{font-weight:900;color:var(--charcoal);letter-spacing:.3px;}
+.mobileMenuSpacer{width:44px;}
 
-.mobileMenuTitle{
-  font-weight:900;
-  color:var(--charcoal);
-  letter-spacing:.3px;
-}
-
-.mobileMenuSpacer{ width:44px; }
-
-/* Sections */
 .mobileMenuSection{
   border:1px solid rgba(46,46,47,.14);
   border-radius:14px;
@@ -492,38 +440,29 @@ body{
   margin-bottom:12px;
   background:#fff;
 }
-
-/* Items */
 .mobileMenuItem{
   width:100%;
   display:flex;
   align-items:center;
   justify-content:flex-start;
   gap:12px;
-
   padding:14px 12px;
   border-radius:12px;
-
   border:1px solid rgba(46,46,47,.10);
   background:#fff;
   color:var(--charcoal);
-
   font-weight:800;
   font-size:16px;
   text-decoration:none;
-
   line-height:1.2;
   white-space:normal;
   text-align:left;
-
   cursor:pointer;
 }
-
 .mobileMenuItem:hover{
   border-color:rgba(242,103,34,.35);
   background:rgba(242,103,34,.05);
 }
-
 .mmIcon{
   width:34px;height:34px;
   border-radius:12px;
@@ -534,7 +473,6 @@ body{
   background:rgba(242,103,34,.10);
   border:1px solid rgba(242,103,34,.22);
 }
-
 .mmAvatar{
   width:100%;
   height:100%;
@@ -542,57 +480,59 @@ body{
   object-fit:cover;
 }
 
-.mobileMenuItem span,
-.mobileMenuItem div{
-  min-width:0;
-}
-
 /* ===================== RESPONSIVE ===================== */
-/* ===================== ≤ 1200px (3 cards) ===================== */
+
+/* ✅ laptop-only (keep your current look) */
 @media (min-width:1200px) and (max-width:1600px){
   .product-card{ height:500px; }
-
   .product-image{
     width:100%;
     height:100%;
-    object-fit:cover;       /* ✅ fills fully */
-    object-position:center; /* tweak: top/center */
+    object-fit:cover;
+    object-position:center;
     display:block;
   }
 }
 
-/* ===================== ≤ 992px (mobile / tablet) ===================== */
-/* ✅ MOBILE ONLY: let each image decide its own height (cards can differ) */
-@media (max-width: 992px){
+/* ✅ Mobile/Tablet (≤992px) */
+@media (max-width:992px){
 
-  /* remove the forced height you set earlier */
-  .product-image{
-    height: auto !important;
-    width: 100%;
-    display: block;
-    object-fit: contain;   /* full image, no crop */
-    background: #f3f4f6;
+  /* show ONLY mobile CTA */
+  .hero-cta.desktop-cta{display:none !important;}
+  .hero-cta.mobile-cta{display:flex !important;}
+
+  /* navbar mobile: hide desktop items */
+  .nav-links{display:none !important;}
+  .auth-section{display:none !important;}
+
+  /* toggle desktop/mobile groups */
+  .desktop-only{display:none !important;}
+  .mobile-only{display:inline-flex !important;}
+
+  /* ✅ hamburger ONLY on mobile */
+  .hamburger{
+    display:flex !important;
+    width:44px;height:44px;
+    border-radius:12px;
+    border:1px solid rgba(46,46,47,.20);
+    background:#fff;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    cursor:pointer;
+  }
+  .hamburger span{
+    width:20px;height:2px;
+    background:var(--charcoal);
+    border-radius:999px;
   }
 
-  /* card should auto-size */
-  .product-card{
-    height: auto;
-  }
-}
+  .navbar{padding:0 20px;}
 
-
-  /* ✅ Mobile hero: show image and hide desktop bg */
-  .hero{
-    background-image:none !important;
-    min-height:auto;
-  }
-
-  .hero-mobile-wrap{
-    display:block;
-    width:100%;
-    position:relative;
-  }
-
+  /* hero mobile image */
+  .hero{background-image:none !important; min-height:auto;}
+  .hero-mobile-wrap{display:block;width:100%;position:relative;}
   .hero-mobile-img{
     display:block;
     width:100%;
@@ -601,19 +541,16 @@ body{
     border-radius:0;
   }
 
-  /* ✅ Mobile CTA sits on image */
   .hero-cta.mobile-cta{
     position:absolute;
     left:50%;
     transform:translateX(-50%);
     bottom:14px;
     width:100%;
-    display:flex;
     justify-content:center;
     z-index:4;
     pointer-events:none;
   }
-
   .hero-cta.mobile-cta .primary-btn{
     pointer-events:auto;
     padding:14px 26px;
@@ -623,110 +560,53 @@ body{
     max-width:86%;
   }
 
-  /* ✅ tighter section spacing (no gaps between sections) */
-  .product-preview{
-    padding:26px 15px;
-  }
+  .product-preview{padding:26px 15px;}
+  .product-preview h2{font-size:32px;margin-bottom:18px;}
 
-  .product-preview h2{
-    font-size:32px;
-    margin-bottom:18px;
-  }
+  /* swipe layout */
+  .product-card{flex:0 0 78%;max-width:78%;}
 
-  /* 1.25 cards visible for swipe UX */
-  .product-card{
-    flex:0 0 78%;
-    max-width:78%;
-  }
-
+  /* ✅ DO NOT set fixed height here (removed 220px) */
   .product-image{
-    height:220px;
+    height:auto !important;
+    object-fit:contain;
+    background:#f3f4f6;
   }
 
-  /* ✅ decrease card height on mobile (tighten overlay area) */
-  .product-card::after{
-    height:80px;   /* smaller gradient */
+  /* reduce “padding look” */
+  .product-card::after{height:80px;}
+  .product-info{padding:6px 8px 8px;gap:4px;}
+  .view-details-btn,.login-to-view-btn{padding:7px 0;font-size:13px;border-radius:18px;}
+  .product-name{font-size:13px;line-height:1.15;}
+  .carousel-arrow{width:42px;height:42px;border-radius:14px;font-size:28px;}
+}
+
+/* ✅ Small phones (≤480px): cap image height like Redencyl */
+@media (max-width:480px){
+
+  /* cap only on very small screens */
+  .product-image{
+    max-height:300px;              /* adjust 280–320 */
+    height:auto !important;
+    object-fit:contain !important;
   }
 
-  .product-info{
-    padding:6px 8px 8px; /* smaller overlay padding */
-    gap:4px;             /* tighter spacing */
-  }
+  /* even less “padding look” */
+  .product-card::after{height:60px;}
+  .product-info{padding:5px 8px 6px;gap:3px;}
 
-  .view-details-btn,
-  .login-to-view-btn{
-    padding:7px 0;       /* slimmer button */
-    font-size:13px;
-    border-radius:18px;
+  .view-details-btn,.login-to-view-btn{
+    padding:6px 0;
+    font-size:12.5px;
+    border-radius:16px;
   }
+  .product-name{font-size:12.5px;line-height:1.12;}
 
-  .product-name{
-    font-size:13px;
-    min-height:unset;
-    line-height:1.15;
-  }
-
-  .carousel-arrow{
-    width:42px;
-    height:42px;
+  .hero-mobile-img{height:460px;}
+  .hero-cta.mobile-cta{bottom:12px;}
+  .hero-cta.mobile-cta .primary-btn{
+    padding:12px 20px;
+    font-size:15px;
     border-radius:14px;
-    font-size:28px;
-  }
-
-
-/* =========================================================
-   ✅ SMALL SCREENS: make image height like Redencyl (not tall)
-   - Full image visible (contain)
-   - Limit max height so tall/vertical photos don't stretch cards
-   - Cards can still vary a bit, but images won't become huge
-   ========================================================= */
-@media (max-width: 480px){
-
-  /* Card sizing for swipe (keep your layout) */
-  .product-card{
-    flex: 0 0 78%;
-    max-width: 78%;
-    height: auto !important;
-  }
-
-  /* ✅ IMAGE RULE (this is the main fix) */
-  .product-image{
-    width: 100%;
-    height: auto !important;          /* remove any forced heights (220px etc.) */
-    max-height: 320px;                /* ✅ tune this to match your Redencyl look */
-    object-fit: contain !important;   /* full image, no crop */
-    object-position: center;
-    display: block;
-    background: #f3f4f6;
-  }
-
-  /* If the image is in a wrapper in some places, keep it safe */
-  .product-card img{
-    height: auto !important;
-    max-height: 320px;
-    object-fit: contain !important;
-    display: block;
-  }
-
-  /* Tighten overlay so it doesn't add "extra space" feeling */
-  .product-card::after{
-    height: 70px;
-  }
-  .product-info{
-    padding: 6px 8px 8px;
-    gap: 4px;
-  }
-
-  .view-details-btn,
-  .login-to-view-btn{
-    width: 90%;
-    padding: 7px 0;
-    font-size: 13px;
-    border-radius: 18px;
-  }
-
-  .product-name{
-    font-size: 13px;
-    line-height: 1.15;
   }
 }
