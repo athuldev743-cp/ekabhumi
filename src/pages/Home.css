@@ -18,503 +18,6 @@ body{
   font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
 }
 
-/* ✅ Only your wrapper sections are white. Do NOT reset all <section> globally */
-.pageSection{ background:#fff; }
-
-/* ===================== NAVBAR ===================== */
-.navbar{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:80px;
-  width:100%;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 40px;
-  z-index:1000;
-  transition:all .4s ease;
-  box-shadow:0 2px 20px rgba(0,0,0,.08);
-}
-.navbar.scrolled{
-  background:rgba(255,255,255,.1);
-  backdrop-filter:blur(15px);
-  box-shadow:0 2px 20px rgba(0,0,0,.05);
-}
-
-.logo{display:flex;align-items:center;height:80px;position:relative;flex-shrink:0;}
-.logo-img{
-  height:70px !important;
-  width:auto !important;
-  min-height:60px;
-  min-width:120px;
-  object-fit:contain;
-  display:block;
-  transition:all .4s ease;
-}
-.navbar.scrolled .logo-img{
-  opacity:0;
-  visibility:hidden;
-  transform:translateX(-20px) scale(1.2);
-}
-.text-logo{
-  font-size:28px;
-  font-weight:900;
-  color:#000;
-  position:absolute;
-  left:0;top:0;
-  height:80px;
-  display:flex;
-  align-items:center;
-  opacity:0;
-  visibility:hidden;
-  transition:all .4s ease;
-  letter-spacing:1px;
-}
-.navbar.scrolled .text-logo{opacity:1;visibility:visible;}
-
-.nav-links{
-  display:flex;
-  gap:32px;
-  align-items:center;
-  height:80px;
-  flex:1;
-  justify-content:center;
-}
-.nav-links a{
-  color:#333;
-  text-decoration:none;
-  font-weight:600;
-  font-size:16px;
-  position:relative;
-  height:80px;
-  display:flex;
-  align-items:center;
-}
-.nav-links a:hover{color:var(--dark-orange);}
-.nav-links a::after{
-  content:'';
-  position:absolute;
-  bottom:20px;
-  left:0;
-  width:0;
-  height:3px;
-  background:var(--dark-orange);
-  transition:width .25s ease;
-}
-.nav-links a:hover::after{width:100%;}
-
-/* ===================== AUTH ===================== */
-.auth-section{display:flex;align-items:center;position:relative;z-index:2000;flex-shrink:0;}
-.user-nav{display:flex;align-items:center;gap:15px;}
-.user-greeting{font-size:14px;color:var(--charcoal);font-weight:600;}
-.accountBtn{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:50%;}
-.accountBtn:hover{background:rgba(0,0,0,.08);}
-.accountAvatar{width:28px;height:28px;border-radius:50%;object-fit:cover;}
-
-.login-nav-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(135deg,var(--dark-orange),var(--light-orange));
-  color:#fff;
-  border:none;
-  padding:10px 28px;
-  border-radius:30px;
-  font-size:16px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 5px 15px rgba(242,103,34,.30);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.login-nav-btn:hover{transform:scale(1.03);box-shadow:0 10px 25px rgba(242,103,34,.45);}
-
-.admin-dashboard-btn{
-  background:linear-gradient(135deg,var(--charcoal),#444);
-  color:#fff;
-  border:none;
-  padding:8px 20px;
-  border-radius:25px;
-  font-size:14px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-/* ===================== HERO ===================== */
-.hero{
-  width:100%;
-  min-height:calc(110vh - 80px);
-  margin-top:80px;
-  position:relative;
-  overflow:hidden;
-
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-
-  isolation:isolate;
-  z-index:0;
-}
-
-/* CTA base */
-.hero-cta{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  bottom:100px;
-  z-index:3;
-  display:flex;
-  justify-content:center;
-  width:100%;
-  pointer-events:none;
-}
-.hero-cta .primary-btn{pointer-events:auto;}
-
-/* safe defaults: desktop CTA visible, mobile CTA hidden */
-.hero-cta.mobile-cta{display:none;}
-.hero-cta.desktop-cta{display:flex;}
-
-.primary-btn{
-  background:linear-gradient(135deg,var(--dark-orange),#ff8c42);
-  color:#fff;
-  border:none;
-  padding:22px 60px;
-  border-radius:50px;
-  font-size:22px;
-  font-weight:900;
-  cursor:pointer;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  box-shadow:0 15px 35px rgba(242,103,34,.40);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.primary-btn:hover{transform:scale(1.03);box-shadow:0 22px 45px rgba(242,103,34,.55);}
-
-/* mobile image hidden on desktop */
-.hero-mobile-wrap{display:none;}
-.hero-mobile-img{display:none;}
-
-/* ===================== PRODUCTS ===================== */
-.product-preview{
-  background:#f8f9fa;
-  padding:50px 60px;
-  position:relative;
-  isolation:isolate;
-  z-index:1;
-}
-
-.product-preview h2{
-  font-size:42px;
-  margin-bottom:35px;
-  text-align:center;
-  color:var(--charcoal);
-}
-
-.error-message{
-  background:#fff3cd;
-  border:1px solid #ffeaa7;
-  padding:10px;
-  border-radius:10px;
-  margin:20px 0;
-  color:#856404;
-  text-align:center;
-}
-.loading-text{text-align:center;color:#444;}
-
-.carousel-container{
-  position:relative;
-  overflow:hidden;
-}
-
-.carousel-track{
-  display:flex;
-  gap:16px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
-  padding:10px 4px 14px;
-  scrollbar-width:none;
-}
-.carousel-track::-webkit-scrollbar{display:none;}
-
-.product-card{
-  scroll-snap-align:start;
-
-  /* ✅ 4 cards: 3 gaps × 16px = 48px */
-  flex:0 0 calc((100% - 48px) / 4);
-  max-width:calc((100% - 48px) / 4);
-
-  background:#fff;
-  border-radius:14px;
-  box-shadow:0 6px 20px rgba(0,0,0,.10);
-  transition:transform .2s ease, box-shadow .2s ease;
-
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  position:relative;
-}
-.product-card:hover{
-  transform:translateY(-6px);
-  box-shadow:0 16px 40px rgba(0,0,0,.14);
-}
-
-/* badge */
-.available-soon-badge{
-  position:absolute;
-  top:12px;
-  right:12px;
-  z-index:6;
-  background:rgba(46,46,47,.92);
-  color:#fff;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.2px;
-  box-shadow:0 10px 22px rgba(0,0,0,.14);
-}
-
-/* image baseline */
-.product-image{
-  width:100%;
-  max-width:100%;
-  height:auto;
-  object-fit:contain;
-  display:block;
-}
-
-/* gradient */
-.product-card::after{
-  content:"";
-  position:absolute;
-  left:0; right:0; bottom:0;
-  height:120px;
-  background:linear-gradient(
-    to top,
-    rgba(0,0,0,.58),
-    rgba(0,0,0,.22),
-    rgba(0,0,0,0)
-  );
-  pointer-events:none;
-  z-index:1;
-}
-
-/* overlay */
-.product-info{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  padding:10px 10px 12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-  background:transparent;
-  z-index:2;
-}
-
-.product-price{display:none !important;}
-
-.view-details-btn,
-.login-to-view-btn{
-  order:1;
-  width:90%;
-  padding:9px 0;
-  border-radius:20px;
-  border:none;
-  cursor:pointer;
-  font-size:14px;
-  font-weight:900;
-  background:linear-gradient(135deg,var(--dark-orange),var(--light-orange));
-  color:#fff;
-  box-shadow:0 6px 18px rgba(242,103,34,.35);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.view-details-btn:hover,
-.login-to-view-btn:hover{
-  transform:scale(1.02);
-  box-shadow:0 10px 26px rgba(242,103,34,.50);
-}
-.view-details-btn:disabled,
-.login-to-view-btn:disabled,
-.view-details-btn.isDisabled,
-.login-to-view-btn.isDisabled{
-  background:rgba(46,46,47,.35) !important;
-  box-shadow:none !important;
-  cursor:not-allowed !important;
-  transform:none !important;
-  opacity:0.85;
-  pointer-events:none;
-}
-
-.product-name{
-  order:2;
-  font-size:14px;
-  font-weight:900;
-  color:#fff;
-  text-align:center;
-  min-height:unset;
-  line-height:1.2;
-}
-
-/* arrows */
-.carousel-arrow{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  width:48px;height:48px;
-  border-radius:16px;
-  border:1px solid rgba(46,46,47,.14);
-  background:rgba(255,255,255,.90);
-  backdrop-filter:blur(8px);
-  cursor:pointer;
-  z-index:5;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--charcoal);
-  box-shadow:0 12px 28px rgba(0,0,0,.12);
-  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
-  font-size:30px;
-  font-weight:900;
-}
-.carousel-arrow:hover{
-  transform:translateY(-50%) scale(1.06);
-  background:rgba(255,255,255,.98);
-  box-shadow:0 16px 34px rgba(0,0,0,.14), 0 0 0 4px rgba(242,103,34,.10);
-}
-.carousel-arrow.prev{left:12px;}
-.carousel-arrow.next{right:12px;}
-
-/* ===================== MOBILE MENU BASE ===================== */
-.desktop-only{display:flex;}
-.mobile-only{display:none;}
-.hamburger{display:none;} /* ✅ never on desktop */
-
-/* overlay/panel */
-.mobileMenuOverlay{
-  position:fixed;
-  inset:0;
-  background:rgba(46,46,47,.55);
-  z-index:9999;
-  display:flex;
-  justify-content:flex-end;
-}
-.mobileMenuPanel{
-  width:min(360px,92vw);
-  height:100%;
-  background:#fff;
-  border-left:1px solid rgba(46,46,47,.14);
-  padding:14px;
-  overflow:auto;
-}
-.mobileMenuHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:6px 4px 14px;
-  margin-bottom:12px;
-  border-bottom:1px solid rgba(46,46,47,.12);
-}
-.mobileMenuBack{
-  width:44px;height:44px;
-  border-radius:12px;
-  border:1px solid rgba(46,46,47,.18);
-  background:#fff;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-  font-weight:900;
-}
-.mobileMenuTitle{font-weight:900;color:var(--charcoal);letter-spacing:.3px;}
-.mobileMenuSpacer{width:44px;}
-
-.mobileMenuSection{
-  border:1px solid rgba(46,46,47,.14);
-  border-radius:14px;
-  padding:10px;
-  margin-bottom:12px;
-  background:#fff;
-}
-.mobileMenuItem{
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:12px;
-  padding:14px 12px;
-  border-radius:12px;
-  border:1px solid rgba(46,46,47,.10);
-  background:#fff;
-  color:var(--charcoal);
-  font-weight:800;
-  font-size:16px;
-  text-decoration:none;
-  line-height:1.2;
-  white-space:normal;
-  text-align:left;
-  cursor:pointer;
-}
-.mobileMenuItem:hover{
-  border-color:rgba(242,103,34,.35);
-  background:rgba(242,103,34,.05);
-}
-.mmIcon{
-  width:34px;height:34px;
-  border-radius:12px;
-  flex:0 0 34px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(242,103,34,.10);
-  border:1px solid rgba(242,103,34,.22);
-}
-.mmAvatar{
-  width:100%;
-  height:100%;
-  border-radius:12px;
-  object-fit:cover;
-}
-
-/* ===================== RESPONSIVE ===================== */
-
-/* ✅ laptop-only (keep your current look) */
-@media (min-width:1200px) and (max-width:1600px){
-  .product-card{ height:500px; }
-  .product-image{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center;
-    display:block;
-  }
-}
-
-/* ✅ Mobile/Tablet (≤992px) */
-:root{
-  --white:#ffffff;
-  --dark-orange:#F26722;
-  --light-orange:#F2A254;
-  --charcoal:#2E2E2F;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;}
-
-html,body{
-  width:100%;
-  max-width:100%;
-  overflow-x:hidden;
-  background:#fff;
-}
-
-body{
-  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-}
-
 /* Only wrapper sections */
 .pageSection{ background:#fff; }
 
@@ -559,9 +62,9 @@ body{
   min-width:120px;
   object-fit:contain;
   display:block;
+  transition:all .35s ease;
 }
 
-/* NOTE: since JSX already swaps logo/img vs text, keep text-logo simple */
 .text-logo{
   font-size:28px;
   font-weight:900;
@@ -572,6 +75,7 @@ body{
   height:80px;
 }
 
+/* Desktop nav links */
 .nav-links{
   display:flex;
   gap:32px;
@@ -606,7 +110,7 @@ body{
 }
 .nav-links a:hover::after{ width:100%; }
 
-/* ===================== AUTH ===================== */
+/* Auth */
 .auth-section{
   display:flex;
   align-items:center;
@@ -664,7 +168,7 @@ body{
   cursor:pointer;
 }
 
-/* ===================== HAMBURGER (hidden by default) ===================== */
+/* Hamburger: hidden by default (desktop/laptop) */
 .hamburger{ display:none; }
 
 /* ===================== HERO ===================== */
@@ -674,15 +178,14 @@ body{
   margin-top:80px;
   position:relative;
   overflow:hidden;
-
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
-
   isolation:isolate;
   z-index:0;
 }
 
+/* desktop CTA sits on hero background */
 .hero-cta{
   position:absolute;
   left:50%;
@@ -715,6 +218,7 @@ body{
   box-shadow:0 22px 45px rgba(242,103,34,.55);
 }
 
+/* Mobile hero elements hidden on desktop */
 .hero-mobile-wrap{ display:none; }
 .hero-mobile-img{ display:none; }
 
@@ -750,7 +254,7 @@ body{
   overflow:hidden;
 }
 
-/* Desktop track */
+/* Track */
 .carousel-track{
   display:flex;
   gap:16px;
@@ -763,7 +267,7 @@ body{
 }
 .carousel-track::-webkit-scrollbar{ display:none; }
 
-/* Desktop cards */
+/* Desktop card */
 .product-card{
   scroll-snap-align:start;
   flex:0 0 calc((100% - 48px) / 4);
@@ -777,7 +281,6 @@ body{
   display:flex;
   flex-direction:column;
   overflow:hidden;
-
   position:relative;
 }
 
@@ -786,6 +289,7 @@ body{
   box-shadow:0 16px 40px rgba(0,0,0,.14);
 }
 
+/* Badge */
 .available-soon-badge{
   position:absolute;
   top:12px;
@@ -801,6 +305,7 @@ body{
   box-shadow:0 10px 22px rgba(0,0,0,.14);
 }
 
+/* Desktop image default */
 .product-image{
   width:100%;
   height:auto;
@@ -808,7 +313,7 @@ body{
   display:block;
 }
 
-/* bottom gradient */
+/* Gradient */
 .product-card::after{
   content:"";
   position:absolute;
@@ -824,7 +329,7 @@ body{
   z-index:1;
 }
 
-/* bottom overlay */
+/* Overlay */
 .product-info{
   position:absolute;
   left:0; right:0; bottom:0;
@@ -880,7 +385,7 @@ body{
   line-height:1.2;
 }
 
-/* arrows */
+/* Arrows */
 .carousel-arrow{
   position:absolute;
   top:50%;
@@ -918,7 +423,6 @@ body{
   display:flex;
   justify-content:flex-end;
 }
-
 .mobileMenuPanel{
   width:min(360px,92vw);
   height:100%;
@@ -927,7 +431,6 @@ body{
   padding:14px;
   overflow:auto;
 }
-
 .mobileMenuHeader{
   display:flex;
   align-items:center;
@@ -937,7 +440,6 @@ body{
   margin-bottom:12px;
   border-bottom:1px solid rgba(46,46,47,.12);
 }
-
 .mobileMenuBack{
   width:44px;height:44px;
   border-radius:12px;
@@ -950,10 +452,8 @@ body{
   font-size:20px;
   font-weight:900;
 }
-
 .mobileMenuTitle{ font-weight:900; color:var(--charcoal); letter-spacing:.3px; }
 .mobileMenuSpacer{ width:44px; }
-
 .mobileMenuSection{
   border:1px solid rgba(46,46,47,.14);
   border-radius:14px;
@@ -961,7 +461,6 @@ body{
   margin-bottom:12px;
   background:#fff;
 }
-
 .mobileMenuItem{
   width:100%;
   display:flex;
@@ -979,12 +478,10 @@ body{
   text-align:left;
   cursor:pointer;
 }
-
 .mobileMenuItem:hover{
   border-color:rgba(242,103,34,.35);
   background:rgba(242,103,34,.05);
 }
-
 .mmIcon{
   width:34px;height:34px;
   border-radius:12px;
@@ -995,7 +492,6 @@ body{
   background:rgba(242,103,34,.10);
   border:1px solid rgba(242,103,34,.22);
 }
-
 .mmAvatar{
   width:100%;
   height:100%;
@@ -1014,141 +510,135 @@ body{
     display:block;
   }
 }
+
 /* =========================================================
-   ✅ MOBILE FIX PACK (put at VERY END of Home.css)
-   - Bigger full-width cards
-   - Uniform image frame
-   - Fix navbar (no desktop links on mobile)
+   ✅ MOBILE/TABLET (≤992px)
+   - Navbar: hide desktop links/auth
+   - Show hamburger/login (mobile-only)
+   - Hero: show mobile image
+   - Carousel: WIDE cards
    ========================================================= */
+@media (max-width:992px){
 
-/* ---- NAVBAR: mobile must hide desktop-only blocks ---- */
-@media (max-width: 992px){
-  /* hard-hide desktop navbar content */
-  .nav-links.desktop-only,
-  .auth-section.desktop-only{
-    display: none !important;
-  }
+  /* NAVBAR */
+  .nav-links{ display:none !important; }
+  .auth-section{ display:none !important; }
+  .desktop-only{ display:none !important; }
+  .mobile-only{ display:inline-flex !important; }
 
-  /* show the mobile right button only */
-  .mobile-only{
-    display: inline-flex !important;
-  }
+  .navbar{ padding:0 16px !important; }
 
-  /* hamburger button style */
+  /* hamburger shown only on mobile */
   .hamburger{
-    display: flex !important;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    border: 1px solid rgba(46,46,47,.20);
-    background: rgba(255,255,255,.92);
-    backdrop-filter: blur(10px);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 6px;
+    display:flex !important;
+    width:46px;height:46px;
+    border-radius:14px;
+    border:1px solid rgba(46,46,47,.20);
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:6px;
+    cursor:pointer;
   }
   .hamburger span{
-    width: 22px;
-    height: 2px;
-    background: var(--charcoal);
-    border-radius: 999px;
+    width:22px;height:2px;
+    background:var(--charcoal);
+    border-radius:999px;
   }
 
-  .navbar{
-    padding: 0 16px !important;
-  }
-}
-
-/* ---- PRODUCTS: full width cards on phones ---- */
-@media (max-width: 600px){
-
-  /* remove side padding that creates small-looking cards */
-  .carousel-track{
-    padding: 10px 0 14px !important;   /* no left/right padding */
-    gap: 14px !important;
-  }
-
-  /* make each card almost full width */
-  .product-card{
-    flex: 0 0 92vw !important;      /* ✅ big card */
-    max-width: 92vw !important;
-    height: 420px !important;       /* slightly taller */
-    margin: 0 auto !important;      /* center card */
-    border-radius: 18px !important;
-  }
-
-  /* uniform image frame */
-  .product-image{
-    width: 100% !important;
-    height: 310px !important;       /* ✅ same for all */
-    object-fit: cover !important;   /* fills like Redencyl */
-    object-position: center !important;
-    display: block !important;
-    background: transparent !important;
-  }
-
-  /* keep overlay tight and consistent */
-  .product-card::after{
-    height: 95px !important;
-  }
-
-  .product-info{
-    padding: 10px 12px 12px !important;
-    gap: 8px !important;
-  }
-
-  .view-details-btn,
-  .login-to-view-btn{
-    width: 92% !important;
-    padding: 10px 0 !important;
-    font-size: 14px !important;
-    border-radius: 22px !important;
-  }
-
-  .product-name{
-    font-size: 14px !important;
-    line-height: 1.15 !important;
-  }
-
-  /* arrows slightly smaller on mobile */
-  .carousel-arrow{
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 14px !important;
-  }
-}
-/* =====================================================
-   ✅ MOBILE HERO: no zoom, full image visible
-   ===================================================== */
-@media (max-width: 768px){
-
+  /* HERO: show mobile hero image */
   .hero{
-    background-image: none !important;
-    min-height: auto !important;
+    background-image:none !important;
+    min-height:auto !important;
   }
-
   .hero-mobile-wrap{
-    display: block;
-    width: 100%;
-    position: relative;
+    display:block !important;
+    width:100%;
+    position:relative;
   }
-
   .hero-mobile-img{
-    width: 100%;
-    height: 360px;              /* tune 320–380 */
-    object-fit: contain;        /* 🔥 NO ZOOM */
-    object-position: center;
-    background: #f5f5f5;        /* optional soft bg */
+    display:block !important;
+    width:100%;
+    height:360px;            /* tune 320–420 */
+    object-fit:contain;      /* ✅ no zoom */
+    object-position:center;
+    background:#f5f5f5;
   }
 
+  /* keep only the mobile CTA (your JSX already uses desktop-only class) */
   .hero-cta.mobile-cta{
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:14px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    z-index:4;
+    pointer-events:none;
   }
+  .hero-cta.mobile-cta .primary-btn{
+    pointer-events:auto;
+    padding:14px 26px;
+    font-size:16px;
+    border-radius:16px;
+    text-transform:none;
+    max-width:86%;
+  }
+
+  /* PRODUCTS section spacing */
+  .product-preview{ padding:26px 15px; }
+  .product-preview h2{ font-size:32px; margin-bottom:18px; }
+
+  /* CAROUSEL WIDTH FIX */
+  .carousel-track{
+    padding:10px 0 14px !important;  /* remove side padding */
+    gap:14px !important;
+  }
+
+  /* BIG CARD */
+  .product-card{
+    flex:0 0 92vw !important;
+    max-width:92vw !important;
+    margin:0 auto !important;
+    height:420px !important;         /* ✅ uniform card height */
+    border-radius:18px !important;
+  }
+
+  /* UNIFORM IMAGE */
+  .product-image{
+    width:100% !important;
+    height:310px !important;         /* ✅ same for all */
+    object-fit:cover !important;     /* ✅ like redencyl */
+    object-position:center !important;
+    display:block !important;
+  }
+
+  /* overlay sizing */
+  .product-card::after{ height:95px !important; }
+  .product-info{ padding:10px 12px 12px !important; gap:8px !important; }
+
+  .view-details-btn,.login-to-view-btn{
+    width:92% !important;
+    padding:10px 0 !important;
+    font-size:14px !important;
+    border-radius:22px !important;
+  }
+  .product-name{ font-size:14px !important; line-height:1.15 !important; }
+
+  .carousel-arrow{
+    width:44px !important;
+    height:44px !important;
+    border-radius:14px !important;
+    font-size:28px !important;
+  }
+}
+
+/* ✅ Small phones: slightly smaller hero and cards if needed */
+@media (max-width:480px){
+  .hero-mobile-img{ height:330px !important; }
+  .product-card{ height:410px !important; }
+  .product-image{ height:300px !important; }
 }
