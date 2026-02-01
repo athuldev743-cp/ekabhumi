@@ -18,7 +18,6 @@ body{
   font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
 }
 
-/* Only wrapper sections */
 .pageSection{ background:#fff; }
 
 /* ===================== VISIBILITY HELPERS ===================== */
@@ -95,7 +94,6 @@ body{
   display:flex;
   align-items:center;
 }
-
 .nav-links a:hover{ color:var(--dark-orange); }
 
 .nav-links a::after{
@@ -110,7 +108,7 @@ body{
 }
 .nav-links a:hover::after{ width:100%; }
 
-/* Auth */
+/* Auth (desktop) */
 .auth-section{
   display:flex;
   align-items:center;
@@ -168,7 +166,7 @@ body{
   cursor:pointer;
 }
 
-/* Hamburger: hidden by default (desktop/laptop) */
+/* Hamburger hidden by default (desktop/laptop) */
 .hamburger{ display:none; }
 
 /* ===================== HERO ===================== */
@@ -185,7 +183,7 @@ body{
   z-index:0;
 }
 
-/* desktop CTA sits on hero background */
+/* desktop CTA sits on hero bg */
 .hero-cta{
   position:absolute;
   left:50%;
@@ -218,7 +216,7 @@ body{
   box-shadow:0 22px 45px rgba(242,103,34,.55);
 }
 
-/* Mobile hero elements hidden on desktop */
+/* mobile hero elements hidden on desktop */
 .hero-mobile-wrap{ display:none; }
 .hero-mobile-img{ display:none; }
 
@@ -254,7 +252,6 @@ body{
   overflow:hidden;
 }
 
-/* Track */
 .carousel-track{
   display:flex;
   gap:16px;
@@ -267,7 +264,6 @@ body{
 }
 .carousel-track::-webkit-scrollbar{ display:none; }
 
-/* Desktop card */
 .product-card{
   scroll-snap-align:start;
   flex:0 0 calc((100% - 48px) / 4);
@@ -289,7 +285,6 @@ body{
   box-shadow:0 16px 40px rgba(0,0,0,.14);
 }
 
-/* Badge */
 .available-soon-badge{
   position:absolute;
   top:12px;
@@ -305,7 +300,6 @@ body{
   box-shadow:0 10px 22px rgba(0,0,0,.14);
 }
 
-/* Desktop image default */
 .product-image{
   width:100%;
   height:auto;
@@ -313,7 +307,6 @@ body{
   display:block;
 }
 
-/* Gradient */
 .product-card::after{
   content:"";
   position:absolute;
@@ -329,7 +322,6 @@ body{
   z-index:1;
 }
 
-/* Overlay */
 .product-info{
   position:absolute;
   left:0; right:0; bottom:0;
@@ -385,7 +377,6 @@ body{
   line-height:1.2;
 }
 
-/* Arrows */
 .carousel-arrow{
   position:absolute;
   top:50%;
@@ -513,10 +504,6 @@ body{
 
 /* =========================================================
    ✅ MOBILE/TABLET (≤992px)
-   - Navbar: hide desktop links/auth
-   - Show hamburger/login (mobile-only)
-   - Hero: show mobile image
-   - Carousel: WIDE cards
    ========================================================= */
 @media (max-width:992px){
 
@@ -528,7 +515,6 @@ body{
 
   .navbar{ padding:0 16px !important; }
 
-  /* hamburger shown only on mobile */
   .hamburger{
     display:flex !important;
     width:46px;height:46px;
@@ -548,34 +534,44 @@ body{
     border-radius:999px;
   }
 
-  /* HERO: show mobile hero image */
- /* ✅ hero spacing fix */
-.hero{
-  margin-top:80px !important; /* bring back navbar offset */
-  padding:0 !important;
-}
+  /* HERO (mobile) */
+  .hero{
+    background-image:none !important;
+    min-height:auto !important;
+    padding:0 !important;
+    margin-top:80px !important; /* navbar offset */
+  }
 
-.hero-mobile-wrap{
-  margin:0 !important;
-  padding:0 !important;
-  line-height:0;              /* keep baseline gap removed */
-}
+  .hero-mobile-wrap{
+    display:block !important;
+    width:100%;
+    position:relative;
+    margin:0 !important;
+    padding:0 !important;
+    line-height:0;
+  }
 
-.hero-mobile-img{
-  margin:0 !important;
-  padding:0 !important;
-  vertical-align:top;
-}
+  .hero-mobile-img{
+    display:block !important;
+    width:100%;
+    height:48vh;              /* responsive height */
+    max-height:380px;         /* safety cap */
+    object-fit:contain;       /* no zoom */
+    object-position:center;
+    background:#f5f5f5;
+    margin:0 !important;
+    padding:0 !important;
+    vertical-align:top;
+  }
 
-
-  /* keep only the mobile CTA (your JSX already uses desktop-only class) */
+  /* ✅ FORCE Shop Now visible on mobile */
   .hero-cta.mobile-cta{
+    display:flex !important;
     position:absolute;
     left:50%;
     transform:translateX(-50%);
-    bottom:14px;
+    bottom:12px;
     width:100%;
-    display:flex;
     justify-content:center;
     z-index:4;
     pointer-events:none;
@@ -593,31 +589,30 @@ body{
   .product-preview{ padding:26px 15px; }
   .product-preview h2{ font-size:32px; margin-bottom:18px; }
 
-  /* CAROUSEL WIDTH FIX */
+  /* CAROUSEL width (no narrow look) */
   .carousel-track{
-    padding:10px 0 14px !important;  /* remove side padding */
+    padding:10px 0 14px !important;
     gap:14px !important;
   }
 
-  /* BIG CARD */
+  /* BIG uniform card */
   .product-card{
     flex:0 0 92vw !important;
     max-width:92vw !important;
     margin:0 auto !important;
-    height:420px !important;         /* ✅ uniform card height */
+    height:420px !important;
     border-radius:18px !important;
   }
 
-  /* UNIFORM IMAGE */
+  /* UNIFORM images (same look like Redencyl) */
   .product-image{
     width:100% !important;
-    height:310px !important;         /* ✅ same for all */
-    object-fit:cover !important;     /* ✅ like redencyl */
+    height:310px !important;
+    object-fit:cover !important;
     object-position:center !important;
     display:block !important;
   }
 
-  /* overlay sizing */
   .product-card::after{ height:95px !important; }
   .product-info{ padding:10px 12px 12px !important; gap:8px !important; }
 
@@ -627,6 +622,7 @@ body{
     font-size:14px !important;
     border-radius:22px !important;
   }
+
   .product-name{ font-size:14px !important; line-height:1.15 !important; }
 
   .carousel-arrow{
@@ -637,9 +633,12 @@ body{
   }
 }
 
-/* ✅ Small phones: slightly smaller hero and cards if needed */
+/* ✅ Small phones (≤480px) */
 @media (max-width:480px){
-  .hero-mobile-img{ height:330px !important; }
+  .hero-mobile-img{
+    height:42vh !important;
+    max-height:320px !important;
+  }
   .product-card{ height:410px !important; }
   .product-image{ height:300px !important; }
 }
