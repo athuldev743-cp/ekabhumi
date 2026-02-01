@@ -536,11 +536,12 @@ body{
 
   /* HERO (mobile) */
   .hero{
-    background-image:none !important;
-    min-height:auto !important;
-    padding:0 !important;
-    margin-top:80px !important; /* navbar offset */
-  }
+  background-image:none !important;
+  min-height:auto !important;
+  margin-top:0 !important;        /* ✅ remove fake padding */
+  padding-top:80px !important;    /* ✅ real navbar offset */
+  padding-bottom:0 !important;
+}
 
   .hero-mobile-wrap{
     display:block !important;
