@@ -495,142 +495,84 @@ body{
 }
 
 /* ✅ Mobile/Tablet (≤992px) */
-/* ===================== MOBILE/TABLET (≤992px) ===================== */
-@media (max-width:992px){
+/* =========================================================
+   ✅ MOBILE UNIFORM CARDS (same height for every product)
+   - No crop: object-fit: contain
+   - Same card height always
+   ========================================================= */
 
-  /* ✅ prevent double CTA (supports both class styles) */
-  .hero-cta.desktop-only{display:none !important;}
-  .hero-cta.desktop-cta{display:none !important;}
-  .hero-cta.mobile-cta{display:flex !important;}
+/* Tablet + Mobile */
+@media (max-width: 992px) {
 
-  /* navbar mobile: hide desktop items */
-  .nav-links{display:none !important;}
-  .auth-section{display:none !important;}
-
-  /* toggle desktop/mobile groups */
-  .desktop-only{display:none !important;}
-  .mobile-only{display:inline-flex !important;}
-
-  /* ✅ hamburger ONLY on mobile */
-  .hamburger{
-    display:flex !important;
-    width:44px;height:44px;
-    border-radius:12px;
-    border:1px solid rgba(46,46,47,.20);
-    background:#fff;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    cursor:pointer;
-  }
-  .hamburger span{
-    width:20px;height:2px;
-    background:var(--charcoal);
-    border-radius:999px;
-  }
-
-  .navbar{padding:0 20px;}
-
-  /* hero */
-  .hero{background-image:none !important; min-height:auto;}
-  .hero-mobile-wrap{display:block;width:100%;position:relative;}
-  .hero-mobile-img{
-    display:block;
-    width:100%;
-    height:520px;
-    object-fit:cover;
-    border-radius:0;
-  }
-  .hero-cta.mobile-cta{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:14px;
-    width:100%;
-    justify-content:center;
-    z-index:4;
-    pointer-events:none;
-  }
-  .hero-cta.mobile-cta .primary-btn{
-    pointer-events:auto;
-    padding:14px 26px;
-    font-size:16px;
-    border-radius:16px;
-    text-transform:none;
-    max-width:86%;
-  }
-
-  /* products section */
-  .product-preview{padding:26px 15px;}
-  .product-preview h2{font-size:32px;margin-bottom:18px;}
-
-  /* ✅ remove side "padding look" */
+  /* track padding creates side gaps → remove it */
   .carousel-track{
-    padding:10px 0 14px !important; /* remove 4px sides */
+    padding: 10px 0 14px !important;
   }
 
-  /* ✅ make card almost full-width (uniform look) */
+  /* cards should be centered and uniform */
   .product-card{
-    flex:0 0 94% !important;
-    max-width:94% !important;
-    height:auto !important;
-    margin:0 auto;                 /* centers the card in the track */
+    flex: 0 0 94% !important;
+    max-width: 94% !important;
+    margin: 0 auto !important;
+
+    /* ✅ THIS makes all cards same height */
+    height: 420px !important;     /* tune if needed */
   }
 
-  /* ======================================================
-     ✅ THE MAIN FIX: uniform image frame height on mobile
-     - No crop (contain)
-     - Same height for every product on mobile
-     ====================================================== */
+  /* ✅ fixed image frame height */
   .product-image{
-    width:100%;
-    height:320px !important;        /* 🔥 uniform frame height */
-    object-fit:contain !important;  /* NO CROP */
-    object-position:center;
-    display:block;
-    background:transparent !important;
+    width: 100% !important;
+    height: 330px !important;     /* image frame */
+    object-fit: contain !important; /* NO CROP */
+    object-position: center !important;
+    display: block !important;
+    background: transparent !important;
   }
 
-  /* tighten overlay */
-  .product-card::after{height:70px !important;}
-  .product-info{padding:6px 8px 6px !important;gap:4px;}
-
-  .view-details-btn,.login-to-view-btn{
-    padding:7px 0;
-    font-size:13px;
-    border-radius:18px;
+  /* bottom overlay stays same */
+  .product-card::after{
+    height: 90px !important;
   }
-  .product-name{font-size:13px;line-height:1.15;}
 
-  .carousel-arrow{
-    width:42px;height:42px;border-radius:14px;font-size:28px;
+  .product-info{
+    padding: 8px 10px 10px !important;
+    gap: 6px !important;
+  }
+
+  .view-details-btn,
+  .login-to-view-btn{
+    width: 92% !important;
+    padding: 8px 0 !important;
+    font-size: 13px !important;
+  }
+
+  .product-name{
+    font-size: 13px !important;
+    line-height: 1.15 !important;
   }
 }
 
-/* ===================== SMALL PHONES (≤480px) ===================== */
-@media (max-width:480px){
+/* Small phones */
+@media (max-width: 480px) {
 
   .product-card{
-    flex:0 0 96% !important;
-    max-width:96% !important;
+    flex: 0 0 96% !important;
+    max-width: 96% !important;
+
+    /* ✅ same height on small phones too */
+    height: 400px !important;     /* tune if needed */
   }
 
-  /* smaller uniform image frame */
   .product-image{
-    height:280px !important;        /* 🔥 tune 260–300 */
-    object-fit:contain !important;  /* NO CROP */
+    height: 300px !important;     /* slightly smaller frame */
   }
 
-  .product-card::after{height:60px !important;}
-  .product-info{padding:5px 8px 5px !important;gap:3px;}
-
-  .view-details-btn,.login-to-view-btn{
-    padding:6px 0;
-    font-size:12.5px;
-    border-radius:16px;
+  .product-card::after{
+    height: 80px !important;
   }
-  .product-name{font-size:12.5px;line-height:1.12;}
 
-  .hero-mobile-img{height:460px;}
+  .product-info{
+    padding: 7px 10px 9px !important;
+    gap: 5px !important;
+  }
 }
