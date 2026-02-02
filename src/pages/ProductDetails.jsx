@@ -144,15 +144,32 @@ const ProductDetails = () => {
       <div className="pd-card">
         <div className="pd-grid">
           {/* Image */}
-          <div className="pd-imageWrap">
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="pd-image"
-              onError={handleImageError}
-              loading="lazy"
-            />
-          </div>
+          {/* Image */}
+<div className="pd-imageWrap">
+  <img
+    src={product.image_url}
+    alt={product.name}
+    className="pd-image"
+    onError={handleImageError}
+    loading="lazy"
+  />
+
+  {/* 🔥 Primary CTA under image */}
+  <button
+    className="pd-btn pd-btn-primary pd-buy-under-image"
+    onClick={handleBuyNow}
+    disabled={!user}
+  >
+    Buy Now
+  </button>
+
+  {!user && (
+    <div className="pd-image-loginHint">
+      Login required to purchase
+    </div>
+  )}
+</div>
+
 
           {/* Content */}
           <div className="pd-content">
@@ -216,9 +233,7 @@ const ProductDetails = () => {
                 Add to Cart
               </button>
 
-              <button className="pd-btn pd-btn-primary" onClick={handleBuyNow} disabled={!user}>
-                Buy Now
-              </button>
+              
 
               {!user ? (
                 <div className="pd-loginHint">

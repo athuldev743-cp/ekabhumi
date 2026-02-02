@@ -52,9 +52,35 @@
   background: linear-gradient(180deg, rgba(242,103,34,0.08), rgba(255,154,102,0.05));
   padding: 16px;
   display:flex;
+  flex-direction:column;   /* ✅ important so button sits under image */
   align-items:center;
   justify-content:center;
 }
+
+/* ================= Buy Now under image ================= */
+
+.pd-buy-under-image{
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 0;
+  font-size: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(242,103,34,0.35);
+}
+
+.pd-buy-under-image:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Optional hint under button */
+.pd-image-loginHint{
+  margin-top: 8px;
+  font-size: 12.5px;
+  opacity: 0.75;
+  text-align: center;
+}
+
 
 .pd-image{
   width: 100%;
