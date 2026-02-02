@@ -491,17 +491,45 @@ body{
 }
 
 /* ===================== LAPTOP ONLY (keep your look) ===================== */
+/* ===================== LAPTOP ONLY (1200–1600px) ===================== */
+/* ===================== LAPTOP ONLY (show 5 cards) ===================== */
 @media (min-width:1200px) and (max-width:1600px){
-  .product-card{ height:500px; }
+
+  /* No max-width -> allow full row of 5 */
+  .carousel-container{
+    max-width:none;
+    margin:0;
+  }
+
+  /* No extra padding -> no white gaps */
+  .carousel-track{
+    padding:0 !important;
+    gap:16px !important;
+    justify-content:flex-start !important;
+  }
+
+  /* ✅ 5 cards per view: 4 gaps × 16px = 64px */
+  .product-card{
+    flex: 0 0 calc((100% - 64px) / 5);
+    max-width: calc((100% - 64px) / 5);
+    height:500px;
+  }
+
+  /* image fills the card height */
   .product-image{
     width:100%;
     height:100%;
     object-fit:cover;
     object-position:center;
     display:block;
+    flex:1;
   }
 }
 
+
+/* =========================================================
+   ✅ MOBILE/TABLET (≤992px)
+   ========================================================= */
 /* =========================================================
    ✅ MOBILE/TABLET (≤992px)
    ========================================================= */
@@ -512,7 +540,6 @@ body{
   .auth-section{ display:none !important; }
   .desktop-only{ display:none !important; }
   .mobile-only{ display:inline-flex !important; }
-
   .navbar{ padding:0 16px !important; }
 
   .hamburger{
@@ -535,11 +562,10 @@ body{
   }
 
   /* HERO (mobile) */
-  /* HERO (mobile) */
-.hero{
+  .hero{
     background-image:none !important;
-    margin-top:80px !important;     /* keep space for fixed navbar */
-    padding:0 !important;           /* ✅ remove padding that creates white gaps */
+    margin-top:80px !important;
+    padding:0 !important;
     min-height:auto !important;
   }
 
@@ -547,28 +573,24 @@ body{
     display:block !important;
     width:100% !important;
     position:relative !important;
-
     margin:0 !important;
     padding:0 !important;
     line-height:0 !important;
     font-size:0 !important;
   }
 
-  /* ✅ The image defines the hero height */
   .hero-mobile-img{
     display:block !important;
     width:100% !important;
-    height:320px !important;        /* reduce height (tune 280–340) */
-    object-fit:cover !important;    /* ✅ fills area (removes “contain gaps”) */
+    height:320px !important;
+    object-fit:cover !important;
     object-position:center !important;
-
     margin:0 !important;
     padding:0 !important;
     vertical-align:top !important;
     background:transparent !important;
   }
 
-  /* ✅ Button overlays the image (no extra bottom space) */
   .hero-cta.mobile-cta{
     display:flex !important;
     position:absolute !important;
@@ -586,19 +608,16 @@ body{
     pointer-events:auto !important;
     margin:0 !important;
   }
-}
 
-  /* PRODUCTS section spacing */
+  /* PRODUCTS (mobile) */
   .product-preview{ padding:26px 15px; }
   .product-preview h2{ font-size:32px; margin-bottom:18px; }
 
-  /* CAROUSEL width (no narrow look) */
   .carousel-track{
     padding:10px 0 14px !important;
     gap:14px !important;
   }
 
-  /* BIG uniform card */
   .product-card{
     flex:0 0 92vw !important;
     max-width:92vw !important;
@@ -607,7 +626,6 @@ body{
     border-radius:18px !important;
   }
 
-  /* UNIFORM images (same look like Redencyl) */
   .product-image{
     width:100% !important;
     height:310px !important;
@@ -634,6 +652,7 @@ body{
     border-radius:14px !important;
     font-size:28px !important;
   }
+}
 
 
 /* ✅ Small phones (≤480px) */
@@ -645,3 +664,4 @@ body{
   .product-card{ height:410px !important; }
   .product-image{ height:300px !important; }
 }
+
