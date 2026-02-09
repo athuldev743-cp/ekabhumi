@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import About from "./About";
@@ -14,18 +14,45 @@ const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  // ✅ 1. CACHE-FIRST INITIALIZATION
+  // Initialize state directly from localStorage to show content instantly
+  const [products, setProducts] = useState(() => {
+    try {
+      const cached = localStorage.getItem("cachedProducts");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Only show "Loading..." if we have absolutely no data (no cache, no fetch yet)
+  const [loading, setLoading] = useState(products.length === 0);
+  
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
-
   const [menuOpen, setMenuOpen] = useState(false);
-
   const trackRef = useRef(null);
   const navigate = useNavigate();
 
+  // ✅ 2. SORTED PRODUCTS (Priority 1 First)
+  // This ensures products with priority="1" appear at the start of the carousel
+  const sortedProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+    return [...products].sort((a, b) => {
+      const pA = Number(a.priority);
+      const pB = Number(b.priority);
+      // If A is 1 and B is not, A comes first
+      if (pA === 1 && pB !== 1) return -1;
+      // If B is 1 and A is not, B comes first
+      if (pB === 1 && pA !== 1) return 1;
+      return 0; // Otherwise keep original order
+    });
+  }, [products]);
+
   const closeMenu = () => setMenuOpen(false);
 
+  // Resize listener
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth > 992) setMenuOpen(false);
@@ -34,6 +61,7 @@ const Home = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Lock body scroll
   useEffect(() => {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
@@ -43,58 +71,71 @@ const Home = () => {
     };
   }, [menuOpen]);
 
-  useEffect(() => {
-    const userData = localStorage.getItem("userData");
-    if (!userData) return;
-    try {
-      setUser(JSON.parse(userData));
-    } catch {
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("adminToken");
-    }
-  }, []);
-
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
 
-useEffect(() => {
-  const onResize = () => setIsMobile(window.innerWidth <= 992);
-  window.addEventListener("resize", onResize);
-  return () => window.removeEventListener("resize", onResize);
-}, []);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 992);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
+  // ✅ 3. BACKGROUND DATA FETCH
+  // This runs silently. The user sees cached data immediately.
+  const loadData = useCallback(async () => {
+    // 1. Load User
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (e) {
+        // invalid user data
+      }
+    }
 
-  const loadProducts = useCallback(async () => {
+    // 2. Load Products
     try {
-      setLoading(true);
+      // Don't set loading=true here, so we don't hide the cached content
       const data = await fetchProducts();
-      setProducts(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      
+      setProducts(list);
+      // Update the cache for next time
+      localStorage.setItem("cachedProducts", JSON.stringify(list));
       setError("");
     } catch (err) {
       console.error("Failed to load products", err);
-      setError("Temporary issue loading products.");
+      // Only show error if we have NO data to show
+      if (products.length === 0) {
+        setError("Temporary issue loading products.");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [products.length]); // Dep on length so we know if we need to show error
 
   useEffect(() => {
-    loadProducts();
+    loadData();
+    
     const syncProducts = (e) => {
-      if (e.key === "productsUpdated") loadProducts();
+      if (e.key === "productsUpdated") loadData();
     };
     window.addEventListener("storage", syncProducts);
-    return () => window.removeEventListener("storage", syncProducts);
-  }, [loadProducts]);
-
-  useEffect(() => {
-    const onFocus = () => loadProducts();
+    
+    // Refresh when tab comes back into focus
+    const onFocus = () => loadData();
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [loadProducts]);
 
+    return () => {
+      window.removeEventListener("storage", syncProducts);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [loadData]);
+
+  // Google Scripts
   useEffect(() => {
+    if (document.getElementById("gsi-script")) return;
     const script = document.createElement("script");
+    script.id = "gsi-script";
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
@@ -183,9 +224,7 @@ useEffect(() => {
     }
 
     const priorityOne = products.find((p) => Number(p.priority) === 1);
-    const top =
-      priorityOne ||
-      [...products].sort((a, b) => Number(a.priority ?? 9999) - Number(b.priority ?? 9999))[0];
+    const top = priorityOne || sortedProducts[0];
 
     if (!top?.id) {
       document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
@@ -200,7 +239,6 @@ useEffect(() => {
     navigate(`/products/${top.id}`);
   };
 
-  // ✅ ONE MODEL: always scroll track (desktop + mobile) => no transform reflow bugs
   const scrollCarousel = (dir) => {
     const el = trackRef.current;
     if (!el) return;
@@ -368,11 +406,11 @@ useEffect(() => {
         {error && <div className="error-message">⚠️ {error}</div>}
         {loading && <p className="loading-text">Loading products...</p>}
 
-        {!loading && products.length === 0 && !error && (
+        {!loading && sortedProducts.length === 0 && !error && (
           <p style={{ textAlign: "center", color: "#666" }}>No products available</p>
         )}
 
-        {!loading && products.length > 0 && (
+        {!loading && sortedProducts.length > 0 && (
           <div className="carousel-container">
             <button
               className="carousel-arrow prev"
@@ -383,8 +421,9 @@ useEffect(() => {
               ‹
             </button>
 
+            {/* ✅ Using sortedProducts here to show Priority 1 first */}
             <div className="carousel-track" ref={trackRef}>
-              {products.map((p) => {
+              {sortedProducts.map((p) => {
                 const qty = Number(p.quantity ?? 0);
                 const availableSoon = qty <= 0;
 
