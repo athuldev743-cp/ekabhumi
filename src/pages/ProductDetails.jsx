@@ -142,20 +142,22 @@ const ProductDetails = () => {
     const existing = cart.find((x) => String(x.id) === String(product.id));
     saveCart(
       existing
-        ? cart.map((x) => (
-          String(x.id) === String(product.id)
-            ? { ...x, qty: Number(x.qty || 1) + quantity }
-            : x
-        ))
-        : [...cart, {
-          id: product.id,
-          name: product.name,
-          price: currentPrice,
-          original_price: originalPrice,
-          offer_price: currentPrice,
-          image_url: product.image_url,
-          qty: quantity,
-        }]
+        ? cart.map((x) =>
+            String(x.id) === String(product.id)
+              ? { ...x, qty: Number(x.qty || 1) + quantity }
+              : x
+          )
+        : [
+            ...cart,
+            {
+              id: product.id,
+              name: product.name,
+              price: currentPrice,
+              original_price: originalPrice,
+              image_url: product.image_url,
+              qty: quantity,
+            },
+          ]
     );
     alert("Added to cart.");
   };
@@ -165,8 +167,10 @@ const ProductDetails = () => {
     e.target.src = "https://placehold.co/900x900/EDF5EF/1B4332?text=Product";
   };
 
+  // FIX: use formatCurrency so totalPrice respects Indian locale formatting
   const totalPrice = useMemo(() => currentPrice * quantity, [currentPrice, quantity]);
   const isAvailableSoon = Number(product?.quantity ?? 0) <= 0;
+
   const galleryImages = useMemo(() => {
     const candidates = [
       ...parseGalleryField(product?.image_url),
@@ -198,6 +202,7 @@ const ProductDetails = () => {
 
     return uniqueImages.slice(0, 5);
   }, [product]);
+
   const shortDescription = useMemo(() => {
     if (!product?.description) {
       return "A refined botanical formula designed to bring more clarity and calm to everyday hair care.";
@@ -235,7 +240,9 @@ const ProductDetails = () => {
           <div className="pd-state-mark">O</div>
           <h2>Product Not Found</h2>
           <p>{error || "The product you're looking for doesn't exist."}</p>
-          <button className="pd-btn pd-btn-outline" onClick={() => navigate("/")}>Back to Home</button>
+          <button className="pd-btn pd-btn-outline" onClick={() => navigate("/")}>
+            Back to Home
+          </button>
         </div>
         <Footer />
       </div>
@@ -254,7 +261,11 @@ const ProductDetails = () => {
             <div className="pd-image-card">
               <div className="pd-image-badges">
                 <span className="pd-badge pd-badge--soft">Botanical care</span>
-                <span className={`pd-badge ${isAvailableSoon ? "pd-badge--muted" : "pd-badge--solid"}`}>
+                <span
+                  className={`pd-badge ${
+                    isAvailableSoon ? "pd-badge--muted" : "pd-badge--solid"
+                  }`}
+                >
                   {isAvailableSoon ? "Available Soon" : "Ready to order"}
                 </span>
               </div>
@@ -274,7 +285,9 @@ const ProductDetails = () => {
                     <button
                       key={`${image}-${index}`}
                       type="button"
-                      className={`pd-gallery-thumb ${selectedImage === image ? "is-active" : ""}`}
+                      className={`pd-gallery-thumb ${
+                        selectedImage === image ? "is-active" : ""
+                      }`}
                       onClick={() => setSelectedImage(image)}
                       aria-label={`View image ${index + 1} of ${product.name}`}
                     >
@@ -300,7 +313,9 @@ const ProductDetails = () => {
 
               <div className="pd-badge-row">
                 {PRODUCT_BADGES.map((badge) => (
-                  <span key={badge} className="pd-inline-pill">{badge}</span>
+                  <span key={badge} className="pd-inline-pill">
+                    {badge}
+                  </span>
                 ))}
               </div>
 
@@ -308,70 +323,70 @@ const ProductDetails = () => {
                 <div className="pd-price-copy">
                   <div className="pd-price-label">Offer Price</div>
                   <div className="pd-price">Rs {formatCurrency(currentPrice)}</div>
-                   <div className="pd-price-meta">
-  {pricing.hasDiscount && (
-    <>
-      <span className="pd-price-original">
-        MRP Rs {formatCurrency(originalPrice)}
-      </span>
-      <span className="pd-discount-pill">
-        {discountPercent}% off
-      </span>
-    </>
-  )}
-</div>
+                  <div className="pd-price-meta">
+                    {pricing.hasDiscount && (
+                      <>
+                        <span className="pd-price-original">
+                          MRP Rs {formatCurrency(originalPrice)}
+                        </span>
+                        <span className="pd-discount-pill">
+                          {discountPercent}% off
+                        </span>
+                      </>
+                    )}
+                  </div>
                   {pricing.hasDiscount && (
-  <div className="pd-price-save">
-    You save Rs {formatCurrency(savingsAmount)}
-  </div>
-)}
+                    <div className="pd-price-save">
+                      You save Rs {formatCurrency(savingsAmount)}
+                    </div>
+                  )}
                 </div>
                 <div className="pd-price-note">
-                  {isAvailableSoon ? "Launching soon" : "Limited offer on our Redensyl led everyday care formula"}
+                  {isAvailableSoon
+                    ? "Launching soon"
+                    : "Limited offer on our Redensyl led everyday care formula"}
                 </div>
               </div>
 
               <div className="pd-qty-wrap">
                 <div className="pd-section-label">Quantity</div>
                 <div className="pd-qty-row">
-                  <button className="pd-qty-btn" onClick={decQty} disabled={quantity <= 1} aria-label="Decrease quantity">-</button>
+                  <button
+                    className="pd-qty-btn"
+                    onClick={decQty}
+                    disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
+                  >
+                    -
+                  </button>
                   <span className="pd-qty-val">{quantity}</span>
-                  <button className="pd-qty-btn" onClick={incQty} aria-label="Increase quantity">+</button>
+                  <button
+                    className="pd-qty-btn"
+                    onClick={incQty}
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 
               <div className="pd-hero-actions">
-                <button className="pd-btn pd-btn-primary" onClick={() => setShowBuy(true)} disabled={isAvailableSoon}>
+                <button
+                  className="pd-btn pd-btn-primary"
+                  onClick={() => setShowBuy(true)}
+                  disabled={isAvailableSoon}
+                >
                   {isAvailableSoon ? "Coming Soon" : "Buy Now"}
                 </button>
-                <button className="pd-btn pd-btn-soft" onClick={addToCart} disabled={isAvailableSoon}>
+                <button
+                  className="pd-btn pd-btn-soft"
+                  onClick={addToCart}
+                  disabled={isAvailableSoon}
+                >
                   Add to Cart
                 </button>
               </div>
             </div>
-
-            {/* <aside className="pd-order-card">
-              <div className="pd-order-title">Order summary</div>
-              <div className="pd-order-row">
-                <span>Unit price</span>
-                <span>Rs {Number(product.price).toLocaleString("en-IN")}</span>
-              </div>
-              <div className="pd-order-row">
-                <span>Quantity</span>
-                <span>x {quantity}</span>
-              </div>
-              <div className="pd-order-row">
-                <span>Delivery</span>
-                <span>3-5 business days</span>
-              </div>
-              <div className="pd-order-row pd-order-row--total">
-                <span>Total</span>
-                <span>Rs {totalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-              </div>
-              <p className="pd-order-note">
-                Results vary by individual consistency, scalp condition, and routine.
-              </p>
-            </aside> */}
           </div>
         </section>
 
@@ -379,17 +394,26 @@ const ProductDetails = () => {
           <article className="pd-proof-card">
             <span className="pd-proof-num">01</span>
             <h3>Redensyl focused</h3>
-            <p>Built around a modern active known for supporting healthier looking roots and fuller looking hair.</p>
+            <p>
+              Built around a modern active known for supporting healthier looking
+              roots and fuller looking hair.
+            </p>
           </article>
           <article className="pd-proof-card">
             <span className="pd-proof-num">02</span>
             <h3>Root level support</h3>
-            <p>Created to care for the scalp environment so the routine starts where stronger hair begins.</p>
+            <p>
+              Created to care for the scalp environment so the routine starts where
+              stronger hair begins.
+            </p>
           </article>
           <article className="pd-proof-card">
             <span className="pd-proof-num">03</span>
             <h3>Daily ritual</h3>
-            <p>Redensyl works best with steady use, which is why the formula is made for simple everyday consistency.</p>
+            <p>
+              Redensyl works best with steady use, which is why the formula is made
+              for simple everyday consistency.
+            </p>
           </article>
         </section>
 
@@ -439,7 +463,9 @@ const ProductDetails = () => {
             <span className="pd-section-kicker">Product overview</span>
             <h2>Redensyl-led care, made simpler.</h2>
             <p className="pd-long-copy">
-              {"A Redensyl-focused formula created to support healthier-looking roots, reduce routine clutter, and bring more intention to everyday hair care."}
+              {
+                "A Redensyl-focused formula created to support healthier-looking roots, reduce routine clutter, and bring more intention to everyday hair care."
+              }
             </p>
           </section>
 
@@ -458,21 +484,36 @@ const ProductDetails = () => {
 
       <Footer />
 
+      {/* FIX: bottom bar total now uses formatCurrency */}
       <div className="pd-bottomBar">
         <div className="pd-bottom-info">
           <div className="pd-bottom-price">
             <span className="pd-bottom-label">Total</span>
-            <span className="pd-bottom-total">Rs {totalPrice.toLocaleString("en-IN")}</span>
+            <span className="pd-bottom-total">Rs {formatCurrency(totalPrice)}</span>
           </div>
           <div className="pd-bottom-qty">
-            <button className="pd-mini-btn" onClick={decQty} disabled={quantity <= 1}>-</button>
+            <button className="pd-mini-btn" onClick={decQty} disabled={quantity <= 1}>
+              -
+            </button>
             <span className="pd-mini-val">{quantity}</span>
-            <button className="pd-mini-btn" onClick={incQty}>+</button>
+            <button className="pd-mini-btn" onClick={incQty}>
+              +
+            </button>
           </div>
         </div>
         <div className="pd-bottom-btns">
-          <button className="pd-btn pd-btn-soft pd-bottom-btn" onClick={addToCart} disabled={isAvailableSoon}>Add to Cart</button>
-          <button className="pd-btn pd-btn-primary pd-bottom-btn" onClick={() => setShowBuy(true)} disabled={isAvailableSoon}>
+          <button
+            className="pd-btn pd-btn-soft pd-bottom-btn"
+            onClick={addToCart}
+            disabled={isAvailableSoon}
+          >
+            Add to Cart
+          </button>
+          <button
+            className="pd-btn pd-btn-primary pd-bottom-btn"
+            onClick={() => setShowBuy(true)}
+            disabled={isAvailableSoon}
+          >
             {isAvailableSoon ? "Coming Soon" : "Buy Now"}
           </button>
         </div>
@@ -483,7 +524,10 @@ const ProductDetails = () => {
         onClose={() => setShowBuy(false)}
         product={product}
         quantity={quantity}
-        onSuccess={() => { setShowBuy(false); navigate("/account"); }}
+        onSuccess={() => {
+          setShowBuy(false);
+          navigate("/account");
+        }}
       />
     </div>
   );
