@@ -40,6 +40,7 @@ export function getProductPricing(product) {
   return buildResult(DEMO_BASE_PRICE, DEMO_OFFER_PRICE);
 }
 
+// Currency formatter (Indian format)
 export function formatCurrency(value) {
   return toNumber(value).toLocaleString("en-IN");
 }
