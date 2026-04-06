@@ -77,16 +77,15 @@ export default function UpdateProduct({
     if (msg) return setError(msg);
     setSaving(true);
     try {
+      // ✅ Ensure original_price is sent as a string for the backend to parse correctly
       await onSubmit({
-        id: form.id,
+        ...form,
         name: form.name.trim(),
-        price: form.price,
-        original_price: form.original_price === "" ? "" : form.original_price,
-        description: form.description.trim(),
-        priority: form.priority,
-        quantity: form.quantity,
+        original_price: form.original_price === "" ? "" : String(form.original_price),
         imageFile: imageFile || null,
       });
+    } catch (err) {
+      setError(err.message || "Failed to update product");
     } finally {
       setSaving(false);
     }
