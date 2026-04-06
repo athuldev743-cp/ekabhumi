@@ -1,29 +1,43 @@
-// Convert any value safely to number
+const DEFAULT_DISCOUNT_RATE = 0.16;
+
+// Demo prices shown when backend provides no price data
+const DEMO_BASE_PRICE = 699;
+const DEMO_OFFER_PRICE = 499;
+
 const toNumber = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-// Main pricing logic (STRICT: data-driven, no fake discounts)
+const roundToNearestTen = (value) => Math.max(0, Math.round(value / 10) * 10);
+
+function buildResult(basePrice, offerPrice) {
+  const savings = Math.max(0, basePrice - offerPrice);
+  const discountPercent =
+    basePrice > offerPrice && basePrice > 0
+      ? Math.round((savings / basePrice) * 100)
+      : 0;
+  return { basePrice, offerPrice, savings, discountPercent, hasDiscount: discountPercent > 0 };
+}
+
 export function getProductPricing(product) {
-  const offerPrice = toNumber(product?.price);
-  const basePrice = toNumber(product?.original_price) || offerPrice;
+  const price = toNumber(product?.price);
+  const offerPrice = toNumber(product?.offer_price);
 
-  const hasDiscount = basePrice > offerPrice;
+  // Backend provides price (MRP) and offer_price → use directly
+  if (price > 0 && offerPrice > 0 && offerPrice < price) {
+    return buildResult(price, offerPrice);
+  }
 
-  const savings = hasDiscount ? basePrice - offerPrice : 0;
+  // Only price available → derive offer via default discount
+  if (price > 0) {
+    const derived = roundToNearestTen(price * (1 - DEFAULT_DISCOUNT_RATE));
+    const derived_offer = derived > 0 && derived < price ? derived : price;
+    return buildResult(price, derived_offer);
+  }
 
-  const discountPercent = hasDiscount
-    ? Math.round((savings / basePrice) * 100)
-    : 0;
-
-  return {
-    basePrice,
-    offerPrice,
-    savings,
-    discountPercent,
-    hasDiscount,
-  };
+  // No backend price → demo prices
+  return buildResult(DEMO_BASE_PRICE, DEMO_OFFER_PRICE);
 }
 
 // Currency formatter (Indian format)

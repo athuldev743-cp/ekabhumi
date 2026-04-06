@@ -53,18 +53,23 @@ function FeatureSingle({ product, goProduct }) {
               <span>Rs</span>
               {formatCurrency(pricing.offerPrice)}
             </div>
-           <div className="feature-single__price-meta">
-  {pricing.hasDiscount && (
-    <>
-      <span className="feature-single__price-original">
-        MRP Rs {formatCurrency(pricing.basePrice)}
-      </span>
-      <span className="feature-single__discount">
-        {pricing.discountPercent}% off
-      </span>
-    </>
-  )}
-</div>
+            <div className="feature-single__price-meta">
+              {pricing.hasDiscount && (
+                <>
+                  <span className="feature-single__price-original">
+                    MRP Rs {formatCurrency(pricing.basePrice)}
+                  </span>
+                  <span className="feature-single__discount">
+                    {pricing.discountPercent}% off
+                  </span>
+                </>
+              )}
+            </div>
+            {pricing.savings > 0 && (
+              <span className="feature-single__price-save">
+                You save Rs {formatCurrency(pricing.savings)}
+              </span>
+            )}
           </div>
 
           <button
@@ -109,18 +114,21 @@ function FeatureGrid({ products, goProduct }) {
               <div className="feature-grid-card__copy">
                 <h3 className="feature-grid-card__name">{p.name}</h3>
                 <p className="feature-grid-card__price">Rs {formatCurrency(pricing.offerPrice)}</p>
-                <div className="feature-grid-card__price-row">
-  {pricing.hasDiscount && (
-    <>
-      <span className="feature-grid-card__price-original">
-        MRP Rs {formatCurrency(pricing.basePrice)}
-      </span>
-      <span className="feature-grid-card__discount">
-        {pricing.discountPercent}% off
-      </span>
-    </>
-  )}
-</div>
+                {pricing.hasDiscount && (
+                  <div className="feature-grid-card__price-row">
+                    <span className="feature-grid-card__price-original">
+                      MRP Rs {formatCurrency(pricing.basePrice)}
+                    </span>
+                    <span className="feature-grid-card__discount">
+                      {pricing.discountPercent}% off
+                    </span>
+                  </div>
+                )}
+                {pricing.savings > 0 && (
+                  <span className="feature-grid-card__price-save">
+                    Save Rs {formatCurrency(pricing.savings)}
+                  </span>
+                )}
               </div>
 
               <button
@@ -198,12 +206,17 @@ function Carousel({ products, goProduct }) {
                 <div className="ps-carousel-card__copy">
                   <h3 className="ps-carousel-card__name">{p.name}</h3>
                   <p className="ps-carousel-card__price">Rs {formatCurrency(pricing.offerPrice)}</p>
-                  <div className="ps-carousel-card__price-row">
-                    <span className="ps-carousel-card__price-original">MRP Rs {formatCurrency(pricing.basePrice)}</span>
-                    {pricing.hasDiscount && (
+                  {pricing.hasDiscount && (
+                    <div className="ps-carousel-card__price-row">
+                      <span className="ps-carousel-card__price-original">MRP Rs {formatCurrency(pricing.basePrice)}</span>
                       <span className="ps-carousel-card__discount">{pricing.discountPercent}% off</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                  {pricing.savings > 0 && (
+                    <span className="ps-carousel-card__price-save">
+                      Save Rs {formatCurrency(pricing.savings)}
+                    </span>
+                  )}
                 </div>
 
                 <button
