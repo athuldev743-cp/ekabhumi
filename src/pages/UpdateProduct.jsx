@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./Dashboard.module.css";
+import { formatCurrency } from "../utils/productPricing";
 
 export default function UpdateProduct({
   product,
@@ -8,18 +9,18 @@ export default function UpdateProduct({
   setError,
 }) {
   const initial = useMemo(
-  () => ({
-    id: product?.id,
-    name: product?.name || "",
-    price: product?.price ?? "",
-    original_price: product?.original_price ?? "",
-    description: product?.description || "",
-    priority: product?.priority ?? 2,
-    quantity: product?.quantity ?? 0,
-    image_url: product?.image_url || "",
-  }),
-  [product]
-);
+    () => ({
+      id: product?.id,
+      name: product?.name || "",
+      price: product?.price ?? "",
+      original_price: product?.original_price ?? "",
+      description: product?.description || "",
+      priority: product?.priority ?? 2,
+      quantity: product?.quantity ?? 0,
+      image_url: product?.image_url || "",
+    }),
+    [product]
+  );
 
   const [form, setForm] = useState(initial);
   const [imageFile, setImageFile] = useState(null);
@@ -32,10 +33,8 @@ export default function UpdateProduct({
     setPreview(product?.image_url || "");
   }, [initial, product]);
 
-  // ✅ Correct type handling
   const onChange = (key) => (e) => {
     const val = e.target.value;
-
     if (["price", "original_price", "quantity"].includes(key)) {
       setForm((p) => ({
         ...p,
@@ -49,7 +48,6 @@ export default function UpdateProduct({
   const onPickImage = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImageFile(file);
     setPreview(URL.createObjectURL(file));
   };
@@ -62,42 +60,28 @@ export default function UpdateProduct({
       priority: isFeatured ? 2 : 1,
     }));
 
-  // ✅ Proper validation
   const validate = () => {
     if (!form.name.trim()) return "Name is required";
-
-    if (!form.price || form.price <= 0)
-      return "Valid selling price is required";
-
-    if (
-      form.original_price &&
-      form.original_price < form.price
-    ) {
+    if (!form.price || form.price <= 0) return "Valid selling price is required";
+    if (form.original_price && form.original_price < form.price)
       return "MRP must be greater than selling price";
-    }
-
     if (form.quantity < 0) return "Quantity cannot be negative";
-
     if (!form.description.trim()) return "Description required";
-
     return "";
   };
 
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-
     const msg = validate();
     if (msg) return setError(msg);
-
     setSaving(true);
     try {
       await onSubmit({
         id: form.id,
         name: form.name.trim(),
         price: form.price,
-        original_price:
-       form.original_price === "" ? "" : form.original_price,
+        original_price: form.original_price === "" ? "" : form.original_price,
         description: form.description.trim(),
         priority: form.priority,
         quantity: form.quantity,
@@ -108,15 +92,21 @@ export default function UpdateProduct({
     }
   };
 
-  // ✅ Discount calculation (UI-level)
-  const discount =
-    form.original_price && form.price
-      ? Math.round(
-          ((form.original_price - form.price) /
-            form.original_price) *
-            100
-        )
-      : 0;
+  // FIX: use strict null/empty check so discount only shows when both values are valid
+  const hasDiscount =
+    form.original_price !== "" &&
+    form.original_price !== null &&
+    form.original_price !== undefined &&
+    Number(form.original_price) > 0 &&
+    Number(form.original_price) > Number(form.price);
+
+  const discount = hasDiscount
+    ? Math.round(
+        ((Number(form.original_price) - Number(form.price)) /
+          Number(form.original_price)) *
+          100
+      )
+    : 0;
 
   return (
     <div className={styles.updateWrap}>
@@ -139,28 +129,22 @@ export default function UpdateProduct({
           </label>
 
           <div className={styles.previewMeta}>
-            <div className={styles.previewName}>
-              {form.name || "Product name"}
-            </div>
+            <div className={styles.previewName}>{form.name || "Product name"}</div>
 
-            <div className={styles.previewSub}>
-              Qty: {form.quantity}
-            </div>
+            <div className={styles.previewSub}>Qty: {form.quantity}</div>
 
-            {/* ✅ Price preview */}
+            {/* FIX: use formatCurrency for Indian locale formatting, consistent ₹ symbol */}
             <div>
-              ₹{form.price || 0}{" "}
-              {form.original_price && (
+              ₹{formatCurrency(form.price || 0)}
+              {hasDiscount && (
                 <span style={{ textDecoration: "line-through", marginLeft: 6 }}>
-                  ₹{form.original_price}
+                  ₹{formatCurrency(form.original_price)}
                 </span>
               )}
             </div>
 
             {discount > 0 && (
-              <div style={{ color: "green", fontWeight: 600 }}>
-                {discount}% OFF
-              </div>
+              <div style={{ color: "green", fontWeight: 600 }}>{discount}% OFF</div>
             )}
           </div>
         </div>
@@ -171,21 +155,14 @@ export default function UpdateProduct({
 
           <div className={styles.field}>
             <label>Name</label>
-            <input
-              value={form.name}
-              onChange={onChange("name")}
-            />
+            <input value={form.name} onChange={onChange("name")} />
           </div>
 
           {/* Price Row */}
           <div className={styles.formRow}>
             <div className={styles.field}>
               <label>Selling Price (₹)</label>
-              <input
-                type="number"
-                value={form.price}
-                onChange={onChange("price")}
-              />
+              <input type="number" value={form.price} onChange={onChange("price")} />
             </div>
 
             <div className={styles.field}>
@@ -210,10 +187,7 @@ export default function UpdateProduct({
 
             <div className={styles.field}>
               <label>Featured</label>
-              <div
-                onClick={toggleFeatured}
-                style={{ cursor: "pointer", marginTop: 6 }}
-              >
+              <div onClick={toggleFeatured} style={{ cursor: "pointer", marginTop: 6 }}>
                 {isFeatured ? "Yes" : "No"}
               </div>
             </div>
@@ -232,7 +206,6 @@ export default function UpdateProduct({
             <button type="button" onClick={onCancel} disabled={saving}>
               Cancel
             </button>
-
             <button type="submit" disabled={saving}>
               {saving ? "Saving..." : "Save Changes"}
             </button>
