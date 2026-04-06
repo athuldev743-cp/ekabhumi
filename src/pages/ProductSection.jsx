@@ -33,7 +33,9 @@ function FeatureSingle({ product, goProduct }) {
         <img src="/images/ro.png" alt={product.name} onError={imgFallback} />
         <div className="feature-single__badges">
           <span className="ps-status-badge ps-status-badge--accent">Best Pick</span>
-          {soon && <span className="ps-status-badge ps-status-badge--muted">Available Soon</span>}
+          {soon && (
+            <span className="ps-status-badge ps-status-badge--muted">Available Soon</span>
+          )}
         </div>
       </div>
 
@@ -42,7 +44,9 @@ function FeatureSingle({ product, goProduct }) {
         <h3 className="feature-single__name">{product.name}</h3>
         <p className="feature-single__desc">
           {product.description
-            ? `${product.description.slice(0, 180)}${product.description.length > 180 ? "..." : ""}`
+            ? `${product.description.slice(0, 180)}${
+                product.description.length > 180 ? "..." : ""
+              }`
             : "Thoughtfully crafted botanical care designed to support a cleaner, more nourishing hair routine."}
         </p>
 
@@ -53,18 +57,18 @@ function FeatureSingle({ product, goProduct }) {
               <span>Rs</span>
               {formatCurrency(pricing.offerPrice)}
             </div>
-           <div className="feature-single__price-meta">
-  {pricing.hasDiscount && (
-    <>
-      <span className="feature-single__price-original">
-        MRP Rs {formatCurrency(pricing.basePrice)}
-      </span>
-      <span className="feature-single__discount">
-        {pricing.discountPercent}% off
-      </span>
-    </>
-  )}
-</div>
+            <div className="feature-single__price-meta">
+              {pricing.hasDiscount && (
+                <>
+                  <span className="feature-single__price-original">
+                    MRP Rs {formatCurrency(pricing.basePrice)}
+                  </span>
+                  <span className="feature-single__discount">
+                    {pricing.discountPercent}% off
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
           <button
@@ -101,26 +105,30 @@ function FeatureGrid({ products, goProduct }) {
               <div className="feature-grid-card__overlay" />
               <div className="feature-grid-card__badges">
                 <span className="ps-status-badge ps-status-badge--soft">Botanical Care</span>
-                {soon && <span className="ps-status-badge ps-status-badge--muted">Soon</span>}
+                {soon && (
+                  <span className="ps-status-badge ps-status-badge--muted">Soon</span>
+                )}
               </div>
             </div>
 
             <div className="feature-grid-card__content">
               <div className="feature-grid-card__copy">
                 <h3 className="feature-grid-card__name">{p.name}</h3>
-                <p className="feature-grid-card__price">Rs {formatCurrency(pricing.offerPrice)}</p>
+                <p className="feature-grid-card__price">
+                  Rs {formatCurrency(pricing.offerPrice)}
+                </p>
                 <div className="feature-grid-card__price-row">
-  {pricing.hasDiscount && (
-    <>
-      <span className="feature-grid-card__price-original">
-        MRP Rs {formatCurrency(pricing.basePrice)}
-      </span>
-      <span className="feature-grid-card__discount">
-        {pricing.discountPercent}% off
-      </span>
-    </>
-  )}
-</div>
+                  {pricing.hasDiscount && (
+                    <>
+                      <span className="feature-grid-card__price-original">
+                        MRP Rs {formatCurrency(pricing.basePrice)}
+                      </span>
+                      <span className="feature-grid-card__discount">
+                        {pricing.discountPercent}% off
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
 
               <button
@@ -159,15 +167,26 @@ function Carousel({ products, goProduct }) {
         <div>
           <span className="ps-carousel-kicker">Curated for your routine</span>
           <p className="ps-carousel-note">
-            Explore the complete range and tap into details for ingredients, benefits, and usage.
+            Explore the complete range and tap into details for ingredients, benefits,
+            and usage.
           </p>
         </div>
 
         <div className="ps-carousel-actions">
-          <button className="ps-arrow ps-arrow--prev" onClick={() => scroll("prev")} type="button" aria-label="Previous products">
+          <button
+            className="ps-arrow ps-arrow--prev"
+            onClick={() => scroll("prev")}
+            type="button"
+            aria-label="Previous products"
+          >
             &lt;
           </button>
-          <button className="ps-arrow ps-arrow--next" onClick={() => scroll("next")} type="button" aria-label="Next products">
+          <button
+            className="ps-arrow ps-arrow--next"
+            onClick={() => scroll("next")}
+            type="button"
+            aria-label="Next products"
+          >
             &gt;
           </button>
         </div>
@@ -189,19 +208,34 @@ function Carousel({ products, goProduct }) {
                   loading="lazy"
                 />
                 <div className="ps-carousel-card__badges">
-                  <span className="ps-status-badge ps-status-badge--soft">Clean Formula</span>
-                  {soon && <span className="ps-status-badge ps-status-badge--muted">Available Soon</span>}
+                  <span className="ps-status-badge ps-status-badge--soft">
+                    Clean Formula
+                  </span>
+                  {soon && (
+                    <span className="ps-status-badge ps-status-badge--muted">
+                      Available Soon
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div className="ps-carousel-card__info">
                 <div className="ps-carousel-card__copy">
                   <h3 className="ps-carousel-card__name">{p.name}</h3>
-                  <p className="ps-carousel-card__price">Rs {formatCurrency(pricing.offerPrice)}</p>
+                  <p className="ps-carousel-card__price">
+                    Rs {formatCurrency(pricing.offerPrice)}
+                  </p>
+                  {/* FIX: guard with hasDiscount so MRP only shows when a real discount exists */}
                   <div className="ps-carousel-card__price-row">
-                    <span className="ps-carousel-card__price-original">MRP Rs {formatCurrency(pricing.basePrice)}</span>
                     {pricing.hasDiscount && (
-                      <span className="ps-carousel-card__discount">{pricing.discountPercent}% off</span>
+                      <>
+                        <span className="ps-carousel-card__price-original">
+                          MRP Rs {formatCurrency(pricing.basePrice)}
+                        </span>
+                        <span className="ps-carousel-card__discount">
+                          {pricing.discountPercent}% off
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>
@@ -235,7 +269,7 @@ export default function ProductSection({
   onNavigate,
   isLoggedIn = false,
 }) {
-   console.log("PRODUCTS DATA:", products);
+  console.log("PRODUCTS DATA:", products);
   const count = products.length;
   const goProduct = useGoProduct(onNavigate, isLoggedIn);
   const hasSearch = count >= 4;
@@ -247,7 +281,8 @@ export default function ProductSection({
           <span className="ps-eyebrow">The Eka Bhumih Collection</span>
           <h2 className="ps-title">Redensyl led products for healthier looking hair</h2>
           <p className="ps-subtitle">
-            Explore Eka Bhumih formulas created to support the scalp, strengthen strands, and make daily hair care feel more intentional.
+            Explore Eka Bhumih formulas created to support the scalp, strengthen strands,
+            and make daily hair care feel more intentional.
           </p>
 
           <div className="ps-header-pills">
@@ -260,7 +295,14 @@ export default function ProductSection({
         {hasSearch && (
           <div className="ps-search-wrap">
             <div className="ps-search-box">
-              <svg className="ps-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <svg
+                className="ps-search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -275,7 +317,12 @@ export default function ProductSection({
               />
 
               {search && (
-                <button className="ps-search-clear" onClick={() => onSearch("")} aria-label="Clear search" type="button">
+                <button
+                  className="ps-search-clear"
+                  onClick={() => onSearch("")}
+                  aria-label="Clear search"
+                  type="button"
+                >
                   x
                 </button>
               )}
@@ -307,15 +354,27 @@ export default function ProductSection({
           <div className="ps-state-card ps-state-card--empty">
             <div className="ps-state-icon">o</div>
             <div>
-              <h3>{search ? "No matching products found" : "Products will appear here soon"}</h3>
-              <p>{search ? `We couldn't find anything for "${search}". Try a broader keyword.` : "We're preparing more additions to the collection. Please check back shortly."}</p>
+              <h3>
+                {search ? "No matching products found" : "Products will appear here soon"}
+              </h3>
+              <p>
+                {search
+                  ? `We couldn't find anything for "${search}". Try a broader keyword.`
+                  : "We're preparing more additions to the collection. Please check back shortly."}
+              </p>
             </div>
           </div>
         )}
 
-        {!loading && count === 1 && <FeatureSingle product={products[0]} goProduct={goProduct} />}
-        {!loading && count >= 2 && count <= 3 && <FeatureGrid products={products} goProduct={goProduct} />}
-        {!loading && count >= 4 && <Carousel products={products} goProduct={goProduct} />}
+        {!loading && count === 1 && (
+          <FeatureSingle product={products[0]} goProduct={goProduct} />
+        )}
+        {!loading && count >= 2 && count <= 3 && (
+          <FeatureGrid products={products} goProduct={goProduct} />
+        )}
+        {!loading && count >= 4 && (
+          <Carousel products={products} goProduct={goProduct} />
+        )}
       </div>
     </section>
   );
