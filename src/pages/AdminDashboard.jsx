@@ -132,29 +132,54 @@ function AdminDashboard() {
     } catch (e) { setError(e?.message || "Failed to delete"); }
   };
 
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
+const handleAddProduct = async () => {
+    // Note: 'e' is removed from arguments because AddProduct handles preventDefault
+    setError(""); 
+
     if (!newProduct.image) return setError("Please select an image file");
     if (!newProduct.name || !newProduct.price || !newProduct.description)
       return setError("Please fill all required fields");
+
     try {
       const formData = new FormData();
-      formData.append("name", newProduct.name);
+      formData.append("name", newProduct.name.strip ? newProduct.name.trim() : newProduct.name);
       formData.append("price", newProduct.price.toString());
-      formData.append("description", newProduct.description);
+      
+      // ✅ Handle original_price: Send empty string if null/blank so FastAPI Optional works
+      if (newProduct.original_price !== "" && newProduct.original_price !== null) {
+        formData.append("original_price", newProduct.original_price.toString());
+      }
+
+      formData.append("description", newProduct.description.trim());
       formData.append("priority", newProduct.priority || "1");
       formData.append("quantity", String(newProduct.quantity ?? "0"));
       formData.append("image", newProduct.image);
+
       const res = await fetch(`${API_BASE}/admin/create-product`, {
-        method: "POST", headers: { Authorization: `Bearer ${getToken()}` }, body: formData,
+        method: "POST", 
+        headers: { Authorization: `Bearer ${getToken()}` }, 
+        body: formData,
       });
-      if (!res.ok) throw new Error(`Create failed: ${res.status}`);
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || `Create failed: ${res.status}`);
+      }
+
       setShowAddForm(false);
-      setNewProduct({ name: "", price: "", description: "", priority: "1", quantity: "0", image: null });
+      // Reset form
+      setNewProduct({ 
+        name: "", price: "", original_price: "", 
+        description: "", priority: "1", quantity: "0", image: null 
+      });
+      
       await fetchProducts();
       localStorage.setItem("productsUpdated", Date.now().toString());
-      setError(""); setActiveTab("products");
-    } catch (e) { setError(e?.message || "Failed to add product"); }
+      setActiveTab("products");
+    } catch (e) { 
+      setError(e?.message || "Failed to add product"); 
+    }
   };
 
   const handleUpdateProduct = useCallback(async (payload) => {
