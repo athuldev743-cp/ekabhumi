@@ -48,7 +48,7 @@ function FeatureSingle({ product, goProduct }) {
 
         <div className="feature-single__meta">
           <div className="feature-single__price-wrap">
-            <span className="feature-single__price-label">Offer price</span>
+            <span className="feature-single__price-label">Selling price</span>
             <div className="feature-single__price">
               <span>Rs</span>
               {formatCurrency(pricing.offerPrice)}
