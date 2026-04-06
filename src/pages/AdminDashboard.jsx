@@ -182,23 +182,43 @@ const handleAddProduct = async () => {
     }
   };
 
-  const handleUpdateProduct = useCallback(async (payload) => {
+const handleUpdateProduct = useCallback(async (payload) => {
+    setError("");
     try {
       const formData = new FormData();
       formData.append("name", payload.name);
       formData.append("price", String(payload.price));
       formData.append("description", payload.description);
-      formData.append("priority", String(payload.priority ?? "1"));
+      formData.append("priority", String(payload.priority ?? "2"));
       formData.append("quantity", String(payload.quantity ?? "0"));
-      if (payload.imageFile) formData.append("image", payload.imageFile);
+      
+      // ✅ CRITICAL: If original_price is empty string, send "", otherwise send the value
+      // This allows the FastAPI backend to set it to NULL in the database
+      formData.append("original_price", payload.original_price === "" ? "" : String(payload.original_price));
+
+      if (payload.imageFile) {
+        formData.append("image", payload.imageFile);
+      }
+
       const res = await fetch(`${API_BASE}/admin/update-product/${payload.id}`, {
-        method: "PUT", headers: { Authorization: `Bearer ${getToken()}` }, body: formData,
+        method: "PUT",
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData,
       });
-      if (!res.ok) throw new Error(`Update failed: ${res.status}`);
-      await fetchProducts();
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || "Update failed");
+      }
+
+      await fetchProducts(); // Refresh the list
       localStorage.setItem("productsUpdated", Date.now().toString());
-      setError(""); setActiveTab("products");
-    } catch (e) { setError(e?.message || "Failed to update"); }
+      setActiveTab("products"); // Go back to list
+      setSelectedProduct(null);
+    } catch (e) {
+      setError(e?.message || "Failed to update");
+    }
   }, [API_BASE, getToken, fetchProducts]);
 
   const approveOrder = useCallback(async (orderId) => {
