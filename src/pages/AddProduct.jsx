@@ -34,25 +34,24 @@ function AddProduct({
     return "";
   };
 
-  const submit = (e) => {
-    e.preventDefault();
-    setError("");
+const submit = (e) => {
+  e.preventDefault();
+  setError("");
 
-    const msg = validate();
-    if (msg) return setError(msg);
+  const msg = validate();
+  if (msg) return setError(msg);
 
-    // ✅ CRITICAL FIX: send null instead of ""
-    const payload = {
-      ...newProduct,
-      original_price:
-        newProduct.original_price === "" ||
-        newProduct.original_price === undefined
-          ? null
-          : newProduct.original_price,
-    };
-
-    handleAddProduct(payload);
+  // Convert values to Numbers to ensure math logic works in the backend
+  const payload = {
+    ...newProduct,
+    price: Number(newProduct.price),
+    original_price: (newProduct.original_price === "" || newProduct.original_price === undefined)
+      ? null 
+      : Number(newProduct.original_price),
   };
+
+  handleAddProduct(payload);
+};
 
   return (
     <div className="addFormContainer">
