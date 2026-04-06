@@ -22,19 +22,18 @@ function buildResult(basePrice, offerPrice) {
 
 export function getProductPricing(product) {
   const price = toNumber(product?.price);
-  const sellingPrice = toNumber(product?.selling_price);
+  const offerPrice = toNumber(product?.offer_price);
 
-  // Both price (MRP) and selling_price available from backend → use directly
-  if (price > 0 && sellingPrice > 0) {
-    const offerPrice = sellingPrice < price ? sellingPrice : price;
+  // Backend provides price (MRP) and offer_price → use directly
+  if (price > 0 && offerPrice > 0 && offerPrice < price) {
     return buildResult(price, offerPrice);
   }
 
   // Only price available → derive offer via default discount
   if (price > 0) {
     const derived = roundToNearestTen(price * (1 - DEFAULT_DISCOUNT_RATE));
-    const offerPrice = derived > 0 && derived < price ? derived : price;
-    return buildResult(price, offerPrice);
+    const derived_offer = derived > 0 && derived < price ? derived : price;
+    return buildResult(price, derived_offer);
   }
 
   // No backend price → demo prices
