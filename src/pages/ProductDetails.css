@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
   --pd-primary: #1b4332;
@@ -253,11 +253,12 @@
 }
 
 .pd-name {
-  margin: 18px 0 14px;
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(38px, 5vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -0.05em;
+  margin: 14px 0 12px;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(26px, 3.8vw, 36px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 700;
   color: var(--pd-text);
 }
 
@@ -321,11 +322,11 @@
 }
 
 .pd-price {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(28px, 4vw, 42px);
-  font-weight: 700;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(26px, 3.5vw, 34px);
+  font-weight: 800;
   color: var(--pd-primary);
-  line-height: 1;
+  line-height: 1.1;
 }
 
 .pd-price-meta {
@@ -545,8 +546,9 @@
 
 .pd-proof-card h3 {
   margin-bottom: 8px;
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 24px;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--pd-text);
 }
 
@@ -570,10 +572,11 @@
 }
 
 .pd-section-card h2 {
-  margin: 16px 0 18px;
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(28px, 3vw, 40px);
-  line-height: 1.14;
+  margin: 14px 0 16px;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(24px, 2.5vw, 32px);
+  font-weight: 700;
+  line-height: 1.25;
   color: var(--pd-text);
 }
 
@@ -639,8 +642,9 @@
 
 .pd-result-card h3 {
   margin-bottom: 8px;
-  font-size: 20px;
-  font-family: "Playfair Display", Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--pd-text);
 }
 
@@ -689,8 +693,9 @@
 }
 
 .pd-state h2 {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 28px;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .pd-state p {
@@ -763,7 +768,7 @@
   font-size: 20px;
   font-weight: 800;
   color: var(--pd-primary);
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .pd-bottom-btns {
@@ -949,8 +954,9 @@
 }
 
 .pd-reviews-header h2 {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(28px, 4vw, 40px);
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
   color: var(--pd-text);
   margin-top: 6px;
 }
@@ -966,9 +972,9 @@
 }
 
 .pd-score-big {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 42px;
-  font-weight: 900;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 40px;
+  font-weight: 800;
   color: var(--pd-primary);
   line-height: 1;
 }
@@ -1004,8 +1010,8 @@
 }
 
 .pd-review-stat-item strong {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 28px;
+  font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 26px;
   font-weight: 800;
   color: #1b4332;
 }
