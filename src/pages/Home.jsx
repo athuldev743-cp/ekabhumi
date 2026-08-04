@@ -6,6 +6,7 @@ import "./Home.css";
 import { fetchProducts, passiveWarmup } from "../api/publicAPI";
 import { googleLogin, logout, hasSession, autoRefreshToken } from "../api/authAPI";
 import ProductSection from "./ProductSection";
+import StickyAddToCartBar from "../components/StickyAddToCartBar";
 
 const About = lazy(() => import("./About"));
 const Blog = lazy(() => import("./Blog"));
@@ -42,6 +43,7 @@ const Avatar = React.memo(({ picture, name, initial }) => {
 
 const Home = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -250,8 +252,24 @@ const Home = () => {
   }, [loadData]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      setScrolled(scrollY > 24);
+
+      const footerEl = document.querySelector("footer") || document.getElementById("contact");
+      let isNearFooter = false;
+      if (footerEl) {
+        const rect = footerEl.getBoundingClientRect();
+        isNearFooter = rect.top <= window.innerHeight + 20;
+      } else {
+        isNearFooter = (window.innerHeight + scrollY) >= (document.documentElement.scrollHeight - 300);
+      }
+
+      setShowStickyBar(scrollY > 350 && !isNearFooter);
+    };
+
     window.addEventListener("scroll", onScroll);
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -563,6 +581,15 @@ const Home = () => {
         <section id="blog"><Blog /></section>
         <section id="contact"><Footer /></section>
       </Suspense>
+
+      {heroHighlightProduct && (
+        <StickyAddToCartBar
+          product={heroHighlightProduct}
+          visible={showStickyBar}
+          onViewProduct={(p) => navigate(`/products/${p.id}`)}
+          onBuyNow={(p) => navigate(`/products/${p.id}`)}
+        />
+      )}
     </div>
   );
 };

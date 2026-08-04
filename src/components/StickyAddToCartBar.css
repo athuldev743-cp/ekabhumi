@@ -1,0 +1,306 @@
+.sticky-cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(27, 67, 50, 0.12);
+  box-shadow: 0 -10px 36px rgba(27, 67, 50, 0.1);
+  padding: 18px 32px;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.sticky-cart-bar.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sticky-cart-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Product Info (Left side) */
+.sticky-cart-product {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+  cursor: pointer;
+}
+
+.sticky-cart-thumb-wrap {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f7f3ec;
+  border: 1px solid rgba(27, 67, 50, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(27, 67, 50, 0.05);
+}
+
+.sticky-cart-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+}
+
+.sticky-cart-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.sticky-cart-name {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #173326;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 580px;
+  line-height: 1.35;
+}
+
+.sticky-cart-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sticky-cart-save-tag {
+  background: rgba(201, 152, 58, 0.16);
+  color: #93691a;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sticky-cart-price-single {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5a6a61;
+}
+
+/* Action Controls (Right side) */
+.sticky-cart-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Quantity stepper matching site style */
+.sticky-cart-qty {
+  display: flex;
+  align-items: center;
+  background: rgba(247, 243, 236, 0.94);
+  border-radius: 999px;
+  padding: 4px;
+  border: 1px solid rgba(27, 67, 50, 0.12);
+}
+
+.sticky-qty-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: #1b4332;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 5px rgba(27, 67, 50, 0.08);
+}
+
+.sticky-qty-btn:hover:not(:disabled) {
+  background: #f7f3ec;
+  transform: scale(1.06);
+}
+
+.sticky-qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.sticky-qty-val {
+  min-width: 32px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #173326;
+}
+
+/* Buttons matching site theme */
+.sticky-cart-btn {
+  height: 54px;
+  padding: 0 30px;
+  border-radius: 999px;
+  border: none;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  letter-spacing: 0.02em;
+}
+
+.sticky-cart-btn--buy {
+  background: rgba(247, 243, 236, 0.94);
+  color: #1b4332;
+  border: 1px solid rgba(27, 67, 50, 0.18);
+}
+
+.sticky-cart-btn--buy:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(27, 67, 50, 0.12);
+}
+
+/* Brand Deep Forest Green Add to Cart Button */
+.sticky-cart-btn--add {
+  background: #1b4332;
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(27, 67, 50, 0.24);
+}
+
+.sticky-cart-btn--add:hover:not(:disabled) {
+  background: #2d6a4f;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(27, 67, 50, 0.3);
+}
+
+.sticky-cart-btn:disabled {
+  background: #c5cfc9;
+  color: #6a7a72;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Floating Confirmation Toast Notification */
+.sticky-cart-toast {
+  position: fixed;
+  bottom: 104px;
+  right: 28px;
+  z-index: 10000;
+  background: #1b4332;
+  color: #ffffff;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 14px 36px rgba(27, 67, 50, 0.28);
+  animation: stickyToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sticky-cart-toast-icon {
+  background: #c9983a;
+  color: #173326;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@keyframes stickyToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .sticky-cart-bar {
+    padding: 14px 16px;
+  }
+
+  .sticky-cart-thumb-wrap {
+    width: 52px;
+    height: 52px;
+  }
+
+  .sticky-cart-name {
+    font-size: 14px;
+    max-width: 180px;
+  }
+
+  .sticky-cart-meta {
+    display: none;
+  }
+
+  .sticky-cart-btn {
+    height: 48px;
+    padding: 0 20px;
+    font-size: 14px;
+  }
+
+  .sticky-cart-qty {
+    display: none;
+  }
+
+  .sticky-cart-btn--buy {
+    display: none;
+  }
+
+  .sticky-cart-toast {
+    bottom: 92px;
+    right: 16px;
+    font-size: 13px;
+    padding: 12px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sticky-cart-name {
+    max-width: 130px;
+  }
+  
+  .sticky-cart-btn--add {
+    width: 100%;
+  }
+}
