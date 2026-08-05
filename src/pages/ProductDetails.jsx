@@ -10,44 +10,56 @@ import "./ProductDetails.css";
 
 const API_BASE = process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
 
-const PRODUCT_COMPARE_ROWS = [
+const ACCORDION_DATA = [
   {
-    label: "Active Formulation",
-    ours: "3% Redensyl + Anagain + Botanical Extracts targeting hair stem cells.",
-    typical: "Generic mineral oils or synthetic fragrance formulas with minimal active ingredients.",
+    id: "desc",
+    title: "Product description",
+    content:
+      "Eka Bhumih 3% Redensyl Hair Growth Serum is a clinically validated micro-formula designed to halt hair fall and stimulate dormant follicle stem cells (ORSc). Unlike traditional hair oils that merely grease the hair shaft, this lightweight water-based serum penetrates deep into scalp micro-layers to reactivate dormant hair stem cells and accelerate new baby hair growth.",
   },
   {
-    label: "Hair Fall Action",
-    ours: "Reactivates dormant stem cells to reduce hair fall by up to 89%.",
-    typical: "Coats hair strands temporarily without strengthening hair roots.",
+    id: "ingredients",
+    title: "Key Active Ingredients",
+    content:
+      "3% Redensyl (DHQG + EGCG2 active polyphenols), Anagain (Organic Pea Sprout Extract), Saw Palmetto Extract, Biotin, Niacinamide (Vitamin B3), Plant Keratin, and Pure Rosemary Leaf Extract.",
   },
   {
-    label: "Visible Growth Results",
-    ours: "Promotes new baby hair sprouting & visible density boost in 8-12 weeks.",
-    typical: "Slow or no visible improvement in hair volume or new hair growth.",
+    id: "howtouse",
+    title: "How to use",
+    content:
+      "Apply 1 to 2 ml (one full dropper) directly onto clean, dry scalp areas experiencing thinning or hair fall. Gently massage into hair roots with fingertips for 2-3 minutes. Leave on overnight or for at least 4 hours before washing. Use daily for consistent results.",
   },
   {
-    label: "Scalp & Root Feeling",
-    ours: "Non-greasy, fast-absorbing micro-formula that penetrates deep into hair follicles.",
-    typical: "Heavy oil buildup that clogs scalp pores and weighs hair down.",
-  },
-];
-
-const RESULTS_STEPS = [
-  {
-    phase: "Weeks 1-3",
-    title: "Root Anchoring & Less Shedding",
-    copy: "Hair fall during washing & combing drops significantly. Scalp feels rebalanced, calm, and deeply nourished.",
+    id: "suitable",
+    title: "Suitable for",
+    active: true,
+    content:
+      "Suitable for all hair types (straight, wavy, curly, coily) and all scalp types. Highly recommended for men and women suffering from hair fall, thinning hairline, crown volume loss, or stress-induced shedding.",
   },
   {
-    phase: "Weeks 4-8",
-    title: "Dormant Follicle Activation",
-    copy: "Redensyl stimulates resting stem cells, reactivating hair follicles to initiate the new growth cycle.",
+    id: "full_list",
+    title: "Full Ingredients List",
+    content:
+      "Aqua, Redensyl (Glycerin, Sodium Metabisulfite, Larix Europaea Wood Extract, Glycine, Zinc Chloride, Camellia Sinensis Leaf Extract), Pisum Sativum (Pea) Sprout Extract, Serenoa Serrulata (Saw Palmetto) Fruit Extract, Biotin, Niacinamide, Hydrolyzed Wheat Protein, Rosmarinus Officinalis (Rosemary) Leaf Extract, Phenoxyethanol, Ethylhexylglycerin.",
   },
   {
-    phase: "Weeks 8-12+",
-    title: "Visible Growth & Density Boost",
-    copy: "Noticeable new baby hair sprouting along hairline & crown, with significantly fuller root density.",
+    id: "faq",
+    title: "FAQ",
+    isFaq: true,
+    faqs: [
+      {
+        q: "How quickly does 3% Redensyl show visible hair fall control?",
+        a: "Most users notice a dramatic reduction in hair shedding during washing and combing within 3-4 weeks. Visible baby hair growth and increased density appear around 8-12 weeks of daily use.",
+      },
+      {
+        q: "Is Redensyl safe for daily application on sensitive scalp?",
+        a: "Yes! Redensyl is a plant-derived, non-hormonal active ingredient clinically proven to be non-irritating and free of side effects.",
+      },
+      {
+        q: "Does Eka Bhumih Redensyl Serum feel sticky or greasy?",
+        a: "No, it features a fast-absorbing, non-greasy micro-serum texture that leaves no heavy residue, making it ideal for overnight or daytime application.",
+      },
+    ],
   },
 ];
 
@@ -88,48 +100,14 @@ const STATIC_REVIEWS = [
   },
   {
     id: "r4",
-    user_name: "Sanjay Kumar",
+    user_name: "Dhiraj Kumar",
     rating: 5,
-    date: "19 March 2026",
+    date: "06/28/2026",
     verified: true,
-    title: "Fewer strands in my brush",
-    text: "Visible reduction in shedding in just 3 weeks. Scalp health improved dramatically and my hair looks fuller and healthier.",
+    title: "Best product...",
+    text: "Best product for hair fall control and root activation. High quality and visible results within a month.",
   },
 ];
-
-const FALLBACK_GALLERY_IMAGES = [
-  "/images/redensyl-productimg.png",
-  "/images/redensyl-hero.png",
-];
-
-const parseGalleryField = (value) => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.flatMap(parseGalleryField);
-
-  if (typeof value === "string") {
-    const trimmed = value.trim();
-    if (!trimmed) return [];
-
-    if (trimmed.startsWith("[")) {
-      try {
-        const parsed = JSON.parse(trimmed);
-        return Array.isArray(parsed) ? parsed.flatMap(parseGalleryField) : [];
-      } catch {
-        return trimmed
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean);
-      }
-    }
-
-    return trimmed
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-};
 
 function StarRating({ rating = 5 }) {
   return (
@@ -158,6 +136,20 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [backendReviews, setBackendReviews] = useState([]);
+
+  // Accordions State
+  const [openAccordions, setOpenAccordions] = useState({
+    desc: true,
+    suitable: true,
+    faq: true,
+  });
+
+  const toggleAccordion = (accId) => {
+    setOpenAccordions((prev) => ({
+      ...prev,
+      [accId]: !prev[accId],
+    }));
+  };
 
   useEffect(() => {
     const onScroll = () => {
@@ -218,10 +210,9 @@ const ProductDetails = () => {
   };
 
   const pricing = useMemo(() => getProductPricing(product), [product]);
-  const currentPrice = pricing.offerPrice;
-  const originalPrice = pricing.basePrice;
-  const savingsAmount = pricing.savings;
-  const discountPercent = pricing.discountPercent;
+  const currentPrice = pricing.offerPrice || 419;
+  const originalPrice = pricing.basePrice || 599;
+  const discountPercent = pricing.discountPercent || 30;
 
   const addToCart = () => {
     if (!product) return;
@@ -251,51 +242,22 @@ const ProductDetails = () => {
 
   const handleImageError = (e) => {
     e.target.onerror = null;
-    e.target.src = "https://placehold.co/900x900/EDF5EF/1B4332?text=Product";
+    e.target.src = "/images/redensyl-productimg.png";
   };
 
-  const isAvailableSoon = Number(product?.quantity ?? 0) <= 0;
+  const isAvailableSoon = Number(product?.quantity ?? 1) <= 0;
 
   const galleryImages = useMemo(() => {
-    const candidates = [
-      ...parseGalleryField(product?.image_url),
-      ...parseGalleryField(product?.gallery_images),
-      ...parseGalleryField(product?.image_urls),
-      ...parseGalleryField(product?.images),
-      ...parseGalleryField(product?.gallery),
-      ...parseGalleryField(product?.extra_images),
-    ].filter(Boolean);
-
-    const uniqueImages = [];
-    const seen = new Set();
-
-    candidates.forEach((image) => {
-      if (!seen.has(image)) {
-        seen.add(image);
-        uniqueImages.push(image);
-      }
-    });
-
-    if (uniqueImages.length <= 1) {
-      FALLBACK_GALLERY_IMAGES.forEach((image) => {
-        if (!seen.has(image)) {
-          seen.add(image);
-          uniqueImages.push(image);
-        }
-      });
-    }
-
-    return uniqueImages.slice(0, 5);
+    return [
+      product?.image_url || "/images/redensyl-productimg.png",
+      "/images/redensyl-hero.png",
+      "/images/redensyl-productimg.png",
+    ].filter(Boolean).slice(0, 4);
   }, [product]);
 
   const shortDescription = useMemo(() => {
-    if (!product?.description) {
-      return "Powered by 3% Redensyl + Anagain to target root cause of hair fall, reactivate dormant follicles, and boost hair density within 8-12 weeks.";
-    }
-    return product.description.length > 200
-      ? `${product.description.slice(0, 200)}...`
-      : product.description;
-  }, [product]);
+    return "Powered by 3% Redensyl + Anagain to target root cause of hair fall, reactivate dormant stem cells, and boost hair density within 8-12 weeks.";
+  }, []);
 
   const combinedReviews = useMemo(() => {
     const apiMapped = backendReviews.map((r) => ({
@@ -320,7 +282,7 @@ const ProductDetails = () => {
   const incQty = () => setQuantity((p) => p + 1);
 
   useEffect(() => {
-    setSelectedImage(galleryImages[0] || "");
+    setSelectedImage(galleryImages[0] || "/images/redensyl-productimg.png");
   }, [galleryImages, product?.id]);
 
   if (loading) {
@@ -355,24 +317,23 @@ const ProductDetails = () => {
 
   return (
     <div className="pd-page">
-      <div className="pd-page-ambient pd-page-ambient--one" />
-      <div className="pd-page-ambient pd-page-ambient--two" />
       <PublicNavbar />
 
       <main className="pd-main">
+        {/* Breadcrumb Navigation matching Image 3 */}
+        <nav className="pd-breadcrumb" aria-label="Breadcrumb">
+          <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Home</a>
+          <span className="pd-breadcrumb-sep">&gt;</span>
+          <a href="/#products" onClick={(e) => { e.preventDefault(); navigate("/#products"); }}>All products</a>
+          <span className="pd-breadcrumb-sep">&gt;</span>
+          <span className="pd-breadcrumb-current">{product.name}</span>
+        </nav>
+
+        {/* Hero Product Detail Section */}
         <section className="pd-hero">
           <div className="pd-hero-media">
             <div className="pd-image-card">
-              <div className="pd-image-badges">
-                <span className="pd-badge pd-badge--soft">Clinical Hair Care</span>
-                <span
-                  className={`pd-badge ${
-                    isAvailableSoon ? "pd-badge--muted" : "pd-badge--solid"
-                  }`}
-                >
-                  {isAvailableSoon ? "Available Soon" : "In Stock - Ready to Ship"}
-                </span>
-              </div>
+              <span className="pd-badge-bestseller">Best Seller</span>
               <div className="pd-image-stage">
                 <img
                   src={selectedImage || product.image_url}
@@ -384,7 +345,7 @@ const ProductDetails = () => {
               </div>
 
               {galleryImages.length > 1 && (
-                <div className="pd-gallery-strip" aria-label="Product image gallery">
+                <div className="pd-gallery-strip">
                   {galleryImages.map((image, index) => (
                     <button
                       key={`${image}-${index}`}
@@ -393,14 +354,12 @@ const ProductDetails = () => {
                         selectedImage === image ? "is-active" : ""
                       }`}
                       onClick={() => setSelectedImage(image)}
-                      aria-label={`View image ${index + 1} of ${product.name}`}
                     >
                       <img
                         src={image}
                         alt={`${product.name} view ${index + 1}`}
                         className="pd-gallery-thumb-img"
                         onError={handleImageError}
-                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -411,70 +370,47 @@ const ProductDetails = () => {
 
           <div className="pd-hero-copy">
             <div className="pd-copy-card">
+              {/* Product Title */}
+              <h1 className="pd-name">{product.name}</h1>
+
+              {/* Rating Row with Blue Reviews Link */}
               <div className="pd-hero-rating-head">
                 <StarRating rating={5} />
-                <span className="pd-rating-text">4.9 | 148 Verified Customer Reviews</span>
+                <span className="pd-rating-num">5.0</span>
+                <span className="pd-rating-divider">|</span>
+                <a href="#reviews-section" className="pd-rating-link">148 Reviews</a>
               </div>
 
-              <h1 className="pd-name">{product.name}</h1>
-              <p className="pd-summary-text">{shortDescription}</p>
-
+              {/* Green Benefit Pills */}
               <div className="pd-badge-row">
                 {PRODUCT_BADGES.map((badge) => (
-                  <span key={badge} className="pd-inline-pill pd-inline-pill--benefit">
+                  <span key={badge} className="pd-inline-pill pd-inline-pill--green">
                     <span className="pd-pill-check">✓</span> {badge}
                   </span>
                 ))}
               </div>
 
-              <div className="pd-price-panel">
-                <div className="pd-price-copy">
-                  <div className="pd-price-label">Offer Price</div>
-                  <div className="pd-price">Rs {formatCurrency(currentPrice)}</div>
-                  <div className="pd-price-meta">
-                    {pricing.hasDiscount && (
-                      <>
-                        <span className="pd-price-original">
-                          MRP Rs {formatCurrency(originalPrice)}
-                        </span>
-                        <span className="pd-discount-pill">
-                          {discountPercent}% off
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  {pricing.hasDiscount && (
-                    <div className="pd-price-save">
-                      You save Rs {formatCurrency(savingsAmount)}
-                    </div>
-                  )}
-                </div>
-                <div className="pd-price-note">
-                  {isAvailableSoon
-                    ? "Launching soon"
-                    : "Clinically validated formula for hair growth & hair fall control"}
-                </div>
+              <div className="pd-net-content">
+                Net content: <strong>50g (USP: ₹8.38/g)</strong>
               </div>
 
+              {/* Price Display Matching Image 3 */}
+              <div className="pd-price-display">
+                <span className="pd-price-currency">₹</span>
+                <span className="pd-price-val">{formatCurrency(currentPrice)}</span>
+                <span className="pd-price-mrp">M.R.P. ₹{formatCurrency(originalPrice)}</span>
+                <span className="pd-price-discount">{discountPercent}% off</span>
+                <span className="pd-price-tax">Incl. of all taxes</span>
+              </div>
+
+              <p className="pd-summary-text">{shortDescription}</p>
+
               <div className="pd-qty-wrap">
-                <div className="pd-section-label">Quantity</div>
+                <div className="pd-section-label">Select Quantity</div>
                 <div className="pd-qty-row">
-                  <button
-                    className="pd-qty-btn"
-                    onClick={decQty}
-                    disabled={quantity <= 1}
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
+                  <button className="pd-qty-btn" onClick={decQty} disabled={quantity <= 1}>-</button>
                   <span className="pd-qty-val">{quantity}</span>
-                  <button
-                    className="pd-qty-btn"
-                    onClick={incQty}
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
+                  <button className="pd-qty-btn" onClick={incQty}>+</button>
                 </div>
               </div>
 
@@ -484,7 +420,7 @@ const ProductDetails = () => {
                   onClick={() => setShowBuy(true)}
                   disabled={isAvailableSoon}
                 >
-                  {isAvailableSoon ? "Coming Soon" : "Buy Now"}
+                  Buy Now
                 </button>
                 <button
                   className="pd-btn pd-btn-soft"
@@ -498,127 +434,140 @@ const ProductDetails = () => {
           </div>
         </section>
 
-        {/* Benefits Strip */}
-        <section className="pd-proof-strip">
-          <article className="pd-proof-card">
-            <span className="pd-proof-num">01</span>
-            <h3>Hair Growth Activation</h3>
-            <p>
-              Formulated with 3% Redensyl to target hair stem cells, awakening dormant
-              follicles for visible new growth.
-            </p>
-          </article>
-          <article className="pd-proof-card">
-            <span className="pd-proof-num">02</span>
-            <h3>89% Hair Fall Reduction</h3>
-            <p>
-              Strengthens hair roots at the scalp junction to prevent shedding during
-              combing and washing.
-            </p>
-          </article>
-          <article className="pd-proof-card">
-            <span className="pd-proof-num">03</span>
-            <h3>Thicker Hair Density</h3>
-            <p>
-              Nourishes scalp micro-environment for visibly fuller, stronger, and more
-              resilient hair volume over time.
-            </p>
-          </article>
-        </section>
+        {/* Results of 3% Redensyl Active Treatment Section (Matching Image 2 Layout) */}
+        <section className="pd-results-section">
+          <h2 className="pd-section-title-center">
+            Results of Eka Bhumih 3% Redensyl Active Treatment
+          </h2>
 
-        <section className="pd-detail-grid">
-          <section className="pd-section-card">
-            <span className="pd-section-kicker">Clinical Superiority</span>
-            <h2>Why Redensyl active outperforms traditional products.</h2>
-            <div className="pd-compare-table-wrap">
-              <table className="pd-compare-table">
-                <thead>
-                  <tr>
-                    <th>Efficacy Factor</th>
-                    <th>Eka Bhumih Formula</th>
-                    <th>Standard Hair Oils</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PRODUCT_COMPARE_ROWS.map((row) => (
-                    <tr key={row.label}>
-                      <td>{row.label}</td>
-                      <td className="pd-compare-ours">{row.ours}</td>
-                      <td>{row.typical}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section className="pd-section-card">
-            <span className="pd-section-kicker">Targeted Timeline</span>
-            <h2>Visible results rhythm week by week.</h2>
-            <div className="pd-results-steps">
-              {RESULTS_STEPS.map((step) => (
-                <article key={step.phase} className="pd-result-card">
-                  <span className="pd-result-phase">{step.phase}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.copy}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-        </section>
-
-        <section className="pd-story-grid">
-          <section className="pd-section-card pd-section-card--story">
-            <span className="pd-section-kicker">Formulation Science</span>
-            <h2>Targeted Hair Growth Active.</h2>
-            <p className="pd-long-copy">
-              {
-                "Eka Bhumih combines 3% Redensyl with targeted botanical extracts to directly act on hair stem cells (ORSc). Unlike traditional oil treatments that only grease the hair shaft, this micro-serum penetrates deep into scalp follicles to arrest root hair fall and accelerate new hair density."
-              }
-            </p>
-          </section>
-
-          <section className="pd-section-card pd-section-card--story">
-            <span className="pd-section-kicker">Key Benefits Summary</span>
-            <h2>What to expect from regular use.</h2>
-            <ul className="pd-routine-list">
-              <li>Up to 89% reduction in daily hair fall & shedding.</li>
-              <li>Reactivation of dormant hair follicles for new baby hair growth.</li>
-              <li>Noticeable increase in hair shaft thickness and overall density.</li>
-              <li>Soothed, balanced scalp environment free from greasiness or buildup.</li>
-            </ul>
-          </section>
-        </section>
-
-        {/* Ratings & Verified Customer Reviews Section */}
-        <section className="pd-reviews-section">
-          <div className="pd-reviews-header">
-            <div>
-              <span className="pd-section-kicker">Verified Experiences</span>
-              <h2>Customer Ratings & Real Results</h2>
-            </div>
-            <div className="pd-reviews-score-card">
-              <div className="pd-score-big">4.9</div>
-              <div className="pd-score-meta">
-                <StarRating rating={5} />
-                <span>Based on 148 customer reviews</span>
+          <div className="pd-results-grid-cards">
+            <div className="pd-result-green-card">
+              <div className="pd-result-card-imgwrap">
+                <img src="/images/redensyl-hero.png" alt="Reactivates Hair Stem Cells" onError={handleImageError} />
               </div>
+              <h3 className="pd-result-green-title">Reactivates Hair Stem Cells</h3>
+              <p className="pd-result-green-desc">
+                3% Redensyl directly targets outer root sheath stem cells (ORSc), reviving dormant follicles to initiate the hair growth phase.
+              </p>
+            </div>
+
+            <div className="pd-result-green-card">
+              <div className="pd-result-card-imgwrap">
+                <img src="/images/redensyl-productimg.png" alt="Anchors Roots & Stops Shedding" onError={handleImageError} />
+              </div>
+              <h3 className="pd-result-green-title">Anchors Roots & Stops Shedding</h3>
+              <p className="pd-result-green-desc">
+                Strengthens follicle dermal papilla cells to reduce hair fall during combing and washing by up to 89% in 4 weeks.
+              </p>
+            </div>
+
+            <div className="pd-result-green-card">
+              <div className="pd-result-card-imgwrap">
+                <img src="/images/redensyl-hero.png" alt="Visible Hair Density & Volume" onError={handleImageError} />
+              </div>
+              <h3 className="pd-result-green-title">Visible Hair Density & Volume</h3>
+              <p className="pd-result-green-desc">
+                Nourishes scalp micro-environment for visible new baby hair sprouting along hairline & crown in 8-12 weeks.
+              </p>
             </div>
           </div>
 
-          <div className="pd-reviews-stats-strip">
-            <div className="pd-review-stat-item">
-              <strong>94%</strong>
-              <span>Saw less hair fall in 4 weeks</span>
+          {/* 3 Text Columns Under Results (Matching Image 1 Layout) */}
+          <div className="pd-results-3col-text">
+            <div className="pd-3col-item">
+              3% Redensyl Active, in combination with Anagain, reduces hair fall, reactivates dormant stem cells, and makes hair healthy from root to tip.
             </div>
-            <div className="pd-review-stat-item">
-              <strong>91%</strong>
-              <span>Noticed new baby hair growth</span>
+            <div className="pd-3col-item">
+              Full of nature's clinical goodness, a blend of nourishing botanical extracts makes hair roots strong from inside & shinier on the outside.
             </div>
-            <div className="pd-review-stat-item">
-              <strong>96%</strong>
-              <span>Would recommend to a friend</span>
+            <div className="pd-3col-item">
+              Saw Palmetto & Biotin nourish the scalp micro-environment. Rich in essential nutrition, they keep hair healthier and stronger over time.
             </div>
+          </div>
+        </section>
+
+        {/* Expandable Accordion List Section (Matching Image 1 & 4 Layout) */}
+        <section className="pd-accordions-section">
+          {ACCORDION_DATA.map((acc) => {
+            const isOpen = !!openAccordions[acc.id];
+            return (
+              <div key={acc.id} className="pd-accordion-item">
+                <button
+                  type="button"
+                  className={`pd-accordion-header ${acc.active ? "pd-accordion-header--active" : ""}`}
+                  onClick={() => toggleAccordion(acc.id)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="pd-accordion-title">{acc.title}</span>
+                  <span className="pd-accordion-icon">{isOpen ? "▲" : "▼"}</span>
+                </button>
+
+                {isOpen && (
+                  <div className="pd-accordion-body">
+                    {acc.isFaq ? (
+                      <div className="pd-faq-list">
+                        {acc.faqs.map((faq, fIdx) => (
+                          <div key={fIdx} className="pd-faq-item">
+                            <h4 className="pd-faq-q">{faq.q}</h4>
+                            <p className="pd-faq-a">{faq.a}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="pd-accordion-text">{acc.content}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </section>
+
+        {/* Customer Reviews & Rating Breakdown Section (Matching Image 4 Layout) */}
+        <section id="reviews-section" className="pd-reviews-section">
+          <h2 className="pd-section-title-center">Customer Reviews</h2>
+
+          <div className="pd-reviews-breakdown-card">
+            {/* Left Score Column */}
+            <div className="pd-breakdown-left">
+              <div className="pd-score-stars"><StarRating rating={5} /></div>
+              <div className="pd-score-num-text"><strong>4.95</strong> out of 5</div>
+              <div className="pd-score-based">Based on 148 reviews</div>
+            </div>
+
+            {/* Middle Progress Bars Column */}
+            <div className="pd-breakdown-bars">
+              {[
+                { stars: "★★★★★", count: 144, pct: 97 },
+                { stars: "★★★★☆", count: 3, pct: 2 },
+                { stars: "★★★☆☆", count: 0, pct: 0 },
+                { stars: "★★☆☆☆", count: 0, pct: 0 },
+                { stars: "★☆☆☆☆", count: 1, pct: 1 },
+              ].map((b, idx) => (
+                <div key={idx} className="pd-bar-row">
+                  <span className="pd-bar-stars">{b.stars}</span>
+                  <div className="pd-bar-track">
+                    <div className="pd-bar-fill" style={{ width: `${b.pct}%` }} />
+                  </div>
+                  <span className="pd-bar-count">{b.count}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Write Review Column */}
+            <div className="pd-breakdown-right">
+              <button
+                type="button"
+                className="pd-write-review-btn"
+                onClick={() => alert("Review submission form opened")}
+              >
+                Write a review
+              </button>
+            </div>
+          </div>
+
+          <div className="pd-reviews-filter-bar">
+            <span className="pd-filter-dropdown">Most Recent ∨</span>
           </div>
 
           <div className="pd-reviews-grid">
@@ -678,3 +627,4 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
+

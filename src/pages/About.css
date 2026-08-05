@@ -133,7 +133,7 @@
   font-size: 13px;
   font-weight: 700;
   line-height: 1.45;
-  color: #1b4332;
+  color: #489922;
 }
 
 .about-actions {
@@ -156,20 +156,21 @@
   border: none;
   padding: 15px 28px;
   color: #fff;
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
-  box-shadow: 0 16px 36px rgba(27, 67, 50, 0.2);
+  background: #489922;
+  box-shadow: 0 16px 36px rgba(72, 153, 34, 0.28);
 }
 
 .about-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 22px 40px rgba(27, 67, 50, 0.24);
+  background: #3a7c1b;
+  box-shadow: 0 22px 40px rgba(72, 153, 34, 0.35);
 }
 
 .about-link-btn {
   padding: 14px 22px;
-  color: #1b4332;
+  color: #489922;
   background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(27, 67, 50, 0.14);
+  border: 1px solid rgba(72, 153, 34, 0.2);
 }
 
 .about-link-btn:hover {
@@ -221,9 +222,9 @@
   min-width: 118px;
   padding: 16px 18px;
   border-radius: 20px;
-  background: rgba(22, 54, 41, 0.92);
-  border: 1px solid rgba(232, 197, 102, 0.22);
-  box-shadow: 0 20px 44px rgba(14, 34, 26, 0.24);
+  background: #489922;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 44px rgba(72, 153, 34, 0.3);
   backdrop-filter: blur(8px);
 }
 

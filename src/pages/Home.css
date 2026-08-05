@@ -1,8 +1,8 @@
 :root {
   --white: #ffffff;
-  --primary: #1b4332;
-  --primary-mid: #2d6a4f;
-  --primary-light: #74a88f;
+  --primary: #489922;
+  --primary-mid: #3a7c1b;
+  --primary-light: #8cd66d;
   --gold: #c9983a;
   --cream: #f7f3ec;
   --dark: #1a1a1a;
@@ -199,9 +199,9 @@ body::before {
 }
 
 .nav-auth-btn--login {
-  background: #1b4332;
+  background: #489922;
   color: #fff;
-  border-color: #1b4332;
+  border-color: #489922;
 }
 
 .nav-auth-btn--admin {
@@ -434,7 +434,7 @@ body::before {
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #1b4332, #4d7b66);
+  background: linear-gradient(135deg, #489922, #3a7c1b);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -556,7 +556,7 @@ body::before {
   line-height: 1.1;
   letter-spacing: -0.02em;
   font-weight: 800;
-  color: #173326;
+  color: #000000;
 }
 
 .hero-sub {
@@ -592,10 +592,10 @@ body::before {
 .hero-cta-btn {
   gap: 8px;
   border: none;
-  background: #1b4332;
+  background: #489922;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 16px 34px rgba(27, 67, 50, 0.18);
+  box-shadow: 0 16px 34px rgba(72, 153, 34, 0.28);
 }
 
 .hero-cta-btn:hover,
@@ -789,7 +789,7 @@ body::before {
   font-family: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: clamp(30px, 3.5vw, 40px);
   font-weight: 800;
-  color: #1b4332;
+  color: #489922;
   line-height: 1;
   letter-spacing: -0.02em;
 }

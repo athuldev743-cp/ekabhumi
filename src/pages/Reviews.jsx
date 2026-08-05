@@ -162,8 +162,8 @@ export default function Reviews({ searchQuery = "" }) {
           {filtered.map((r) => (
             <div key={r.id} style={{
               background: "#fff",
-              border: `1px solid ${r.approved ? "#d1fae5" : "#fef3c7"}`,
-              borderLeft: `4px solid ${r.approved ? "#10b981" : "#f59e0b"}`,
+              border: `1px solid ${r.approved ? "#eef7ed" : "#fef3c7"}`,
+              borderLeft: `4px solid ${r.approved ? "#489922" : "#f59e0b"}`,
               borderRadius: 14,
               padding: "16px 18px",
             }}>
@@ -172,10 +172,10 @@ export default function Reviews({ searchQuery = "" }) {
                 <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
                   <div style={{
                     width: 38, height: 38, borderRadius: "50%", flexShrink: 0,
-                    background: r.approved ? "#d1fae5" : "#fef3c7",
+                    background: r.approved ? "#eef7ed" : "#fef3c7",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontWeight: 800, fontSize: 15,
-                    color: r.approved ? "#059669" : "#d97706",
+                    color: r.approved ? "#489922" : "#d97706",
                   }}>
                     {(r.user_name?.[0] || "?").toUpperCase()}
                   </div>
@@ -191,8 +191,8 @@ export default function Reviews({ searchQuery = "" }) {
                   <StarDisplay rating={r.rating} />
                   <span style={{
                     fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 999,
-                    background: r.approved ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",
-                    color: r.approved ? "#059669" : "#d97706",
+                    background: r.approved ? "rgba(72,153,34,0.12)" : "rgba(245,158,11,0.1)",
+                    color: r.approved ? "#489922" : "#d97706",
                   }}>
                     {r.approved ? "✓ Approved" : "⏳ Pending"}
                   </span>
@@ -218,7 +218,7 @@ export default function Reviews({ searchQuery = "" }) {
                       type="button"
                       onClick={() => approve(r.id)}
                       style={{
-                        background: "#10b981", color: "#fff", border: "none",
+                        background: "#489922", color: "#fff", border: "none",
                         borderRadius: 8, padding: "6px 14px",
                         fontSize: 12, fontWeight: 700, cursor: "pointer",
                       }}
