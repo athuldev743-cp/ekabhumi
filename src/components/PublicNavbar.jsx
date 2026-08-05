@@ -16,6 +16,24 @@ const PublicNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 992);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+
+  const syncCartCount = () => {
+    try {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const total = cart.reduce((acc, item) => acc + (Number(item.qty) || 1), 0);
+      setCartCount(total);
+    } catch {
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    syncCartCount();
+    window.addEventListener("cart:updated", syncCartCount);
+    return () => window.removeEventListener("cart:updated", syncCartCount);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -65,8 +83,19 @@ const PublicNavbar = () => {
     navigate(`/${hash}`);
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      handleNavigate("#products");
+    }
+  };
+
   return (
     <>
+      <div className="public-announcement-bar">
+        <span>Special Launch Offer | Free Shipping on All Redensyl Orders</span>
+      </div>
+
       <nav className={`public-navbar ${scrolled ? "scrolled" : ""}`}>
         <div className="public-nav-brand-group">
           <button
@@ -79,6 +108,17 @@ const PublicNavbar = () => {
           </button>
         </div>
 
+        {/* Search input bar matching reference design */}
+        <form className="public-nav-search public-desktop-only" onSubmit={handleSearchSubmit}>
+          <span className="public-search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search For Redensyl Hair Care..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </form>
+
         <div className="public-nav-links public-desktop-only">
           {NAV_LINKS.map((link) => (
             <button key={link.hash} type="button" onClick={() => handleNavigate(link.hash)}>
@@ -88,8 +128,13 @@ const PublicNavbar = () => {
         </div>
 
         <div className="public-nav-actions">
-          <Link to="/account" className="public-nav-account public-desktop-only">
-            My Account
+          <Link to="/account" className="public-nav-user-link">
+            <span className="public-user-icon">👤</span> Login
+          </Link>
+
+          <Link to="/account" className="public-nav-cart-link" aria-label="Cart">
+            <span className="public-cart-icon">🛒</span>
+            <span className="public-cart-badge">{cartCount}</span>
           </Link>
 
           {isMobile && (

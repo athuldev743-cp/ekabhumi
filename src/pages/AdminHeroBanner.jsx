@@ -101,7 +101,7 @@ function AdminHeroBanner({ setError }) {
     <div>
       <h3 style={{ marginBottom: 20, color: "#1a1a1a" }}>Hero Banner</h3>
       {success && (
-        <div style={{ background: "#e8f5e9", color: "#2e7d32", padding: "10px 16px", borderRadius: 8, marginBottom: 16, fontWeight: 600 }}>
+        <div style={{ background: "#eef7ed", color: "#489922", padding: "10px 16px", borderRadius: 8, marginBottom: 16, fontWeight: 600 }}>
           ✅ {success}
         </div>
       )}

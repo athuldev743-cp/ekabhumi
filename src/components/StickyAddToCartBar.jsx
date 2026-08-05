@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import "./StickyAddToCartBar.css";
 import { formatCurrency, getProductPricing } from "../utils/productPricing";
 
 const API_BASE = process.env.REACT_APP_API_URL || "https://ekb-backend.onrender.com";
 
 const resolveImg = (product) => {
-  if (!product?.image_url) return "https://placehold.co/100x100/EDF5EF/1B4332?text=Product";
+  if (!product?.image_url) return "/images/redensyl-productimg.png";
   return product.image_url.startsWith("http") ? product.image_url : `${API_BASE}${product.image_url}`;
 };
 
@@ -19,12 +20,13 @@ const StickyAddToCartBar = ({
   onViewProduct,
   visible = true,
 }) => {
+  const navigate = useNavigate();
   const [toastMessage, setToastMessage] = useState("");
 
   const pricing = useMemo(() => getProductPricing(product), [product]);
-  const unitPrice = pricing.offerPrice || 0;
+  const unitPrice = pricing.offerPrice || 419;
   const totalPrice = unitPrice * quantity;
-  const isAvailableSoon = Number(product?.quantity ?? 0) <= 0;
+  const isAvailableSoon = Number(product?.quantity ?? 1) <= 0;
 
   if (!product || !visible) return null;
 
@@ -35,7 +37,6 @@ const StickyAddToCartBar = ({
     if (onAddToCart) {
       onAddToCart(product, quantity);
     } else {
-      // Default fallback cart implementation
       try {
         const cart = JSON.parse(localStorage.getItem("cart") || "[]");
         const existingIndex = cart.findIndex((x) => String(x.id) === String(product.id));
@@ -69,6 +70,8 @@ const StickyAddToCartBar = ({
     if (isAvailableSoon) return;
     if (onBuyNow) {
       onBuyNow(product, quantity);
+    } else if (product?.id) {
+      navigate(`/product/${product.id}`);
     }
   };
 
@@ -86,9 +89,9 @@ const StickyAddToCartBar = ({
           {/* Left product details */}
           <div
             className="sticky-cart-product"
-            onClick={onViewProduct ? () => onViewProduct(product) : undefined}
-            role={onViewProduct ? "button" : undefined}
-            tabIndex={onViewProduct ? 0 : undefined}
+            onClick={onViewProduct ? () => onViewProduct(product) : () => navigate(`/product/${product.id}`)}
+            role="button"
+            tabIndex={0}
           >
             <div className="sticky-cart-thumb-wrap">
               <img
@@ -97,64 +100,29 @@ const StickyAddToCartBar = ({
                 className="sticky-cart-thumb"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = "https://placehold.co/100x100/EDF5EF/1B4332?text=Product";
+                  e.currentTarget.src = "/images/redensyl-productimg.png";
                 }}
               />
             </div>
             <div className="sticky-cart-info">
               <h4 className="sticky-cart-name">{product.name}</h4>
-              <div className="sticky-cart-meta">
-                {pricing.hasDiscount && (
-                  <span className="sticky-cart-save-tag">
-                    {pricing.discountPercent}% OFF
-                  </span>
-                )}
-                <span className="sticky-cart-price-single">
-                  ₹{formatCurrency(unitPrice)}
-                </span>
-              </div>
             </div>
           </div>
 
-          {/* Right action controls */}
+          {/* Right action controls: 2 buttons Buy Now and Add to Cart */}
           <div className="sticky-cart-actions">
-            {/* Optional quantity stepper if handlers provided */}
-            {onDecQty && onIncQty && (
-              <div className="sticky-cart-qty">
-                <button
-                  type="button"
-                  className="sticky-qty-btn"
-                  onClick={onDecQty}
-                  disabled={quantity <= 1}
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <span className="sticky-qty-val">{quantity}</span>
-                <button
-                  type="button"
-                  className="sticky-qty-btn"
-                  onClick={onIncQty}
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
-            )}
-
-            {onBuyNow && !isAvailableSoon && (
-              <button
-                type="button"
-                className="sticky-cart-btn sticky-cart-btn--buy"
-                onClick={handleBuyNow}
-              >
-                Buy Now
-              </button>
-            )}
+            <button
+              type="button"
+              className="sticky-cart-btn sticky-cart-btn--buy"
+              onClick={handleBuyNow}
+              disabled={isAvailableSoon}
+            >
+              Buy Now
+            </button>
 
             <button
               type="button"
-              className="sticky-cart-btn sticky-cart-btn--add"
+              className="sticky-cart-btn sticky-cart-btn--cyan"
               onClick={handleAddToCart}
               disabled={isAvailableSoon}
             >

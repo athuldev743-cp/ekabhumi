@@ -1,8 +1,6 @@
 .footer {
   position: relative;
-  background:
-    radial-gradient(circle at top center, rgba(201, 152, 58, 0.12), transparent 28%),
-    linear-gradient(180deg, #102219 0%, #152c22 48%, #0d1a14 100%);
+  background: linear-gradient(180deg, #489922 0%, #3a7c1b 100%);
   color: #fff;
   font-family: "DM Sans", Arial, sans-serif;
   overflow: hidden;
@@ -73,10 +71,11 @@
 }
 
 .footer-copy {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 16px;
-  font-style: italic;
-  letter-spacing: 0.02em;
+  font-family: "DM Sans", "Inter", sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   color: rgba(255, 248, 232, 0.88);
 }
 
